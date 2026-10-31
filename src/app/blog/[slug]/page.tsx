@@ -329,8 +329,39 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               <AdUnit placementId="article-after-conclusion" />
             </div>
 
+            {/* Author Profile / About Me Box (No Photo, Clean Typography) */}
+            <div className="mt-10 p-6 sm:p-8 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-md space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-lg font-black text-white">Ketanboina Venkat Shrinivas</h4>
+                  <span className="text-[11px] px-2.5 py-0.5 bg-brand-500/20 text-brand-300 font-bold rounded-full border border-brand-500/30">
+                    Founder & Lead Architect
+                  </span>
+                </div>
+                <span className="text-xs text-amber-400 font-bold">
+                  Designed & Developed by Srinoos
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Full-stack software engineer based in Pune, India. Founder and developer behind Srinoos. Author of deep, actionable blueprints on Artificial Intelligence, modern web engineering, organic SEO, and digital monetization.
+              </p>
+              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
+                <Link href="/about" className="text-brand-400 hover:text-brand-300 underline transition">
+                  About Me &rarr;
+                </Link>
+                <span className="text-slate-600">•</span>
+                <a href="https://quiet-pony-c4f26b.netlify.app" target="_blank" rel="noopener noreferrer" className="text-slate-200 hover:text-white underline transition">
+                  Live Portfolio
+                </a>
+                <span className="text-slate-600">•</span>
+                <Link href="/contact" className="text-slate-300 hover:text-white underline transition">
+                  Contact Founder
+                </Link>
+              </div>
+            </div>
+
             {/* Affiliate & Editorial Disclosure Note */}
-            <div className="mt-10 p-5 bg-blue-50/60 rounded-xl border border-blue-200/60 text-xs text-slate-600 leading-relaxed">
+            <div className="mt-6 p-5 bg-blue-50/60 rounded-xl border border-blue-200/60 text-xs text-slate-600 leading-relaxed">
               <strong className="text-slate-900">Srinoos Editorial Disclosure:</strong> Our articles may contain affiliate partner links. If you make a purchase through these links, we may earn a referral commission at zero extra cost to you. We strictly review and verify recommended services. Read our full{' '}
               <Link href="/affiliate-disclosure" className="text-brand-600 underline font-medium">
                 Affiliate Disclosure

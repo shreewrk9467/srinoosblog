@@ -42,11 +42,18 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-slate-200/80 p-8 sm:p-10 space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-black text-2xl mx-auto shadow-lg">
-            S
+        <div className="text-center space-y-3">
+          <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-slate-700 shadow-2xl mx-auto bg-slate-950 flex-shrink-0 p-1">
+            <img
+              src="/images/srinoos-s-icon.jpg"
+              alt="Srinoos Logo"
+              className="w-full h-full object-cover rounded-2xl"
+            />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Srinoos Admin Suite</h1>
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Srinoos Admin Suite</h1>
+            <span className="text-[11px] font-bold text-brand-600 uppercase tracking-widest block">Technology Collective</span>
+          </div>
           <p className="text-xs text-slate-500">
             Sign in to manage blogs, AdSense slots, affiliate links, and SEO
           </p>

@@ -99,6 +99,14 @@ export interface WebsiteSettings {
   twitter_url?: string;
   linkedin_url?: string;
   youtube_url?: string;
+  github_url?: string;
+  portfolio_url?: string;
+  phone?: string;
+  location?: string;
+  founder_name?: string;
+  founder_title?: string;
+  about_me_bio?: string;
+  founder_avatar?: string;
 }
 
 export interface Comment {

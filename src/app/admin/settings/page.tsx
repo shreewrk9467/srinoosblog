@@ -309,6 +309,22 @@ export default function AdminSettingsPage() {
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            {/* Logo Preview */}
+            <div className="sm:col-span-2 flex items-center gap-4 p-4 bg-slate-900 text-white rounded-2xl border border-slate-800">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-950 flex-shrink-0 shadow-lg p-0.5">
+                <img
+                  src="/images/srinoos-s-icon.jpg"
+                  alt="Official Logo Preview"
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-brand-400 uppercase tracking-wider block">Active Brand Logo</span>
+                <span className="text-sm font-black text-white block">Srinoos Technology Collective (Infinity S Loop)</span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">Asset stored at <code>/public/images/srinoos-s-icon.jpg</code></span>
+              </div>
+            </div>
+
             <div>
               <label className="block font-bold text-slate-700 uppercase mb-1">Brand Name *</label>
               <input
@@ -371,6 +387,58 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setSettings({ ...settings, credit_text: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none focus:border-brand-500"
               />
+            </div>
+
+            {/* Founder / About Me Customization */}
+            <div className="sm:col-span-2 pt-4 border-t border-slate-100 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-brand-600">
+                  Founder & &quot;About Me&quot; Profile Customization
+                </span>
+                <span className="text-[10px] bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-bold">
+                  Appears on /about and Articles
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 uppercase mb-1">Founder / Author Name</label>
+                  <input
+                    type="text"
+                    placeholder="Srinoos"
+                    value={settings.founder_name || ''}
+                    onChange={(e) => setSettings({ ...settings, founder_name: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 uppercase mb-1">Professional Title</label>
+                  <input
+                    type="text"
+                    placeholder="Founder, Lead Architect & Digital Growth Strategist"
+                    value={settings.founder_title || ''}
+                    onChange={(e) => setSettings({ ...settings, founder_title: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 uppercase mb-1">
+                  About Me / Founder Bio Story
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="Enter your personal bio, background, mission, and message to readers..."
+                  value={settings.about_me_bio || ''}
+                  onChange={(e) => setSettings({ ...settings, about_me_bio: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500 leading-relaxed"
+                />
+                <span className="text-[11px] text-slate-400 mt-1 block">
+                  You can update your personal story and philosophy anytime right here.
+                </span>
+              </div>
             </div>
           </div>
         </div>

@@ -54,13 +54,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div>
           {/* Brand header */}
           <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-            <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow">
-                S
+            <Link href="/admin" className="flex items-center gap-3 group">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-950 flex-shrink-0 shadow-lg p-0.5">
+                <img
+                  src="/images/srinoos-s-icon.jpg"
+                  alt="Srinoos Logo"
+                  className="w-full h-full object-cover rounded-xl"
+                />
               </div>
               <div>
-                <span className="font-black text-white text-lg tracking-tight block">Srinoos</span>
-                <span className="text-[10px] text-brand-400 font-semibold uppercase tracking-wider block">Admin Suite</span>
+                <span className="font-black text-white text-lg tracking-tight block group-hover:text-brand-400 transition">Srinoos</span>
+                <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">Technology Collective</span>
               </div>
             </Link>
           </div>

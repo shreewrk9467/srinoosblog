@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, MessageSquare, Send, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
+import { Mail, MessageSquare, Send, CheckCircle2, ShieldCheck, MapPin, Phone, Globe, ExternalLink, Briefcase } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
 
 export default function ContactPage() {
@@ -39,34 +39,74 @@ export default function ContactPage() {
         {/* Contact Info Sidebar */}
         <div className="md:col-span-5 space-y-6">
           <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
-            <h3 className="font-bold text-slate-900 text-base">Direct Channels</h3>
+            <div className="border-b border-slate-100 pb-3">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600 block">Founder Desk</span>
+              <h3 className="font-bold text-slate-900 text-base">Ketanboina Venkat Shrinivas</h3>
+              <p className="text-xs text-slate-500">Srinoos Platform Lead & Full-Stack Architect</p>
+            </div>
             
             <div className="flex items-start gap-3">
               <div className="p-2.5 bg-brand-50 text-brand-600 rounded-xl flex-shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
               <div>
-                <span className="block text-xs font-bold uppercase text-slate-400">Editorial Email</span>
-                <a href="mailto:contact@srinoos.com" className="text-sm font-semibold text-brand-600 hover:underline">
-                  contact@srinoos.com
+                <span className="block text-xs font-bold uppercase text-slate-400">Direct & Editorial Email</span>
+                <a href="mailto:ketanboinak@gmail.com" className="text-sm font-semibold text-brand-600 hover:underline">
+                  ketanboinak@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl flex-shrink-0">
+                <Phone className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="block text-xs font-bold uppercase text-slate-400">Phone & WhatsApp</span>
+                <a href="tel:+919665800844" className="text-sm font-semibold text-slate-800 hover:text-brand-600">
+                  +91 9665800844
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl flex-shrink-0">
+                <Globe className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="block text-xs font-bold uppercase text-slate-400">Live Portfolio</span>
+                <a
+                  href="https://quiet-pony-c4f26b.netlify.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold text-brand-600 hover:underline flex items-center gap-1"
+                >
+                  quiet-pony-c4f26b.netlify.app <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
               <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl flex-shrink-0">
-                <MessageSquare className="w-5 h-5" />
+                <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <span className="block text-xs font-bold uppercase text-slate-400">Ad & Affiliate Inquiries</span>
+                <span className="block text-xs font-bold uppercase text-slate-400">Location</span>
                 <span className="text-sm font-semibold text-slate-800">
-                  ads@srinoos.com
+                  Pune, India
                 </span>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 text-xs text-slate-500">
-              Hours: Monday – Friday, 9:00 AM – 6:00 PM IST
+            <div className="pt-3 border-t border-slate-100">
+              <a
+                href="https://quiet-pony-c4f26b.netlify.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-xs"
+              >
+                <Briefcase className="w-4 h-4" /> View My Portfolio <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
 

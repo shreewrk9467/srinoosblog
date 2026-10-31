@@ -74,16 +74,20 @@ export default function Header({ categories = [] }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 gap-4">
           {/* Logo & Brand Identity */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-indigo-600 flex items-center justify-center text-white font-black text-2xl shadow-md group-hover:scale-105 transition transform">
-              S
+          <Link href="/" className="flex items-center gap-3.5 group">
+            <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-300 border-2 border-slate-800 bg-slate-950 flex-shrink-0 flex items-center justify-center p-0.5">
+              <img
+                src="/images/srinoos-s-icon.jpg"
+                alt="Srinoos Logo"
+                className="w-full h-full object-cover rounded-xl"
+              />
             </div>
             <div>
-              <span className="text-2xl font-black tracking-tight text-slate-900 group-hover:text-brand-600 transition">
+              <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 group-hover:text-brand-600 transition flex items-center gap-1.5">
                 Srinoos
               </span>
-              <span className="block text-[11px] font-medium text-slate-500 -mt-1 tracking-wide">
-                Ideas, Insights & Growth
+              <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 -mt-0.5 tracking-wider uppercase">
+                Technology Collective
               </span>
             </div>
           </Link>

@@ -12,6 +12,8 @@ import {
   Facebook,
   Linkedin,
   Youtube,
+  Github,
+  Mail,
 } from 'lucide-react';
 
 interface FooterProps {
@@ -76,27 +78,28 @@ export default function Footer({ categories = [] }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow">
-                S
+            <Link href="/" className="flex items-center gap-3.5 group">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-xl bg-slate-950 flex-shrink-0 p-0.5">
+                <img
+                  src="/images/srinoos-s-icon.jpg"
+                  alt="Srinoos Logo"
+                  className="w-full h-full object-cover rounded-xl"
+                />
               </div>
-              <span className="text-2xl font-black text-white tracking-tight">Srinoos</span>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight group-hover:text-brand-400 transition">Srinoos</span>
+                <span className="block text-[11px] font-bold text-slate-400 -mt-0.5 tracking-wider uppercase">Technology Collective</span>
+              </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
               Srinoos is a leading digital publication dedicated to artificial intelligence, high-performance web development, actionable search engine optimization, and legitimate online monetization strategies.
             </p>
-            <div className="flex items-center gap-3 pt-2 text-slate-400">
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Srinoos Twitter" className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition">
-                <Twitter className="w-4 h-4" />
+            <div className="flex items-center gap-2 pt-2 text-slate-400">
+              <a href="https://quiet-pony-c4f26b.netlify.app" target="_blank" rel="noopener noreferrer" aria-label="Ketanboina Portfolio" title="Live Portfolio" className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition">
+                <Globe className="w-4 h-4" />
               </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Srinoos Facebook" className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Srinoos LinkedIn" className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition">
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="Srinoos YouTube" className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition">
-                <Youtube className="w-4 h-4" />
+              <a href="mailto:ketanboinak@gmail.com" aria-label="Direct Email" title="Direct Email" className="p-2 bg-slate-900 rounded-lg hover:text-emerald-400 hover:bg-slate-800 transition">
+                <Mail className="w-4 h-4" />
               </a>
             </div>
           </div>

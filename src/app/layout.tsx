@@ -28,6 +28,10 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: 'Srinoos Editorial Team', url: settings.site_url }],
     creator: 'Srinoos',
     publisher: 'Srinoos',
+    icons: {
+      icon: '/images/srinoos-s-icon.jpg',
+      apple: '/images/srinoos-s-icon.jpg',
+    },
     openGraph: {
       type: 'website',
       locale: 'en_US',
@@ -37,10 +41,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description: settings.site_description,
       images: [
         {
-          url: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=1200&auto=format&fit=crop&q=80',
+          url: `${settings.site_url}/images/srinoos-logo.jpg`,
           width: 1200,
-          height: 630,
-          alt: settings.site_name,
+          height: 675,
+          alt: `${settings.site_name} Technology Collective`,
         },
       ],
     },
@@ -80,7 +84,7 @@ export default function RootLayout({
     '@type': 'Organization',
     name: settings.site_name,
     url: settings.site_url,
-    logo: `${settings.site_url}/logo.png`,
+    logo: `${settings.site_url}/images/srinoos-logo.jpg`,
     description: settings.site_description,
     sameAs: [
       settings.twitter_url,
