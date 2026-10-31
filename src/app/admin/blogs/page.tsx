@@ -59,6 +59,26 @@ export default function AdminBlogsPage() {
     }
   };
 
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+    try {
+      const res = await fetch(`/api/blogs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setPosts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+        );
+      } else {
+        alert('Could not update status');
+      }
+    } catch (e) {
+      alert('Error toggling status');
+    }
+  };
+
   const filteredPosts = posts.filter((p) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -157,19 +177,22 @@ export default function AdminBlogsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${
+                      <button
+                        onClick={() => handleToggleStatus(post.id, post.status)}
+                        title="Click to toggle Published / Draft status instantly"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition hover:scale-105 cursor-pointer ${
                           post.status === 'published'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
                             : post.status === 'scheduled'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                             : post.status === 'review'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-slate-100 text-slate-700'
+                            ? 'bg-amber-100 text-amber-800 hover:bg-amber-200'
+                            : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                         }`}
                       >
+                        <span className={`w-1.5 h-1.5 rounded-full ${post.status === 'published' ? 'bg-emerald-600' : 'bg-slate-500'}`} />
                         {post.status}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-6 py-4 text-slate-500">
                       {new Date(post.published_at || post.created_at).toLocaleDateString()}

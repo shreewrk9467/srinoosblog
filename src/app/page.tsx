@@ -13,7 +13,8 @@ import {
   Search,
 } from 'lucide-react';
 
-export const revalidate = 60; // ISR cache revalidation every 60s
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function HomePage() {
   const allPosts = getAllPosts({ status: 'published', limit: 20 });

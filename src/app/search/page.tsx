@@ -10,6 +10,9 @@ interface SearchPageProps {
   };
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams.q || '';
   const posts = query

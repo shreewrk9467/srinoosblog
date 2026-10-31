@@ -18,6 +18,8 @@ import {
   ArrowRight,
   Shield,
   Layers,
+  Download,
+  Upload,
 } from 'lucide-react';
 
 export default function AdminSettingsPage() {
@@ -26,6 +28,43 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!confirm('Are you sure you want to restore from this backup file? Existing data will be updated.')) {
+      e.target.value = '';
+      return;
+    }
+
+    setRestoring(true);
+    setRestoreMessage(null);
+
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+
+      const res = await fetch('/api/backup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(json),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to restore backup');
+
+      setRestoreMessage(`Successfully restored ${data.restored?.posts || 0} articles, ${data.restored?.categories || 0} categories, and settings!`);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err: any) {
+      alert(err.message || 'Error restoring backup');
+    } finally {
+      setRestoring(false);
+      e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     fetch('/api/settings')
@@ -536,6 +575,52 @@ export default function AdminSettingsPage() {
               <p>Add the same A and CNAME records in the DNS Zone Editor. If using Cloudflare, turn proxy status to "DNS Only" (Grey Cloud) during initial verification.</p>
             </div>
           </div>
+        </div>
+
+        {/* 5. Complete Website Backup & One-Click Restore (WordPress Style) */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Layers className="w-5 h-5 text-brand-600" /> Complete Website Backup & Migration (WordPress Style)
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Download a complete snapshot of all blog posts, categories, ad placements, affiliate links, and settings.
+              </p>
+            </div>
+            <a
+              href="/api/backup"
+              download
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition"
+            >
+              <Download className="w-4 h-4" /> Download Backup (JSON)
+            </a>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/70">
+            <div>
+              <span className="font-bold text-slate-800 text-xs block">Restore or Migrate Site From Backup</span>
+              <span className="text-[11px] text-slate-500 block">Upload a previously exported <code>srinoos_backup.json</code> file to restore all content instantly.</span>
+            </div>
+            <label className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer">
+              <Upload className="w-4 h-4" />
+              <span>{restoring ? 'Restoring Database...' : 'Upload & Restore Backup'}</span>
+              <input
+                type="file"
+                accept=".json"
+                disabled={restoring}
+                onChange={handleImportBackup}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {restoreMessage && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs rounded-xl flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+              <span>{restoreMessage}</span>
+            </div>
+          )}
         </div>
 
         <button

@@ -4,7 +4,8 @@ import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { TrendingUp, Flame } from 'lucide-react';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function TrendingPage() {
   const trendingPosts = getAllPosts({

@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { getAllCategories } from '@/lib/db';
 import { Folder, ArrowRight, BookOpen, Layers } from 'lucide-react';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function CategoriesPage() {
   const categories = getAllCategories();

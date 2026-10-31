@@ -268,9 +268,41 @@ export default function NewBlogPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Article Content (HTML supported) *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Article Content (HTML supported) *
+                </label>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, content: prev.content + '\n<h2>Section Title</h2>\n<p>Add your detailed explanation here.</p>\n' }))}
+                    className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold cursor-pointer"
+                  >
+                    + H2
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, content: prev.content + '\n<h3>Key Subheading</h3>\n<p>Elaborate on this specific point.</p>\n' }))}
+                    className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold cursor-pointer"
+                  >
+                    + H3
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, content: prev.content + '\n<ul>\n  <li><strong>Point One:</strong> In-depth detail</li>\n  <li><strong>Point Two:</strong> Verifiable action</li>\n</ul>\n' }))}
+                    className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold cursor-pointer"
+                  >
+                    + List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, content: prev.content + '\n<blockquote>\n  &ldquo;Actionable advice that provides exceptional reader value.&rdquo; &mdash; Srinoos Insights\n</blockquote>\n' }))}
+                    className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold cursor-pointer"
+                  >
+                    + Quote
+                  </button>
+                </div>
+              </div>
               <textarea
                 rows={14}
                 required
