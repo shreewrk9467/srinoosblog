@@ -1005,6 +1005,43 @@ export function updateAdPlacement(id: string, placement: Partial<AdPlacement>): 
   return getAdPlacementById(id);
 }
 
+export function createAdPlacement(placement: Partial<AdPlacement>): AdPlacement {
+  const db = getDb();
+  const id = placement.id || `ad-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+  const now = new Date().toISOString();
+
+  db.prepare(`
+    INSERT INTO ad_placements (
+      id, name, location_zone, ad_type, ad_slot_id, format, dimensions,
+      desktop_enabled, tablet_enabled, mobile_enabled, is_active, custom_html,
+      affiliate_promo_id, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id,
+    placement.name || 'Custom Ad Placement',
+    placement.location_zone || 'article',
+    placement.ad_type || 'adsense',
+    placement.ad_slot_id || '',
+    placement.format || 'responsive',
+    placement.dimensions || 'responsive',
+    placement.desktop_enabled !== undefined ? (placement.desktop_enabled ? 1 : 0) : 1,
+    placement.tablet_enabled !== undefined ? (placement.tablet_enabled ? 1 : 0) : 1,
+    placement.mobile_enabled !== undefined ? (placement.mobile_enabled ? 1 : 0) : 1,
+    placement.is_active !== undefined ? (placement.is_active ? 1 : 0) : 1,
+    placement.custom_html || '',
+    placement.affiliate_promo_id || '',
+    now
+  );
+
+  return getAdPlacementById(id)!;
+}
+
+export function deleteAdPlacement(id: string): boolean {
+  const db = getDb();
+  const result = db.prepare('DELETE FROM ad_placements WHERE id = ?').run(id);
+  return result.changes > 0;
+}
+
 export function getAllAffiliates(): AffiliatePromotion[] {
   const db = getDb();
   const rows = db.prepare('SELECT * FROM affiliate_promotions ORDER BY total_clicks DESC, title ASC').all() as any[];
