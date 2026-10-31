@@ -13,12 +13,36 @@ import {
   DailyGoalStatus,
 } from './types';
 
-// Persistent data directory in project root
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_PATH = path.join(DATA_DIR, 'srinoos.db');
+// Persistent data directory handling (Vercel serverless /tmp safe + local filesystem)
+function resolveDatabasePath(): string {
+  const isServerless = Boolean(
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.LAMBDA_TASK_ROOT
+  );
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (isServerless) {
+    const tmpDbPath = path.join('/tmp', 'srinoos.db');
+    try {
+      const bundledDb = path.join(process.cwd(), 'data', 'srinoos.db');
+      if (!fs.existsSync(tmpDbPath) && fs.existsSync(bundledDb)) {
+        fs.copyFileSync(bundledDb, tmpDbPath);
+      }
+    } catch (e) {
+      console.warn('Note: initializing fresh /tmp SQLite instance:', e);
+    }
+    return tmpDbPath;
+  }
+
+  try {
+    const localDataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(localDataDir)) {
+      fs.mkdirSync(localDataDir, { recursive: true });
+    }
+    return path.join(localDataDir, 'srinoos.db');
+  } catch (err) {
+    return path.join('/tmp', 'srinoos.db');
+  }
 }
 
 // Single instance SQLite connection
@@ -26,16 +50,32 @@ let dbInstance: DatabaseSync | null = null;
 
 export function getDb(): DatabaseSync {
   if (!dbInstance) {
-    dbInstance = new DatabaseSync(DB_PATH);
-    // Initialize schema
-    initSchema(dbInstance);
+    try {
+      const dbPath = resolveDatabasePath();
+      dbInstance = new DatabaseSync(dbPath);
+      initSchema(dbInstance);
+    } catch (err) {
+      console.error('Failed to open persistent SQLite database, falling back to :memory::', err);
+      try {
+        dbInstance = new DatabaseSync(':memory:');
+        initSchema(dbInstance);
+      } catch (fatalErr) {
+        console.error('Fatal: Failed to open in-memory SQLite database:', fatalErr);
+        throw fatalErr;
+      }
+    }
   }
   return dbInstance;
 }
 
 function initSchema(db: DatabaseSync) {
+  try {
+    db.exec(`PRAGMA journal_mode = WAL;`);
+  } catch (e) {
+    // WAL mode pragma is safe to ignore in environments that do not support shared memory
+  }
+
   db.exec(`
-    PRAGMA journal_mode = WAL;
     PRAGMA busy_timeout = 5000;
     PRAGMA foreign_keys = ON;
 
