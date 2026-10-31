@@ -12,6 +12,9 @@ interface CategoryPageProps {
   };
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const category = getCategoryBySlug(params.slug);
   if (!category) {

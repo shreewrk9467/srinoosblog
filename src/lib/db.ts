@@ -742,6 +742,15 @@ export function createPost(post: Partial<BlogPost>): BlogPost {
   const now = new Date().toISOString();
   const publishedAt = post.status === 'published' ? (post.published_at || now) : null;
 
+  let finalSlug = post.slug || `post-${Date.now()}`;
+  let counter = 1;
+  while (true) {
+    const existing = db.prepare('SELECT id FROM blog_posts WHERE slug = ?').get(finalSlug);
+    if (!existing) break;
+    counter++;
+    finalSlug = `${post.slug || 'post'}-${counter}`;
+  }
+
   db.prepare(`
     INSERT INTO blog_posts (
       id, title, slug, excerpt, content, featured_image, image_caption,
@@ -752,7 +761,7 @@ export function createPost(post: Partial<BlogPost>): BlogPost {
   `).run(
     id,
     post.title || 'Untitled Post',
-    post.slug || `post-${Date.now()}`,
+    finalSlug,
     post.excerpt || '',
     post.content || '',
     post.featured_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80',

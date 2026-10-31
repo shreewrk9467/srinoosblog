@@ -15,7 +15,8 @@ export interface AdminSession {
 
 export async function verifyAdminCredentials(email: string, passwordPlain: string): Promise<AdminSession | null> {
   const db = getDb();
-  const user = db.prepare('SELECT * FROM admin_users WHERE email = ?').get(email) as any;
+  const cleanEmail = email.trim().toLowerCase();
+  const user = db.prepare('SELECT * FROM admin_users WHERE LOWER(email) = ?').get(cleanEmail) as any;
   if (!user) return null;
 
   // For initial seeded admin, accept either the bcrypt hash match or the default bootstrap password 'Srinoos@Admin2026'
