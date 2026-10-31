@@ -1,0 +1,123 @@
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  featured_image: string;
+  image_caption?: string;
+  category_id: string;
+  category_name?: string;
+  category_slug?: string;
+  tags?: string; // Comma-separated
+  status: 'draft' | 'review' | 'scheduled' | 'published' | 'failed';
+  is_featured: boolean;
+  is_trending: boolean;
+  reading_time_minutes: number;
+  meta_title?: string;
+  meta_description?: string;
+  focus_keyword?: string;
+  faq_schema?: string; // JSON string of FAQs
+  scheduled_at?: string | null;
+  published_at?: string | null;
+  author_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon?: string;
+  meta_title?: string;
+  meta_description?: string;
+  post_count?: number;
+  created_at: string;
+}
+
+export interface AdPlacement {
+  id: string; // e.g., 'header-global', 'article-mid', 'sidebar-sticky'
+  name: string;
+  location_zone: 'global' | 'article' | 'sidebar' | 'homepage' | 'mobile';
+  ad_type: 'adsense' | 'affiliate' | 'custom_html';
+  ad_slot_id?: string; // Google AdSense data-ad-slot
+  format?: 'responsive' | 'rectangle' | 'leaderboard' | 'skyscraper' | 'banner';
+  dimensions?: string; // e.g., '728x90', '300x250', '336x280'
+  desktop_enabled: boolean;
+  tablet_enabled: boolean;
+  mobile_enabled: boolean;
+  is_active: boolean;
+  custom_html?: string;
+  affiliate_promo_id?: string;
+  updated_at: string;
+}
+
+export interface AffiliatePromotion {
+  id: string;
+  title: string;
+  banner_url?: string;
+  description?: string;
+  destination_url: string;
+  tracking_slug: string; // Used in /go/[slug]
+  campaign_name: string;
+  disclosure_text?: string;
+  total_clicks: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AdClickEvent {
+  id: string;
+  tracking_slug: string;
+  placement_id?: string;
+  user_agent?: string;
+  referrer?: string;
+  ip_hash?: string;
+  clicked_at: string;
+}
+
+export interface WebsiteSettings {
+  site_name: string;
+  site_tagline: string;
+  site_description: string;
+  site_url: string;
+  custom_domain?: string;
+  hosting_provider?: string;
+  hosting_plan?: string;
+  logo_text: string;
+  contact_email: string;
+  credit_text: string;
+  adsense_publisher_id: string; // e.g. ca-pub-XXXXXXXXXXXXXXXX
+  adsense_auto_ads: boolean;
+  adsense_active: boolean;
+  ads_txt_content: string;
+  google_analytics_id: string;
+  google_search_console_tag: string;
+  facebook_url?: string;
+  twitter_url?: string;
+  linkedin_url?: string;
+  youtube_url?: string;
+}
+
+export interface Comment {
+  id: string;
+  post_id: string;
+  author_name: string;
+  author_email: string;
+  content: string;
+  status: 'pending' | 'approved' | 'spam';
+  created_at: string;
+}
+
+export interface DailyGoalStatus {
+  date: string;
+  target: number; // default 20
+  published_count: number;
+  scheduled_count: number;
+  draft_count: number;
+  review_count: number;
+  is_target_met: boolean;
+}
+
