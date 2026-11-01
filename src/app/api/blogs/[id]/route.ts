@@ -34,6 +34,10 @@ export async function PUT(
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/blog');
+      revalidatePath('/blog/[slug]', 'page');
+      revalidatePath('/admin/blogs');
+      revalidatePath('/admin/content');
     } catch {}
 
     return NextResponse.json({ success: true, post: updated });
@@ -59,6 +63,10 @@ export async function DELETE(
 
   try {
     revalidatePath('/', 'layout');
+    revalidatePath('/blog');
+    revalidatePath('/blog/[slug]', 'page');
+    revalidatePath('/admin/blogs');
+    revalidatePath('/admin/content');
   } catch {}
 
   return NextResponse.json({ success: true, message: 'Post deleted successfully' });

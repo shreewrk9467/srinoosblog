@@ -58,6 +58,10 @@ export async function POST(request: NextRequest) {
     // Invalidate site cache immediately
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/blog');
+      revalidatePath('/blog/[slug]', 'page');
+      revalidatePath('/admin/blogs');
+      revalidatePath('/admin/content');
     } catch {}
 
     return NextResponse.json({ success: true, post: newPost }, { status: 201 });
