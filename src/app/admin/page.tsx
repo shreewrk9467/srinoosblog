@@ -23,6 +23,7 @@ import {
   Search,
   Settings,
   Globe,
+  Server,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,12 @@ export default function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/admin/hosting"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
+          >
+            <Server className="w-4 h-4" /> Hostinger LiteSpeed (82.112.239.60)
+          </Link>
           <Link
             href="/admin/wordpress"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition"

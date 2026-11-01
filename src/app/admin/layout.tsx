@@ -17,6 +17,7 @@ import {
   CheckCircle,
   Palette,
   Globe,
+  Server,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -48,6 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Affiliate Marketing', href: '/admin/affiliates', icon: DollarSign },
     { name: 'SEO & Search Console', href: '/admin/seo', icon: Search },
     { name: 'Traffic & Earnings', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'Hostinger Server & FTP', href: '/admin/hosting', icon: Server },
     { name: 'Website Settings', href: '/admin/settings', icon: Settings },
   ];
 

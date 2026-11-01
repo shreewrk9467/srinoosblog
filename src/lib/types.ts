@@ -93,6 +93,15 @@ export interface WebsiteSettings {
   custom_domain?: string;
   hosting_provider?: string;
   hosting_plan?: string;
+  hosting_server_ip?: string;
+  hosting_server_name?: string;
+  hosting_server_location?: string;
+  hosting_ftp_host?: string;
+  hosting_ftp_username?: string;
+  hosting_disk_space?: string;
+  hosting_ram?: string;
+  hosting_php_workers?: number;
+  hosting_status?: string;
   logo_text: string;
   contact_email: string;
   credit_text: string;
