@@ -258,6 +258,72 @@ export default function AdminHostingPage() {
         </div>
       </div>
 
+      {/* Hostinger 20 GB Storage Utilization & Cloud Backup Hub */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl">
+              <HardDrive className="w-6 h-6" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 block">
+                Storage Allocation
+              </span>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                Hostinger 20 GB NVMe Dedicated Storage
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Connected to Server: <strong className="text-slate-800">server1675 (82.112.239.60)</strong> • User: <strong className="text-slate-800">u397809276</strong>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <a
+              href="/api/backup"
+              download
+              className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
+            >
+              <Database className="w-4 h-4" />
+              <span>Download 20 GB Storage Snapshot Backup</span>
+            </a>
+          </div>
+        </div>
+
+        {/* 3 Integration Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-600">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="font-bold text-xs uppercase tracking-wider text-slate-800">1. Domain & Nameservers</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Hostinger nameservers (<code className="text-purple-700 bg-purple-50 px-1 rounded">nova.dns-parking.com</code>) manage all global domain lookups for <strong>sricospace.com</strong>.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-600">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="font-bold text-xs uppercase tracking-wider text-slate-800">2. 20 GB Storage Capacity</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Your 20 GB NVMe space provides unlimited room for full website database snapshots, high-resolution media, and automated Singapore backups.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-600">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="font-bold text-xs uppercase tracking-wider text-slate-800">3. Zero Technical Headaches</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              No zip files to unzip or run in terminal. You write articles in the browser at <Link href="/admin/blogs/new" className="text-purple-600 font-bold underline">/admin/blogs/new</Link> and they publish immediately.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Hostinger DNS Architecture Configuration */}
       <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
