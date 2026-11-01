@@ -12,6 +12,9 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   const session = getSessionFromCookies();
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized: Admin authentication required' }, { status: 401 });
+  }
 
   try {
     const body = await request.json();
@@ -19,6 +22,12 @@ export async function PUT(request: NextRequest) {
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/');
+      revalidatePath('/blog');
+      revalidatePath('/about');
+      revalidatePath('/contact');
+      revalidatePath('/admin/content');
+      revalidatePath('/admin/settings');
     } catch {}
 
     return NextResponse.json({ success: true, settings: updated });

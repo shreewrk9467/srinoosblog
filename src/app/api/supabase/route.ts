@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseCredentials, isSupabaseConfigured, testSupabaseConnection, getSupabaseClient } from '@/lib/supabase';
+import { getSupabaseCredentials, isSupabaseConfigured, testSupabaseConnection, getSupabaseClient, sanitizeSupabaseUrl } from '@/lib/supabase';
 import { getWebsiteSettings, updateWebsiteSettings, getAllCategories, getAllPosts, getAllAdPlacements, getAllAffiliates } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // Persist to website_settings
     updateWebsiteSettings({
       supabase_enabled: true,
-      supabase_url: url.trim(),
+      supabase_url: sanitizeSupabaseUrl(url),
       supabase_anon_key: anonKey.trim(),
       supabase_last_synced: new Date().toISOString(),
     });

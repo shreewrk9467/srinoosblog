@@ -35,6 +35,10 @@ export async function PUT(
     // Bust cache instantly across the entire website
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/');
+      revalidatePath('/blog');
+      revalidatePath('/blog/[slug]', 'page');
+      revalidatePath('/admin/ads');
     } catch {}
 
     return NextResponse.json({ success: true, placement: updated });
@@ -61,6 +65,10 @@ export async function DELETE(
     // Bust cache instantly across the entire website
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/');
+      revalidatePath('/blog');
+      revalidatePath('/blog/[slug]', 'page');
+      revalidatePath('/admin/ads');
     } catch {}
 
     return NextResponse.json({ success: true, message: 'Placement deleted' });

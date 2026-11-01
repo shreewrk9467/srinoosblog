@@ -5,13 +5,21 @@ let cachedClient: SupabaseClient | null = null;
 let lastKnownUrl = '';
 let lastKnownKey = '';
 
+export function sanitizeSupabaseUrl(raw: string): string {
+  let url = (raw || '').trim().replace(/\/+$/, '');
+  if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `https://${url}`;
+  }
+  return url;
+}
+
 export function getSupabaseCredentials(): { url: string; anonKey: string } {
   // 1. Check environment variables first
   const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
   const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
   if (envUrl && envKey) {
-    return { url: envUrl.trim(), anonKey: envKey.trim() };
+    return { url: sanitizeSupabaseUrl(envUrl), anonKey: envKey.trim() };
   }
 
   // 2. Check website settings fallback
@@ -19,7 +27,7 @@ export function getSupabaseCredentials(): { url: string; anonKey: string } {
     const settings = getWebsiteSettings();
     if (settings.supabase_url && settings.supabase_anon_key) {
       return {
-        url: settings.supabase_url.trim(),
+        url: sanitizeSupabaseUrl(settings.supabase_url),
         anonKey: settings.supabase_anon_key.trim(),
       };
     }
@@ -61,7 +69,7 @@ export async function testSupabaseConnection(
   url?: string,
   anonKey?: string
 ): Promise<{ success: boolean; message: string; tableCount?: number; error?: string }> {
-  const targetUrl = (url || getSupabaseCredentials().url).trim();
+  const targetUrl = sanitizeSupabaseUrl(url || getSupabaseCredentials().url);
   const targetKey = (anonKey || getSupabaseCredentials().anonKey).trim();
 
   if (!targetUrl || !targetKey) {

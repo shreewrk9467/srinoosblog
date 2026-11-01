@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
           wordpress_last_synced: new Date().toISOString(),
         });
         revalidatePath('/', 'layout');
+        revalidatePath('/blog');
+        revalidatePath('/blog/[slug]', 'page');
+        revalidatePath('/admin/blogs');
+        revalidatePath('/admin/content');
       } catch {}
     }
 
@@ -75,6 +79,10 @@ export async function GET(request: NextRequest) {
     if (result.success) {
       try {
         revalidatePath('/', 'layout');
+        revalidatePath('/blog');
+        revalidatePath('/blog/[slug]', 'page');
+        revalidatePath('/admin/blogs');
+        revalidatePath('/admin/content');
       } catch {}
     }
 

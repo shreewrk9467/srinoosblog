@@ -27,6 +27,10 @@ export async function POST(request: NextRequest) {
     // Bust cache instantly across the entire website
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/');
+      revalidatePath('/blog');
+      revalidatePath('/blog/[slug]', 'page');
+      revalidatePath('/admin/ads');
     } catch {}
 
     return NextResponse.json({ success: true, placement: newPlacement }, { status: 201 });

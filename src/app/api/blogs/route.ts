@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getAllPosts, createPost, getDailyPublishingProgress } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
+import { isSupabaseConfigured, getSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +55,34 @@ export async function POST(request: NextRequest) {
       slug,
       author_name: session.fullName || body.author_name || 'Srinoos Editorial Team',
     });
+
+    // Sync to Supabase if configured
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabaseClient();
+        if (client) {
+          await client.from('blog_posts').upsert({
+            id: newPost.id,
+            title: newPost.title,
+            slug: newPost.slug,
+            excerpt: newPost.excerpt,
+            content: newPost.content,
+            featured_image: newPost.featured_image,
+            category_id: newPost.category_id,
+            status: newPost.status,
+            is_featured: Boolean(newPost.is_featured),
+            is_trending: Boolean(newPost.is_trending),
+            reading_time_minutes: newPost.reading_time_minutes,
+            meta_title: newPost.meta_title,
+            meta_description: newPost.meta_description,
+            published_at: newPost.published_at,
+            author_name: newPost.author_name,
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase post sync notice:', err);
+      }
+    }
 
     // Invalidate site cache immediately
     try {
