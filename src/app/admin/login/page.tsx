@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password: password.trim() }),
       });
 
       const data = await res.json();
@@ -29,13 +29,22 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Authentication failed');
       }
 
-      router.push('/admin');
-      router.refresh();
+      // Check URL search parameters for destination
+      const params = new URLSearchParams(window.location.search);
+      const target = params.get('redirect') || '/admin';
+
+      // Perform a full hard page navigation so the browser registers the fresh cookie
+      window.location.href = target;
     } catch (err: any) {
-      setError(err.message || 'Invalid credentials');
-    } finally {
+      setError(err.message || 'Invalid username or password');
       setLoading(false);
     }
+  };
+
+  const handleFillDefaults = () => {
+    setEmail('admin@srinoos.com');
+    setPassword('Srinoos@Admin2026');
+    setError('');
   };
 
   return (
@@ -69,15 +78,15 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-              Admin Email
+              Admin Username or Email
             </label>
             <div className="relative">
               <input
-                type="email"
+                type="text"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@srinoos.com"
+                placeholder="admin or admin@srinoos.com"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:bg-white"
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -104,19 +113,28 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl transition shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl transition shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Authenticating...' : 'Sign In to Dashboard'} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-500 space-y-1">
-          <div className="flex items-center gap-1 font-semibold text-slate-700">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Default Initial Credentials:
+        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-1 font-bold text-slate-800">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Default Credentials:
+            </div>
+            <div className="font-mono text-[11px] text-slate-500 mt-0.5">
+              admin@srinoos.com &bull; Srinoos@Admin2026
+            </div>
           </div>
-          <div className="font-mono text-[11px] text-slate-600">
-            admin@srinoos.com &bull; Srinoos@Admin2026
-          </div>
+          <button
+            type="button"
+            onClick={handleFillDefaults}
+            className="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-[11px] rounded-lg transition border border-brand-200 cursor-pointer flex-shrink-0"
+          >
+            Auto-fill
+          </button>
         </div>
 
         <div className="text-center pt-2">
