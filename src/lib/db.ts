@@ -1105,30 +1105,70 @@ export function recordAffiliateClick(slug: string, meta: { placementId?: string;
   );
 }
 
+export function updateAffiliate(id: string, updates: Partial<AffiliatePromotion>): AffiliatePromotion | null {
+  const db = getDb();
+  db.prepare(`
+    UPDATE affiliate_promotions SET
+      title = coalesce(?, title),
+      banner_url = coalesce(?, banner_url),
+      description = coalesce(?, description),
+      destination_url = coalesce(?, destination_url),
+      campaign_name = coalesce(?, campaign_name),
+      disclosure_text = coalesce(?, disclosure_text),
+      is_active = coalesce(?, is_active)
+    WHERE id = ? OR tracking_slug = ?
+  `).run(
+    updates.title ?? null,
+    updates.banner_url ?? null,
+    updates.description ?? null,
+    updates.destination_url ?? null,
+    updates.campaign_name ?? null,
+    updates.disclosure_text ?? null,
+    updates.is_active !== undefined ? (updates.is_active ? 1 : 0) : null,
+    id,
+    id
+  );
+
+  const row = db.prepare('SELECT * FROM affiliate_promotions WHERE id = ? OR tracking_slug = ?').get(id, id) as any;
+  if (!row) return null;
+  return toPlain({ ...row, is_active: Boolean(row.is_active) });
+}
+
+export function deleteAffiliate(id: string): boolean {
+  const db = getDb();
+  const res = db.prepare('DELETE FROM affiliate_promotions WHERE id = ? OR tracking_slug = ?').run(id, id);
+  return res.changes > 0;
+}
+
 // -------------------------------------------------------------
 // WEBSITE SETTINGS
 // -------------------------------------------------------------
 
 export function getWebsiteSettings(): WebsiteSettings {
-  const db = getDb();
-  const row = db.prepare('SELECT value FROM website_settings WHERE key = ?').get('site_config') as any;
-  if (row && row.value) {
-    try {
-      return JSON.parse(row.value);
-    } catch {
-      // fallback
-    }
-  }
   const defaultSettings: WebsiteSettings = {
     site_name: 'Srinoos',
-    site_tagline: 'Ideas, Insights, Innovation & Digital Growth',
+    site_tagline: 'Technology Collective',
     site_description: 'Srinoos is a premier publication providing actionable guides on AI technology, digital business, SEO mastery, and verified software comparisons.',
     site_url: 'https://sricospace.com',
     custom_domain: 'sricospace.com',
     hosting_provider: 'hostinger',
     hosting_plan: 'Hostinger Business / Cloud',
     logo_text: 'Srinoos',
-    contact_email: 'contact@srinoos.com',
+    logo_image_url: '/images/srinoos-s-icon.jpg',
+    announcement_bar_enabled: true,
+    announcement_bar_text: 'How to Build an Organic Traffic Engine with Modern SEO in 2026 • Latest Tech Insights',
+    announcement_bar_link: '/blog',
+    hero_headline: 'Artificial Intelligence, Quantum Computing & Digital Growth Insights',
+    hero_subheadline: 'Deep technical analysis, high-speed full-stack development, and actionable online monetization playbooks designed for visionary digital builders.',
+    hero_lead_badge: '⚡ Technology Collective • Daily Dispatch',
+    footer_about_text: 'Srinoos is a leading digital publication dedicated to artificial intelligence, high-performance web development, actionable search engine optimization, and legitimate online monetization strategies.',
+    founder_name: 'Ketanboina Venkat Shrinivas',
+    founder_title: 'Founder, Full-Stack Engineer & Digital Growth Specialist',
+    about_me_bio: 'Hi! I am Ketanboina Venkat Shrinivas, a full-stack engineer and digital builder based in Pune, India. I founded Srinoos (hosted at sricospace.com) to create a premier publishing platform delivering actionable tutorials on Artificial Intelligence, modern web engineering, organic SEO growth, and digital monetization. Everything on this platform—from front-end architecture and backend database systems to AdSense monetization and automated daily publishing—is designed and developed by me.',
+    phone: '+91 9665800844',
+    location: 'Pune, India',
+    portfolio_url: 'https://quiet-pony-c4f26b.netlify.app',
+    contact_email: 'ketanboinak@gmail.com',
     credit_text: 'Designed and Developed by Srinoos',
     adsense_publisher_id: 'ca-pub-9876543210123456',
     adsense_auto_ads: false,
@@ -1136,7 +1176,25 @@ export function getWebsiteSettings(): WebsiteSettings {
     ads_txt_content: 'google.com, pub-9876543210123456, DIRECT, f08c47fec0942fa0',
     google_analytics_id: 'G-SRINOOS2026',
     google_search_console_tag: 'google-site-verification=srinoos_seo_verification_meta_2026',
+    nav_links_json: JSON.stringify([
+      { name: 'Home', href: '/' },
+      { name: 'All Blogs', href: '/blog' },
+      { name: 'Trending', href: '/trending' },
+      { name: 'About', href: '/about' },
+      { name: 'Contact', href: '/contact' },
+    ]),
   };
+
+  const db = getDb();
+  const row = db.prepare('SELECT value FROM website_settings WHERE key = ?').get('site_config') as any;
+  if (row && row.value) {
+    try {
+      const parsed = JSON.parse(row.value);
+      return toPlain({ ...defaultSettings, ...parsed });
+    } catch {
+      // fallback
+    }
+  }
   return toPlain(defaultSettings);
 }
 

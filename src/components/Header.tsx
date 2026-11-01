@@ -14,12 +14,14 @@ import {
   ChevronDown,
   LayoutDashboard,
 } from 'lucide-react';
+import { WebsiteSettings } from '@/lib/types';
 
 interface HeaderProps {
   categories?: Array<{ id: string; name: string; slug: string }>;
+  settings?: WebsiteSettings;
 }
 
-export default function Header({ categories = [] }: HeaderProps) {
+export default function Header({ categories = [], settings }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,43 +34,59 @@ export default function Header({ categories = [] }: HeaderProps) {
     }
   };
 
-  const navLinks = [
+  let navLinks: Array<{ name: string; href: string }> = [
     { name: 'Home', href: '/' },
     { name: 'All Blogs', href: '/blog' },
-    { name: 'Trending', href: '/trending', icon: TrendingUp },
+    { name: 'Trending', href: '/trending' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
 
+  if (settings?.nav_links_json) {
+    try {
+      const parsed = JSON.parse(settings.nav_links_json);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        navLinks = parsed;
+      }
+    } catch {
+      // fallback
+    }
+  }
+
   return (
     <header className="w-full bg-white border-b border-slate-200/80 sticky top-0 z-40 shadow-xs backdrop-blur-md bg-white/95">
       {/* Top Announcement Bar */}
-      <div className="bg-slate-900 text-slate-300 text-xs py-2 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <span className="bg-brand-500 text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> Trending
-            </span>
-            <span className="truncate text-slate-300 hover:text-white transition">
-              How to Build an Organic Traffic Engine with Modern SEO in 2026 &bull; Latest Tech Insights
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-slate-400 text-xs">
-            <Link href="/ad-policy" className="hover:text-white transition">
-              Ad Disclosure
-            </Link>
-            <Link href="/affiliate-disclosure" className="hover:text-white transition">
-              Affiliate Policy
-            </Link>
-            <Link
-              href="/admin"
-              className="flex items-center gap-1 text-brand-400 hover:text-brand-300 font-medium transition"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" /> Admin
-            </Link>
+      {settings?.announcement_bar_enabled !== false && (
+        <div className="bg-slate-900 text-slate-300 text-xs py-2 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <span className="bg-brand-500 text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded tracking-wider flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> Trending
+              </span>
+              <Link
+                href={settings?.announcement_bar_link || '/blog'}
+                className="truncate text-slate-300 hover:text-white transition"
+              >
+                {settings?.announcement_bar_text || 'How to Build an Organic Traffic Engine with Modern SEO in 2026 • Latest Tech Insights'}
+              </Link>
+            </div>
+            <div className="hidden md:flex items-center gap-4 text-slate-400 text-xs">
+              <Link href="/ad-policy" className="hover:text-white transition">
+                Ad Disclosure
+              </Link>
+              <Link href="/affiliate-disclosure" className="hover:text-white transition">
+                Affiliate Policy
+              </Link>
+              <Link
+                href="/admin"
+                className="flex items-center gap-1 text-brand-400 hover:text-brand-300 font-medium transition"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" /> Admin
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Main Brand & Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,17 +95,17 @@ export default function Header({ categories = [] }: HeaderProps) {
           <Link href="/" className="flex items-center gap-3.5 group">
             <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-300 border-2 border-slate-800 bg-slate-950 flex-shrink-0 flex items-center justify-center p-0.5">
               <img
-                src="/images/srinoos-s-icon.jpg"
-                alt="Srinoos Logo"
+                src={settings?.logo_image_url || '/images/srinoos-s-icon.jpg'}
+                alt={settings?.site_name || 'Srinoos Logo'}
                 className="w-full h-full object-cover rounded-xl"
               />
             </div>
             <div>
               <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 group-hover:text-brand-600 transition flex items-center gap-1.5">
-                Srinoos
+                {settings?.site_name || 'Srinoos'}
               </span>
               <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 -mt-0.5 tracking-wider uppercase">
-                Technology Collective
+                {settings?.site_tagline || 'Technology Collective'}
               </span>
             </div>
           </Link>
@@ -111,7 +129,6 @@ export default function Header({ categories = [] }: HeaderProps) {
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
-              const Icon = link.icon;
               return (
                 <Link
                   key={link.name}
@@ -122,7 +139,6 @@ export default function Header({ categories = [] }: HeaderProps) {
                       : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
                   }`}
                 >
-                  {Icon && <Icon className="w-4 h-4 text-brand-500" />}
                   {link.name}
                 </Link>
               );

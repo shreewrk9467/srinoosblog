@@ -19,6 +19,9 @@ import {
   Plus,
   Eye,
   AlertCircle,
+  Palette,
+  Search,
+  Settings,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -50,8 +53,14 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
+            href="/admin/content"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
+          >
+            <Palette className="w-4 h-4" /> Site Content Customizer
+          </Link>
+          <Link
             href="/admin/blogs/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
           >
             <Sparkles className="w-4 h-4" /> AI Draft Assistant
           </Link>
@@ -62,6 +71,81 @@ export default function AdminDashboardPage() {
             <Tag className="w-4 h-4" /> Manage Ads
           </Link>
         </div>
+      </div>
+
+      {/* WordPress-Style Quick Management Hub */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Link
+          href="/admin/content"
+          className="group bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-400 hover:shadow-md transition space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-110 transition">
+              <Palette className="w-5 h-5" />
+            </span>
+            <span className="text-[10px] font-bold uppercase text-indigo-600 bg-indigo-50/70 px-2 py-0.5 rounded">WordPress Mode</span>
+          </div>
+          <h3 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition">
+            Content & Elements
+          </h3>
+          <p className="text-slate-500 text-xs">
+            Edit navigation links, announcements, logo, bio, hero text, and footer live without code.
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/ads"
+          className="group bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-brand-400 hover:shadow-md transition space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="p-2.5 bg-brand-50 text-brand-600 rounded-xl group-hover:scale-110 transition">
+              <Tag className="w-5 h-5" />
+            </span>
+            <span className="text-[10px] font-bold uppercase text-brand-600 bg-brand-50/70 px-2 py-0.5 rounded">AdSense & Units</span>
+          </div>
+          <h3 className="font-bold text-slate-900 text-sm group-hover:text-brand-600 transition">
+            Google Ad Management
+          </h3>
+          <p className="text-slate-500 text-xs">
+            Direct add, edit, delete, shift placement zones, and choose dimension presets.
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/affiliates"
+          className="group bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition">
+              <DollarSign className="w-5 h-5" />
+            </span>
+            <span className="text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50/70 px-2 py-0.5 rounded">Affiliates</span>
+          </div>
+          <h3 className="font-bold text-slate-900 text-sm group-hover:text-emerald-600 transition">
+            Affiliate Marketing
+          </h3>
+          <p className="text-slate-500 text-xs">
+            Add campaigns, edit affiliate links, generate <code>/go/</code> redirect URLs, track clicks.
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/seo"
+          className="group bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-amber-400 hover:shadow-md transition space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="p-2.5 bg-amber-50 text-amber-600 rounded-xl group-hover:scale-110 transition">
+              <Search className="w-5 h-5" />
+            </span>
+            <span className="text-[10px] font-bold uppercase text-amber-600 bg-amber-50/70 px-2 py-0.5 rounded">Google SEO</span>
+          </div>
+          <h3 className="font-bold text-slate-900 text-sm group-hover:text-amber-600 transition">
+            SEO & Search Console
+          </h3>
+          <p className="text-slate-500 text-xs">
+            Auto sitemap.xml, robots.txt, schema markup, and meta verification for Google indexing.
+          </p>
+        </Link>
       </div>
 
       {/* Daily 20-Blog Publishing Progress Tracker (Section 4 Requirement) */}

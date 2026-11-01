@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { AdPlacement, AffiliatePromotion } from '@/lib/types';
 import VisualAdLayoutPreview from '@/components/VisualAdLayoutPreview';
 import {
@@ -187,6 +188,22 @@ export default function AdminAdsPage() {
 
   return (
     <div className="space-y-8">
+      {/* Top Switcher: Google AdSense vs Affiliate Ads */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-200/80 rounded-2xl w-fit">
+        <Link
+          href="/admin/ads"
+          className="px-4 py-2 text-xs font-bold bg-white text-brand-700 shadow-xs rounded-xl flex items-center gap-1.5"
+        >
+          <Tag className="w-3.5 h-3.5" /> Google AdSense & Ad Units
+        </Link>
+        <Link
+          href="/admin/affiliates"
+          className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 rounded-xl transition flex items-center gap-1.5"
+        >
+          <DollarSign className="w-3.5 h-3.5" /> Affiliate Marketing & /go/ Links
+        </Link>
+      </div>
+
       {/* Top Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-2xs">
         <div>

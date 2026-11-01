@@ -15,12 +15,14 @@ import {
   Github,
   Mail,
 } from 'lucide-react';
+import { WebsiteSettings } from '@/lib/types';
 
 interface FooterProps {
   categories?: Array<{ id: string; name: string; slug: string }>;
+  settings?: WebsiteSettings;
 }
 
-export default function Footer({ categories = [] }: FooterProps) {
+export default function Footer({ categories = [], settings }: FooterProps) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -31,6 +33,17 @@ export default function Footer({ categories = [] }: FooterProps) {
       setEmail('');
     }
   };
+
+  const brandName = settings?.site_name || 'Srinoos';
+  const brandTagline = settings?.site_tagline || 'Technology Collective';
+  const logoUrl = settings?.logo_image_url || '/images/srinoos-s-icon.jpg';
+  const aboutText =
+    settings?.footer_about_text ||
+    settings?.site_description ||
+    'Srinoos is a leading digital publication dedicated to artificial intelligence, high-performance web development, actionable search engine optimization, and legitimate online monetization strategies.';
+  const creditText = settings?.credit_text || 'Designed and Developed by Srinoos';
+  const portfolioUrl = settings?.portfolio_url || 'https://quiet-pony-c4f26b.netlify.app';
+  const contactEmail = settings?.contact_email || 'ketanboinak@gmail.com';
 
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800">
@@ -81,26 +94,86 @@ export default function Footer({ categories = [] }: FooterProps) {
             <Link href="/" className="flex items-center gap-3.5 group">
               <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-xl bg-slate-950 flex-shrink-0 p-0.5">
                 <img
-                  src="/images/srinoos-s-icon.jpg"
-                  alt="Srinoos Logo"
+                  src={logoUrl}
+                  alt={`${brandName} Logo`}
                   className="w-full h-full object-cover rounded-xl"
                 />
               </div>
               <div>
-                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight group-hover:text-brand-400 transition">Srinoos</span>
-                <span className="block text-[11px] font-bold text-slate-400 -mt-0.5 tracking-wider uppercase">Technology Collective</span>
+                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight group-hover:text-brand-400 transition font-display">
+                  {brandName}
+                </span>
+                <span className="block text-[11px] font-bold text-slate-400 -mt-0.5 tracking-wider uppercase">
+                  {brandTagline}
+                </span>
               </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              Srinoos is a leading digital publication dedicated to artificial intelligence, high-performance web development, actionable search engine optimization, and legitimate online monetization strategies.
+              {aboutText}
             </p>
-            <div className="flex items-center gap-2 pt-2 text-slate-400">
-              <a href="https://quiet-pony-c4f26b.netlify.app" target="_blank" rel="noopener noreferrer" aria-label="Ketanboina Portfolio" title="Live Portfolio" className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition">
+            <div className="flex flex-wrap items-center gap-2 pt-2 text-slate-400">
+              <a
+                href={portfolioUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Creator Portfolio"
+                title="Live Portfolio"
+                className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition"
+              >
                 <Globe className="w-4 h-4" />
               </a>
-              <a href="mailto:ketanboinak@gmail.com" aria-label="Direct Email" title="Direct Email" className="p-2 bg-slate-900 rounded-lg hover:text-emerald-400 hover:bg-slate-800 transition">
+              <a
+                href={`mailto:${contactEmail}`}
+                aria-label="Direct Email"
+                title="Direct Email"
+                className="p-2 bg-slate-900 rounded-lg hover:text-emerald-400 hover:bg-slate-800 transition"
+              >
                 <Mail className="w-4 h-4" />
               </a>
+              {settings?.twitter_url && (
+                <a
+                  href={settings.twitter_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter / X"
+                  className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition"
+                >
+                  <Twitter className="w-4 h-4" />
+                </a>
+              )}
+              {settings?.linkedin_url && (
+                <a
+                  href={settings.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
+              {settings?.github_url && (
+                <a
+                  href={settings.github_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                  className="p-2 bg-slate-900 rounded-lg hover:text-brand-400 hover:bg-slate-800 transition"
+                >
+                  <Github className="w-4 h-4" />
+                </a>
+              )}
+              {settings?.youtube_url && (
+                <a
+                  href={settings.youtube_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  className="p-2 bg-slate-900 rounded-lg hover:text-rose-400 hover:bg-slate-800 transition"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -182,9 +255,17 @@ export default function Footer({ categories = [] }: FooterProps) {
 
         {/* Bottom Bar with Mandatory Credit */}
         <div className="mt-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Srinoos. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {brandName}. All rights reserved.</p>
           <div className="flex items-center gap-2 font-medium text-slate-400 bg-slate-900/80 border border-slate-800 px-4 py-1.5 rounded-full">
-            <span>Designed and Developed by <strong className="text-brand-400 font-semibold">Srinoos</strong></span>
+            <span>
+              {creditText.includes('Srinoos') ? (
+                <>
+                  Designed and Developed by <strong className="text-brand-400 font-semibold">Srinoos</strong>
+                </>
+              ) : (
+                creditText
+              )}
+            </span>
           </div>
         </div>
       </div>

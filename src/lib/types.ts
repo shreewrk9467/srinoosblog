@@ -107,6 +107,17 @@ export interface WebsiteSettings {
   founder_title?: string;
   about_me_bio?: string;
   founder_avatar?: string;
+  logo_image_url?: string;
+
+  // Dynamic Content & Elements (WordPress Style)
+  announcement_bar_enabled?: boolean;
+  announcement_bar_text?: string;
+  announcement_bar_link?: string;
+  hero_headline?: string;
+  hero_subheadline?: string;
+  hero_lead_badge?: string;
+  footer_about_text?: string;
+  nav_links_json?: string; // JSON array of { name: string, href: string }
 }
 
 export interface Comment {

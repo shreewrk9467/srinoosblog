@@ -15,6 +15,7 @@ import {
   Sparkles,
   ShieldCheck,
   CheckCircle,
+  Palette,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -41,6 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Blog Articles', href: '/admin/blogs', icon: FileText },
     { name: 'New Blog (AI Assisted)', href: '/admin/blogs/new', icon: Sparkles },
     { name: 'Ad Management', href: '/admin/ads', icon: Tag },
+    { name: 'Site Content & Elements', href: '/admin/content', icon: Palette },
     { name: 'Affiliate Marketing', href: '/admin/affiliates', icon: DollarSign },
     { name: 'SEO & Search Console', href: '/admin/seo', icon: Search },
     { name: 'Traffic & Earnings', href: '/admin/analytics', icon: BarChart3 },

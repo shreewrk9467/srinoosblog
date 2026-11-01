@@ -79,8 +79,8 @@ export default function AboutPage() {
               <div className="flex items-center gap-3 bg-slate-800/80 border border-slate-700/80 px-4 py-2.5 rounded-2xl">
                 <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-950 flex-shrink-0 shadow-lg p-0.5">
                   <img
-                    src="/images/srinoos-s-icon.jpg"
-                    alt="Srinoos Logo"
+                    src={settings.logo_image_url || '/images/srinoos-s-icon.jpg'}
+                    alt={`${settings.site_name || 'Srinoos'} Logo`}
                     className="w-full h-full object-cover rounded-xl"
                   />
                 </div>

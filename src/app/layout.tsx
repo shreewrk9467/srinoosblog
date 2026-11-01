@@ -123,9 +123,9 @@ export default function RootLayout({
       </head>
       <body className="flex flex-col min-h-screen text-slate-900 bg-slate-50 antialiased selection:bg-brand-500 selection:text-white">
         <AdSenseScript />
-        <Header categories={categories} />
+        <Header categories={categories} settings={settings} />
         <main className="flex-1 w-full">{children}</main>
-        <Footer categories={categories} />
+        <Footer categories={categories} settings={settings} />
         <CookieBanner />
       </body>
     </html>
