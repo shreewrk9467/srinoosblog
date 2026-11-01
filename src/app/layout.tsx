@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import AdSenseScript from '@/components/AdSenseScript';
+import AdminCornerBadge from '@/components/AdminCornerBadge';
 import { getAllCategories, getWebsiteSettings } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -127,6 +128,7 @@ export default function RootLayout({
         <main className="flex-1 w-full">{children}</main>
         <Footer categories={categories} settings={settings} />
         <CookieBanner />
+        <AdminCornerBadge />
       </body>
     </html>
   );
