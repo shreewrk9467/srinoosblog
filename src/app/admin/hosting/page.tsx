@@ -315,7 +315,7 @@ export default function AdminHostingPage() {
                   <span className="text-[11px] text-slate-500">Live Global Frontend</span>
                 </div>
                 <code className="font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  A &rarr; 76.76.21.21
+                  A &rarr; 216.198.79.1 (or 76.76.21.21)
                 </code>
               </div>
             </div>
