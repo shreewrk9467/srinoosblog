@@ -25,20 +25,21 @@ import {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [checkingAuth, setCheckingAuth] = useState(pathname !== '/admin/login');
+  const isLoginPage = pathname === '/admin/login';
+  const [checkingAuth, setCheckingAuth] = useState(!isLoginPage);
   const [adminUser, setAdminUser] = useState<any>(null);
 
-  // If on login page, don't show admin chrome
-  if (pathname === '/admin/login') {
-    return <div className="min-h-screen bg-slate-100">{children}</div>;
-  }
-
   useEffect(() => {
+    if (isLoginPage) {
+      setCheckingAuth(false);
+      return;
+    }
+
     let isMounted = true;
     fetch('/api/auth/me')
       .then((res) => {
         if (!res.ok) {
-          router.replace('/admin/login');
+          window.location.href = '/admin/login';
           return null;
         }
         return res.json();
@@ -49,30 +50,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             setAdminUser(data.user);
             setCheckingAuth(false);
           } else {
-            router.replace('/admin/login');
+            window.location.href = '/admin/login';
           }
         }
       })
       .catch(() => {
         if (isMounted) {
-          router.replace('/admin/login');
+          window.location.href = '/admin/login';
         }
       });
 
     return () => {
       isMounted = false;
     };
-  }, [pathname, router]);
+  }, [pathname, isLoginPage]);
 
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.replace('/admin/login');
-      router.refresh();
+      window.location.href = '/admin/login';
     } catch (e) {
       console.error(e);
     }
   };
+
+  // If on login page, render children cleanly without admin chrome (after all hooks)
+  if (isLoginPage) {
+    return <div className="min-h-screen bg-slate-100">{children}</div>;
+  }
 
   if (checkingAuth) {
     return (
