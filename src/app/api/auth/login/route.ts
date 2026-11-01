@@ -3,13 +3,15 @@ import { verifyAdminCredentials, generateSessionToken, AUTH_COOKIE_NAME } from '
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const identifier = (body.email || body.username || '').trim();
+    const password = (body.password || '').trim();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!identifier || !password) {
+      return NextResponse.json({ error: 'Username/Email and password are required' }, { status: 400 });
     }
 
-    const session = await verifyAdminCredentials(email, password);
+    const session = await verifyAdminCredentials(identifier, password);
     if (!session) {
       return NextResponse.json({ error: 'Invalid admin credentials' }, { status: 401 });
     }
