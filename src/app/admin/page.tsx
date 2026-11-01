@@ -24,6 +24,7 @@ import {
   Settings,
   Globe,
   Server,
+  Database,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -59,6 +60,12 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
           >
             <Server className="w-4 h-4" /> Hostinger LiteSpeed (82.112.239.60)
+          </Link>
+          <Link
+            href="/admin/supabase"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
+          >
+            <Database className="w-4 h-4" /> Supabase Database
           </Link>
           <Link
             href="/admin/wordpress"

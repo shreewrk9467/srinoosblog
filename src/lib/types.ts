@@ -141,6 +141,12 @@ export interface WebsiteSettings {
   wordpress_sync_mode?: 'live' | 'sync_db';
   wordpress_last_synced?: string;
   wordpress_auto_sync?: boolean;
+
+  // Supabase Cloud PostgreSQL Integration
+  supabase_enabled?: boolean;
+  supabase_url?: string;
+  supabase_anon_key?: string;
+  supabase_last_synced?: string;
 }
 
 export interface Comment {
