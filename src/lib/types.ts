@@ -125,6 +125,13 @@ export interface WebsiteSettings {
   hero_lead_badge?: string;
   footer_about_text?: string;
   nav_links_json?: string; // JSON array of { name: string, href: string }
+
+  // Headless WordPress Integration
+  wordpress_enabled?: boolean;
+  wordpress_url?: string; // e.g. https://wp.sricospace.com
+  wordpress_sync_mode?: 'live' | 'sync_db';
+  wordpress_last_synced?: string;
+  wordpress_auto_sync?: boolean;
 }
 
 export interface Comment {

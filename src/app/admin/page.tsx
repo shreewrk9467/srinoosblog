@@ -22,6 +22,7 @@ import {
   Palette,
   Search,
   Settings,
+  Globe,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,12 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
+            href="/admin/wordpress"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
+          >
+            <Globe className="w-4 h-4" /> WordPress Integration
+          </Link>
+          <Link
             href="/admin/content"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
           >
@@ -74,7 +81,25 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* WordPress-Style Quick Management Hub */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Link
+          href="/admin/wordpress"
+          className="group bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:shadow-md transition space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition">
+              <Globe className="w-5 h-5" />
+            </span>
+            <span className="text-[10px] font-bold uppercase text-blue-600 bg-blue-50/70 px-2 py-0.5 rounded">WordPress CMS</span>
+          </div>
+          <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition">
+            WordPress Connect
+          </h3>
+          <p className="text-slate-500 text-xs">
+            Connect Hostinger WordPress REST API, 1-click sync articles, or live webhook.
+          </p>
+        </Link>
+
         <Link
           href="/admin/content"
           className="group bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-400 hover:shadow-md transition space-y-2"

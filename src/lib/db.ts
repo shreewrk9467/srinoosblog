@@ -864,6 +864,82 @@ export function deletePost(id: string): boolean {
   return res.changes > 0;
 }
 
+export function upsertPostFromWordPress(post: Partial<BlogPost>): BlogPost {
+  const db = getDb();
+  const existing = (post.slug
+    ? db.prepare('SELECT id FROM blog_posts WHERE slug = ?').get(post.slug)
+    : null) || (post.id ? db.prepare('SELECT id FROM blog_posts WHERE id = ?').get(post.id) : null) as any;
+  const now = new Date().toISOString();
+
+  if (existing && existing.id) {
+    db.prepare(`
+      UPDATE blog_posts SET
+        title = coalesce(?, title),
+        excerpt = coalesce(?, excerpt),
+        content = coalesce(?, content),
+        featured_image = coalesce(?, featured_image),
+        category_id = coalesce(?, category_id),
+        status = coalesce(?, status),
+        published_at = coalesce(?, published_at),
+        author_name = coalesce(?, author_name),
+        reading_time_minutes = coalesce(?, reading_time_minutes),
+        meta_title = coalesce(?, meta_title),
+        meta_description = coalesce(?, meta_description),
+        updated_at = ?
+      WHERE id = ?
+    `).run(
+      post.title ?? null,
+      post.excerpt ?? null,
+      post.content ?? null,
+      post.featured_image ?? null,
+      post.category_id ?? null,
+      post.status ?? null,
+      post.published_at ?? null,
+      post.author_name ?? null,
+      post.reading_time_minutes ?? null,
+      post.meta_title ?? null,
+      post.meta_description ?? null,
+      now,
+      existing.id
+    );
+    return getPostById(existing.id)!;
+  } else {
+    const id = post.id || `wp-post-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    db.prepare(`
+      INSERT INTO blog_posts (
+        id, title, slug, excerpt, content, featured_image, image_caption,
+        category_id, tags, status, is_featured, is_trending, reading_time_minutes,
+        meta_title, meta_description, focus_keyword, faq_schema, scheduled_at,
+        published_at, author_name, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      post.title || 'Untitled Post',
+      post.slug || `wp-${Date.now()}`,
+      post.excerpt || '',
+      post.content || '',
+      post.featured_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80',
+      post.image_caption || '',
+      post.category_id || 'cat-blogging-seo',
+      post.tags || '',
+      post.status || 'published',
+      post.is_featured ? 1 : 0,
+      post.is_trending ? 1 : 0,
+      post.reading_time_minutes || 5,
+      post.meta_title || post.title || '',
+      post.meta_description || post.excerpt || '',
+      post.focus_keyword || '',
+      post.faq_schema || '[]',
+      null,
+      post.published_at || now,
+      post.author_name || 'Srinoos Editorial Team',
+      now,
+      now
+    );
+    return getPostById(id)!;
+  }
+}
+
 // -------------------------------------------------------------
 // DAILY 20-BLOG PUBLISHING TRACKER
 // -------------------------------------------------------------
