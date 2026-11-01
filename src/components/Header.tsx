@@ -78,12 +78,6 @@ export default function Header({ categories = [], settings }: HeaderProps) {
               <Link href="/affiliate-disclosure" className="hover:text-white transition">
                 Affiliate Policy
               </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-1 text-brand-400 hover:text-brand-300 font-medium transition"
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" /> Admin
-              </Link>
             </div>
           </div>
         </div>
@@ -250,18 +244,18 @@ export default function Header({ categories = [], settings }: HeaderProps) {
           </div>
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
             <Link
-              href="/admin"
+              href="/contact"
               onClick={() => setMobileMenuOpen(false)}
               className="text-xs text-brand-600 font-semibold"
             >
-              Admin Dashboard
+              Contact Editorial Desk
             </Link>
             <Link
-              href="/admin/blogs/new"
+              href="/blog"
               onClick={() => setMobileMenuOpen(false)}
               className="px-4 py-1.5 bg-brand-600 text-white rounded text-xs font-bold shadow"
             >
-              + Create Article
+              Explore Guides
             </Link>
           </div>
         </div>

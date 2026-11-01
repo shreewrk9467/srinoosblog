@@ -246,9 +246,6 @@ export default function Footer({ categories = [], settings }: FooterProps) {
               <li>
                 <Link href="/ad-policy" className="hover:text-white transition">Advertisement Policy</Link>
               </li>
-              <li>
-                <Link href="/admin" className="text-brand-400 hover:text-brand-300 font-medium transition">Admin Login</Link>
-              </li>
             </ul>
           </div>
         </div>

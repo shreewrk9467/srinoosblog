@@ -121,3 +121,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: err.message || 'Failed to configure Supabase' }, { status: 500 });
   }
 }
+
