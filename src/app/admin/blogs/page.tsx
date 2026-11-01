@@ -13,6 +13,7 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
+  BookOpen,
 } from 'lucide-react';
 import { BlogPost, Category } from '@/lib/types';
 
@@ -22,14 +23,26 @@ export default function AdminBlogsPage() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [dailyStats, setDailyStats] = useState<{ published_count: number; target: number; date: string }>({
+    published_count: 0,
+    target: 20,
+    date: new Date().toISOString().slice(0, 10),
+  });
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
       const url = filterStatus !== 'all' ? `/api/blogs?status=${filterStatus}` : '/api/blogs';
-      const res = await fetch(url);
-      const data = await res.json();
-      setPosts(data.posts || []);
+      const [resBlogs, resCats, resAnalytics] = await Promise.all([
+        fetch(url).then((r) => r.json()),
+        fetch('/api/categories').then((r) => r.json()),
+        fetch('/api/analytics').then((r) => r.json()).catch(() => null),
+      ]);
+      setPosts(resBlogs.posts || []);
+      setCategories(resCats.categories || []);
+      if (resAnalytics?.dailyPublishing) {
+        setDailyStats(resAnalytics.dailyPublishing);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -39,13 +52,10 @@ export default function AdminBlogsPage() {
 
   useEffect(() => {
     fetchPosts();
-    fetch('/api/categories')
-      .then((r) => r.json())
-      .then((d) => setCategories(d.categories || []));
   }, [filterStatus]);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete "${title}"? It will disappear from the live website immediately.`)) return;
 
     try {
       const res = await fetch(`/api/blogs/${id}`, { method: 'DELETE' });
@@ -54,7 +64,7 @@ export default function AdminBlogsPage() {
       } else {
         alert('Could not delete post');
       }
-    } catch (e) {
+    } catch {
       alert('Error deleting post');
     }
   };
@@ -74,7 +84,7 @@ export default function AdminBlogsPage() {
       } else {
         alert('Could not update status');
       }
-    } catch (e) {
+    } catch {
       alert('Error toggling status');
     }
   };
@@ -85,23 +95,69 @@ export default function AdminBlogsPage() {
     return p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
   });
 
+  const progressPercent = Math.min(Math.round((dailyStats.published_count / dailyStats.target) * 100), 100);
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-2xs">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Blog Article Management</h1>
-          <p className="text-xs text-slate-500">
-            Publish, schedule, edit drafts, and configure SEO metadata across all articles.
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600 block mb-1">
+            WordPress-Style Editorial CMS
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Blog Articles & Publishing Control
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Publish, schedule, edit drafts, and configure SEO metadata across all articles. Instant updates on live website.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/admin/blogs/new"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Create New Blog
           </Link>
+        </div>
+      </div>
+
+      {/* Daily 20-Blog Target Tracker */}
+      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="px-3 py-0.5 bg-brand-500/30 border border-brand-400/40 text-brand-300 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" /> Daily Target: {dailyStats.target} Articles
+              </span>
+              <span className="text-xs text-slate-400">Date: {dailyStats.date}</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              {dailyStats.published_count} of {dailyStats.target} Articles Published Today
+            </h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/blogs/new"
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow transition flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> AI Draft Assistant
+            </Link>
+            <div className="text-right pl-3 border-l border-slate-800">
+              <span className="text-2xl font-black text-brand-400">{progressPercent}%</span>
+              <span className="block text-[10px] text-slate-400">Complete</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mt-4">
+          <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-700">
+            <div
+              className="bg-gradient-to-r from-brand-500 to-emerald-400 h-full rounded-full transition-all duration-500"
+              style={{ width: `${Math.max(progressPercent, 4)}%` }}
+            />
+          </div>
         </div>
       </div>
 
@@ -116,7 +172,7 @@ export default function AdminBlogsPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="bg-slate-50 border border-slate-200 text-xs font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-500"
           >
-            <option value="all">All Statuses ({posts.length})</option>
+            <option value="all">All Articles ({posts.length})</option>
             <option value="published">Published</option>
             <option value="scheduled">Scheduled</option>
             <option value="review">Review</option>
@@ -124,15 +180,15 @@ export default function AdminBlogsPage() {
           </select>
         </div>
 
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full sm:w-80">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by title or slug..."
-            className="w-full bg-slate-50 border border-slate-200 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-brand-500"
+            placeholder="Search articles by title or slug..."
+            className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-brand-500"
           />
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
         </div>
       </div>
 
@@ -142,9 +198,9 @@ export default function AdminBlogsPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200/60">
               <tr>
-                <th className="px-6 py-4">Title & Details</th>
+                <th className="px-6 py-4">Title & Slug</th>
                 <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Publishing Status</th>
                 <th className="px-6 py-4">Created / Published</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -201,19 +257,20 @@ export default function AdminBlogsPage() {
                       <Link
                         href={`/blog/${post.slug}`}
                         target="_blank"
-                        className="px-2.5 py-1.5 text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md font-medium text-[11px] inline-flex items-center gap-1"
+                        className="px-2.5 py-1.5 text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md font-medium text-[11px] inline-flex items-center gap-1 cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" /> View
                       </Link>
                       <Link
                         href={`/admin/blogs/${post.id}`}
-                        className="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-md font-bold text-[11px] inline-flex items-center gap-1"
+                        className="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-md font-bold text-[11px] inline-flex items-center gap-1 cursor-pointer"
                       >
                         <Edit3 className="w-3 h-3" /> Edit
                       </Link>
                       <button
                         onClick={() => handleDelete(post.id, post.title)}
-                        className="px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-md text-[11px]"
+                        className="px-2 py-1.5 text-rose-600 hover:bg-rose-50 rounded-md text-[11px] cursor-pointer"
+                        title="Delete article"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -228,4 +285,3 @@ export default function AdminBlogsPage() {
     </div>
   );
 }
-

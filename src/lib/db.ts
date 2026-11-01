@@ -133,6 +133,13 @@ function initSchema(db: DatabaseSync) {
       ad_slot_id TEXT DEFAULT '',
       format TEXT DEFAULT 'responsive',
       dimensions TEXT DEFAULT 'responsive',
+      banner_image_url TEXT DEFAULT '',
+      target_link_url TEXT DEFAULT '',
+      headline TEXT DEFAULT '',
+      description TEXT DEFAULT '',
+      badge_text TEXT DEFAULT 'Sponsored',
+      button_text TEXT DEFAULT 'Learn More',
+      open_in_new_tab INTEGER DEFAULT 1,
       desktop_enabled INTEGER DEFAULT 1,
       tablet_enabled INTEGER DEFAULT 1,
       mobile_enabled INTEGER DEFAULT 1,
@@ -196,6 +203,15 @@ function initSchema(db: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS idx_posts_published_at ON blog_posts(published_at);
     CREATE INDEX IF NOT EXISTS idx_ad_clicks_slug ON ad_clicks(tracking_slug);
   `);
+
+  // Column migrations for dynamic banner details
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN banner_image_url TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN target_link_url TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN headline TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN description TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN badge_text TEXT DEFAULT "Sponsored"'); } catch {}
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN button_text TEXT DEFAULT "Learn More"'); } catch {}
+  try { db.exec('ALTER TABLE ad_placements ADD COLUMN open_in_new_tab INTEGER DEFAULT 1'); } catch {}
 
   // Seed default admin and seed categories/ads if empty
   seedDefaults(db);
@@ -944,6 +960,7 @@ export function getAllAdPlacements(): AdPlacement[] {
   const rows = db.prepare('SELECT * FROM ad_placements ORDER BY location_zone, name').all() as any[];
   return toPlain(rows.map((r) => ({
     ...r,
+    open_in_new_tab: r.open_in_new_tab === undefined ? true : Boolean(r.open_in_new_tab),
     desktop_enabled: Boolean(r.desktop_enabled),
     tablet_enabled: Boolean(r.tablet_enabled),
     mobile_enabled: Boolean(r.mobile_enabled),
@@ -957,6 +974,7 @@ export function getAdPlacementById(id: string): AdPlacement | null {
   if (!r) return null;
   return toPlain({
     ...r,
+    open_in_new_tab: r.open_in_new_tab === undefined ? true : Boolean(r.open_in_new_tab),
     desktop_enabled: Boolean(r.desktop_enabled),
     tablet_enabled: Boolean(r.tablet_enabled),
     mobile_enabled: Boolean(r.mobile_enabled),
@@ -977,6 +995,13 @@ export function updateAdPlacement(id: string, placement: Partial<AdPlacement>): 
       ad_slot_id = coalesce(?, ad_slot_id),
       format = coalesce(?, format),
       dimensions = coalesce(?, dimensions),
+      banner_image_url = coalesce(?, banner_image_url),
+      target_link_url = coalesce(?, target_link_url),
+      headline = coalesce(?, headline),
+      description = coalesce(?, description),
+      badge_text = coalesce(?, badge_text),
+      button_text = coalesce(?, button_text),
+      open_in_new_tab = coalesce(?, open_in_new_tab),
       desktop_enabled = coalesce(?, desktop_enabled),
       tablet_enabled = coalesce(?, tablet_enabled),
       mobile_enabled = coalesce(?, mobile_enabled),
@@ -992,6 +1017,13 @@ export function updateAdPlacement(id: string, placement: Partial<AdPlacement>): 
     placement.ad_slot_id ?? null,
     placement.format ?? null,
     placement.dimensions ?? null,
+    placement.banner_image_url ?? null,
+    placement.target_link_url ?? null,
+    placement.headline ?? null,
+    placement.description ?? null,
+    placement.badge_text ?? null,
+    placement.button_text ?? null,
+    placement.open_in_new_tab !== undefined ? (placement.open_in_new_tab ? 1 : 0) : null,
     placement.desktop_enabled !== undefined ? (placement.desktop_enabled ? 1 : 0) : null,
     placement.tablet_enabled !== undefined ? (placement.tablet_enabled ? 1 : 0) : null,
     placement.mobile_enabled !== undefined ? (placement.mobile_enabled ? 1 : 0) : null,
@@ -1013,17 +1045,25 @@ export function createAdPlacement(placement: Partial<AdPlacement>): AdPlacement 
   db.prepare(`
     INSERT INTO ad_placements (
       id, name, location_zone, ad_type, ad_slot_id, format, dimensions,
+      banner_image_url, target_link_url, headline, description, badge_text, button_text, open_in_new_tab,
       desktop_enabled, tablet_enabled, mobile_enabled, is_active, custom_html,
       affiliate_promo_id, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id,
     placement.name || 'Custom Ad Placement',
     placement.location_zone || 'article',
-    placement.ad_type || 'adsense',
+    placement.ad_type || (placement.banner_image_url ? 'banner' : 'adsense'),
     placement.ad_slot_id || '',
     placement.format || 'responsive',
     placement.dimensions || 'responsive',
+    placement.banner_image_url || '',
+    placement.target_link_url || '',
+    placement.headline || '',
+    placement.description || '',
+    placement.badge_text || 'Sponsored',
+    placement.button_text || 'Learn More',
+    placement.open_in_new_tab !== undefined ? (placement.open_in_new_tab ? 1 : 0) : 1,
     placement.desktop_enabled !== undefined ? (placement.desktop_enabled ? 1 : 0) : 1,
     placement.tablet_enabled !== undefined ? (placement.tablet_enabled ? 1 : 0) : 1,
     placement.mobile_enabled !== undefined ? (placement.mobile_enabled ? 1 : 0) : 1,

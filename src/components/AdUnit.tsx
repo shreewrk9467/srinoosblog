@@ -110,6 +110,98 @@ export default function AdUnit({ placementId, className = '', fallbackTitle }: A
     );
   }
 
+  // Direct Custom Banner Mode (Image + Link + Description + Button)
+  if (placement.ad_type === 'banner' || (placement.banner_image_url && placement.ad_type !== 'adsense')) {
+    const isHorizontal =
+      placement.dimensions === '728x90' ||
+      placement.dimensions === '970x250' ||
+      placement.dimensions === '320x50';
+
+    return (
+      <aside
+        aria-label={placement.headline || placement.name || 'Sponsored Promotion'}
+        className={`my-6 mx-auto ${sizeStyles} ${visibilityClass} ${className}`}
+      >
+        <div className="text-[10px] tracking-widest uppercase text-slate-500 font-semibold text-center mb-1 flex items-center justify-center gap-1">
+          <Tag className="w-3 h-3 text-slate-500" /> {placement.badge_text || 'Sponsored Partner'}
+        </div>
+        <a
+          href={placement.target_link_url || '#'}
+          target={placement.open_in_new_tab !== false ? '_blank' : '_self'}
+          rel="sponsored nofollow noopener"
+          className="block group overflow-hidden rounded-2xl border border-slate-200 bg-white hover:border-brand-500 shadow-sm hover:shadow-md transition duration-200"
+        >
+          {isHorizontal ? (
+            <div className="flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white">
+              {placement.banner_image_url && (
+                <div className="h-16 w-full sm:w-48 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
+                  <img
+                    src={placement.banner_image_url}
+                    alt={placement.headline || placement.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                </div>
+              )}
+              <div className="flex-1 text-center sm:text-left min-w-0">
+                {placement.headline && (
+                  <h4 className="font-bold text-white text-sm sm:text-base truncate group-hover:text-brand-300 transition">
+                    {placement.headline}
+                  </h4>
+                )}
+                {placement.description && (
+                  <p className="text-slate-300 text-xs truncate mt-0.5">
+                    {placement.description}
+                  </p>
+                )}
+              </div>
+              {placement.button_text && (
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center gap-1 px-4 py-2 bg-brand-600 group-hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                    {placement.button_text} <ExternalLink className="w-3 h-3" />
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {placement.banner_image_url && (
+                <div className="aspect-[16/9] w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={placement.banner_image_url}
+                    alt={placement.headline || placement.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                </div>
+              )}
+              <div className="p-4 bg-white flex flex-col justify-between flex-1">
+                <div>
+                  {placement.headline && (
+                    <h4 className="font-bold text-slate-900 text-base leading-snug group-hover:text-brand-600 transition">
+                      {placement.headline}
+                    </h4>
+                  )}
+                  {placement.description && (
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                      {placement.description}
+                    </p>
+                  )}
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {placement.badge_text || 'Featured Deal'}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 group-hover:text-brand-700">
+                    {placement.button_text || 'Visit Partner'} &rarr;
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </a>
+      </aside>
+    );
+  }
+
   // Google AdSense Mode
   const isAdSenseActive = settings.adsense_active && settings.adsense_publisher_id;
 

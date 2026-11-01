@@ -41,10 +41,17 @@ export interface AdPlacement {
   id: string; // e.g., 'header-global', 'article-mid', 'sidebar-sticky'
   name: string;
   location_zone: 'global' | 'article' | 'sidebar' | 'homepage' | 'mobile';
-  ad_type: 'adsense' | 'affiliate' | 'custom_html';
+  ad_type: 'adsense' | 'affiliate' | 'custom_html' | 'banner';
   ad_slot_id?: string; // Google AdSense data-ad-slot
   format?: 'responsive' | 'rectangle' | 'leaderboard' | 'skyscraper' | 'banner';
   dimensions?: string; // e.g., '728x90', '300x250', '336x280'
+  banner_image_url?: string;
+  target_link_url?: string;
+  headline?: string;
+  description?: string;
+  badge_text?: string;
+  button_text?: string;
+  open_in_new_tab?: boolean;
   desktop_enabled: boolean;
   tablet_enabled: boolean;
   mobile_enabled: boolean;
