@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getPostById, updatePost, deletePost } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
@@ -28,6 +31,11 @@ export async function PUT(
     if (!updated) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
+
+    try {
+      revalidatePath('/', 'layout');
+    } catch {}
+
     return NextResponse.json({ success: true, post: updated });
   } catch (error: any) {
     console.error('Update blog error:', error);
@@ -49,6 +57,9 @@ export async function DELETE(
     return NextResponse.json({ error: 'Post not found or could not be deleted' }, { status: 404 });
   }
 
+  try {
+    revalidatePath('/', 'layout');
+  } catch {}
+
   return NextResponse.json({ success: true, message: 'Post deleted successfully' });
 }
-

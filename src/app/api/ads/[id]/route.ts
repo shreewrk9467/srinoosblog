@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAdPlacementById, updateAdPlacement, deleteAdPlacement } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
@@ -30,6 +31,12 @@ export async function PUT(
     if (!updated) {
       return NextResponse.json({ error: 'Placement not found' }, { status: 404 });
     }
+
+    // Bust cache instantly across the entire website
+    try {
+      revalidatePath('/', 'layout');
+    } catch {}
+
     return NextResponse.json({ success: true, placement: updated });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Failed to update ad placement' }, { status: 500 });
@@ -48,11 +55,16 @@ export async function DELETE(
   try {
     const deleted = deleteAdPlacement(params.id);
     if (!deleted) {
-      return NextResponse.json({ error: 'Placement not found or already deleted' }, { status: 404 });
+      return NextResponse.json({ error: 'Placement not found' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, message: 'Ad placement deleted successfully' });
+
+    // Bust cache instantly across the entire website
+    try {
+      revalidatePath('/', 'layout');
+    } catch {}
+
+    return NextResponse.json({ success: true, message: 'Placement deleted' });
   } catch (error: any) {
-    console.error('Delete ad placement error:', error);
-    return NextResponse.json({ error: error?.message || 'Failed to delete ad placement' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Failed to delete placement' }, { status: 500 });
   }
 }

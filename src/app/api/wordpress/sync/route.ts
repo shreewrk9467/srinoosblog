@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { syncWordPressArticles } from '@/lib/wordpress';
 import { getWebsiteSettings, updateWebsiteSettings } from '@/lib/db';
 
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     const result = await syncWordPressArticles(url);
 
-    // If successful, persist settings
+    // If successful, persist settings & bust cache
     if (result.success) {
       try {
         updateWebsiteSettings({
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
           wordpress_enabled: true,
           wordpress_last_synced: new Date().toISOString(),
         });
+        revalidatePath('/', 'layout');
       } catch {}
     }
 
@@ -69,6 +71,13 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await syncWordPressArticles(url);
+
+    if (result.success) {
+      try {
+        revalidatePath('/', 'layout');
+      } catch {}
+    }
+
     return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({

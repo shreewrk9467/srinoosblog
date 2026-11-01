@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAllPosts, createPost, getDailyPublishingProgress } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
@@ -54,12 +55,14 @@ export async function POST(request: NextRequest) {
       author_name: session.fullName || body.author_name || 'Srinoos Editorial Team',
     });
 
+    // Invalidate site cache immediately
+    try {
+      revalidatePath('/', 'layout');
+    } catch {}
+
     return NextResponse.json({ success: true, post: newPost }, { status: 201 });
   } catch (error: any) {
     console.error('Create blog error:', error);
-    return NextResponse.json(
-      { error: error?.message || 'Failed to create blog post. Ensure slug is unique.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error?.message || 'Failed to create blog post' }, { status: 500 });
   }
 }

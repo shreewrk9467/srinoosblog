@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAllAdPlacements, createAdPlacement } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
@@ -22,6 +23,12 @@ export async function POST(request: NextRequest) {
     }
 
     const newPlacement = createAdPlacement(body);
+
+    // Bust cache instantly across the entire website
+    try {
+      revalidatePath('/', 'layout');
+    } catch {}
+
     return NextResponse.json({ success: true, placement: newPlacement }, { status: 201 });
   } catch (error: any) {
     console.error('Create ad placement error:', error);
