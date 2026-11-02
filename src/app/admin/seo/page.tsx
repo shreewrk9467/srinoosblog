@@ -11,18 +11,52 @@ import {
   Globe,
   FileCode,
   Share2,
+  RefreshCw,
+  AlertCircle,
+  Activity,
 } from 'lucide-react';
 
 export default function AdminSeoPage() {
   const [settings, setSettings] = useState<Partial<WebsiteSettings>>({});
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [runningAudit, setRunningAudit] = useState(false);
+  const [auditResults, setAuditResults] = useState<any>(null);
 
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
       .then((d) => setSettings(d.settings || {}));
   }, []);
+
+  const handleRunAudit = async () => {
+    setRunningAudit(true);
+    try {
+      const [sitemapRes, robotsRes, adsRes] = await Promise.all([
+        fetch('/sitemap.xml'),
+        fetch('/robots.txt'),
+        fetch('/ads.txt'),
+      ]);
+
+      const sitemapText = await sitemapRes.text();
+      const urlMatches = (sitemapText.match(/<url>/g) || []).length;
+
+      setAuditResults({
+        sitemapOk: sitemapRes.ok,
+        sitemapUrls: urlMatches,
+        robotsOk: robotsRes.ok,
+        adsOk: adsRes.ok,
+        gscConfigured: Boolean(settings.google_search_console_tag),
+        ga4Configured: Boolean(settings.google_analytics_id),
+        canonicalOk: Boolean(settings.site_url),
+        timestamp: new Date().toLocaleTimeString(),
+      });
+    } catch (err: any) {
+      alert('Audit check error: ' + err.message);
+    } finally {
+      setRunningAudit(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +96,88 @@ export default function AdminSeoPage() {
         {savedSuccess && (
           <div className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl border border-emerald-200">
             <CheckCircle2 className="w-4 h-4" /> SEO Settings Saved!
+          </div>
+        )}
+      </div>
+
+      {/* Live Google Search Console & Indexing Health Diagnostic */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                Live Google Indexing Health
+              </span>
+            </div>
+            <h2 className="text-xl font-bold text-white mt-1">
+              Search Console & Crawler Diagnostic Audit
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Probe your live XML sitemap, robots.txt crawler directives, and verification tags in one click.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleRunAudit}
+            disabled={runningAudit}
+            className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${runningAudit ? 'animate-spin' : ''}`} />
+            <span>{runningAudit ? 'Running Health Audit...' : 'Run Live SEO Health Audit'}</span>
+          </button>
+        </div>
+
+        {auditResults && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs animate-in fade-in">
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Sitemap.xml</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.sitemapOk ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
+                <span>{auditResults.sitemapOk ? `${auditResults.sitemapUrls} URLs` : 'Failed'}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Robots.txt</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.robotsOk ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
+                <span>{auditResults.robotsOk ? 'Valid' : 'Failed'}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Ads.txt</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.adsOk ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
+                <span>{auditResults.adsOk ? '200 OK' : 'Failed'}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Google Tag</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.gscConfigured ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-amber-400" />}
+                <span>{auditResults.gscConfigured ? 'Verified' : 'Pending'}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">GA4 Analytics</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.ga4Configured ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-amber-400" />}
+                <span>{auditResults.ga4Configured ? 'Active' : 'Missing'}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Canonical Base</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.canonicalOk ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
+                <span>{auditResults.canonicalOk ? '200 OK' : 'Missing'}</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

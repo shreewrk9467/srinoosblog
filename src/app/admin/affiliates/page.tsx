@@ -20,6 +20,7 @@ import {
 
 export default function AdminAffiliatesPage() {
   const [affiliates, setAffiliates] = useState<AffiliatePromotion[]>([]);
+  const [recentClicks, setRecentClicks] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingAffiliate, setEditingAffiliate] = useState<AffiliatePromotion | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export default function AdminAffiliatesPage() {
       const res = await fetch('/api/affiliates');
       const data = await res.json();
       setAffiliates(data.affiliates || []);
+      setRecentClicks(data.recentClicks || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -283,6 +285,75 @@ export default function AdminAffiliatesPage() {
           ))}
         </div>
       )}
+
+      {/* Live Click & Conversion Logging Table */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden space-y-0">
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">
+              Real-Time Server Attribution
+            </span>
+            <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
+              <MousePointerClick className="w-5 h-5 text-emerald-600" /> Click & Conversion Logging Stream
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Every redirection through <code>/go/[slug]</code> logs attribution tags, referrers, and device headers.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={fetchAffiliates}
+            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            Refresh Stream
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200/60">
+              <tr>
+                <th className="px-6 py-3.5">Campaign Slug</th>
+                <th className="px-6 py-3.5">Placement (src tag)</th>
+                <th className="px-6 py-3.5">Referrer</th>
+                <th className="px-6 py-3.5">IP Hash</th>
+                <th className="px-6 py-3.5 text-right">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11px]">
+              {recentClicks.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400 font-sans">
+                    No clicks logged yet. Click any <code>/go/[slug]</code> redirect link above to test live tracking!
+                  </td>
+                </tr>
+              ) : (
+                recentClicks.map((click) => (
+                  <tr key={click.id} className="hover:bg-slate-50/70 transition">
+                    <td className="px-6 py-3.5 font-bold text-slate-900 font-sans">
+                      <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 rounded border border-emerald-200/60">
+                        /go/{click.tracking_slug}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3.5 text-slate-600">
+                      {click.placement_id || <span className="text-slate-400 font-sans">direct</span>}
+                    </td>
+                    <td className="px-6 py-3.5 max-w-xs truncate text-slate-500">
+                      {click.referrer || <span className="text-slate-400 font-sans">direct/none</span>}
+                    </td>
+                    <td className="px-6 py-3.5 text-slate-400">
+                      {click.ip_hash || 'anon'}
+                    </td>
+                    <td className="px-6 py-3.5 text-right text-slate-500 font-sans">
+                      {new Date(click.clicked_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Modal: Add Promotion */}
       {showModal && (

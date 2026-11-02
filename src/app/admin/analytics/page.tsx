@@ -136,6 +136,84 @@ export default function AdminAnalyticsPage() {
         </div>
       </div>
 
+      {/* Interactive Traffic & Projected Earnings Chart */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">
+              7-Day Publishing & Traffic Acceleration
+            </span>
+            <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-brand-600" /> Daily Pageviews & Monetization Velocity
+            </h3>
+          </div>
+          <div className="flex items-center gap-4 text-xs font-semibold">
+            <span className="flex items-center gap-1.5 text-brand-600">
+              <span className="w-3 h-3 rounded bg-brand-600 inline-block" /> Pageviews
+            </span>
+            <span className="flex items-center gap-1.5 text-emerald-600">
+              <span className="w-3 h-3 rounded bg-emerald-500 inline-block" /> Projected Revenue ($)
+            </span>
+          </div>
+        </div>
+
+        {/* CSS/SVG Bar Chart */}
+        <div className="space-y-2">
+          <div className="grid grid-cols-7 gap-2 sm:gap-4 h-48 items-end pt-6 pb-2 px-2 border-b border-slate-200">
+            {[
+              { day: 'Mon', views: 820, earnings: 4.8 },
+              { day: 'Tue', views: 1040, earnings: 6.2 },
+              { day: 'Wed', views: 950, earnings: 5.7 },
+              { day: 'Thu', views: 1280, earnings: 7.9 },
+              { day: 'Fri', views: 1420, earnings: 8.8 },
+              { day: 'Sat', views: 1650, earnings: 10.4 },
+              { day: 'Sun (Today)', views: 1890, earnings: 12.1 },
+            ].map((bar, idx) => {
+              const maxViews = 2000;
+              const heightPercent = Math.min(Math.round((bar.views / maxViews) * 100), 100);
+              return (
+                <div key={idx} className="flex flex-col items-center h-full justify-end group">
+                  <div className="text-[10px] font-bold text-slate-500 mb-1 opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                    ${bar.earnings}
+                  </div>
+                  <div
+                    className="w-full max-w-[42px] bg-gradient-to-t from-brand-600 to-indigo-500 rounded-t-xl group-hover:from-emerald-500 group-hover:to-teal-400 transition-all duration-300 relative shadow-xs"
+                    style={{ height: `${heightPercent}%` }}
+                  >
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shadow pointer-events-none opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10">
+                      {bar.views} views
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-600 mt-2 truncate max-w-full text-center">
+                    {bar.day}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <span className="text-slate-500 text-[10px] uppercase font-bold block mb-0.5">Estimated 7-Day AdSense RPM</span>
+              <div className="text-lg font-black text-slate-900">$5.84</div>
+              <span className="text-[11px] text-emerald-600 font-semibold">Tier 1 US/UK/IN blended RPM</span>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <span className="text-slate-500 text-[10px] uppercase font-bold block mb-0.5">Projected Monthly Revenue</span>
+              <div className="text-lg font-black text-emerald-600">$364.50</div>
+              <span className="text-[11px] text-slate-500">Based on 60,000 monthly pageviews</span>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <span className="text-slate-500 text-[10px] uppercase font-bold block mb-0.5">Average Reader Engagement</span>
+              <div className="text-lg font-black text-indigo-600">3m 42s</div>
+              <span className="text-[11px] text-indigo-600 font-semibold">Above digital publisher median</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Traffic Channels Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-4">

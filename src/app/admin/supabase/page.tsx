@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Zap,
   Layers,
+  FileCode,
 } from 'lucide-react';
 
 export default function AdminSupabasePage() {
@@ -25,6 +26,53 @@ export default function AdminSupabasePage() {
   const [status, setStatus] = useState<any>(null);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [copiedSql, setCopiedSql] = useState(false);
+  const [copiedSchema, setCopiedSchema] = useState(false);
+
+  const sqlSchemaSnippet = `-- Run this in your Supabase SQL Editor:
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS public.categories (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    description TEXT DEFAULT '',
+    icon TEXT DEFAULT 'Folder',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.blog_posts (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    excerpt TEXT NOT NULL,
+    content TEXT NOT NULL,
+    featured_image TEXT NOT NULL,
+    category_id TEXT REFERENCES public.categories(id),
+    status TEXT DEFAULT 'draft',
+    is_featured BOOLEAN DEFAULT FALSE,
+    is_trending BOOLEAN DEFAULT FALSE,
+    reading_time_minutes INTEGER DEFAULT 5,
+    meta_title TEXT DEFAULT '',
+    meta_description TEXT DEFAULT '',
+    published_at TIMESTAMP WITH TIME ZONE,
+    author_name TEXT DEFAULT 'Srinoos Editorial Team',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS and permissive policies for admin sync
+ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read published posts" ON public.blog_posts FOR SELECT USING (status = 'published');
+CREATE POLICY "Public read categories" ON public.categories FOR SELECT USING (true);
+CREATE POLICY "Admin sync posts" ON public.blog_posts FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Admin sync categories" ON public.categories FOR ALL TO anon USING (true) WITH CHECK (true);`;
+
+  const handleCopySchema = () => {
+    navigator.clipboard.writeText(sqlSchemaSnippet);
+    setCopiedSchema(true);
+    setTimeout(() => setCopiedSchema(false), 2500);
+  };
 
   useEffect(() => {
     fetchStatus();
@@ -274,6 +322,34 @@ export default function AdminSupabasePage() {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* 1-Click PostgreSQL Schema & RLS Copier */}
+      <div className="bg-slate-900 text-white rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+              <FileCode className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-base">Supabase SQL Schema & Row Level Security (RLS)</h3>
+              <p className="text-xs text-slate-400">Execute this SQL snippet in Supabase SQL Editor if creating tables for the first time.</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCopySchema}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+          >
+            {copiedSchema ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copiedSchema ? 'SQL Copied to Clipboard!' : 'Copy SQL Schema (with RLS)'}</span>
+          </button>
+        </div>
+
+        <pre className="bg-slate-950 p-4 rounded-2xl font-mono text-[11px] text-emerald-300 overflow-x-auto border border-slate-800 max-h-52 overflow-y-auto">
+          <code>{sqlSchemaSnippet}</code>
+        </pre>
       </div>
     </div>
   );

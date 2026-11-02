@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import DashboardRealtimeChart from '@/components/DashboardRealtimeChart';
 import {
   getAllPosts,
   getDailyPublishingProgress,
@@ -277,6 +278,16 @@ export default function AdminDashboardPage() {
           <span className="block text-xs text-slate-500 mt-1">Based on content volume</span>
         </div>
       </div>
+
+      {/* Live Real-time Chart & Telemetry */}
+      <DashboardRealtimeChart
+        initialAnalytics={{
+          totalPosts: analytics.totalPosts,
+          totalDrafts: analytics.totalDrafts,
+          totalClicks: analytics.totalClicks,
+          estimatedAdImpressions: analytics.estimatedAdImpressions,
+        }}
+      />
 
       {/* Recent Blog Publications Table */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">

@@ -129,8 +129,9 @@ ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ad_placements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.affiliate_promotions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.website_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ad_clicks ENABLE ROW LEVEL SECURITY;
 
--- Public can read published posts and active categories
+-- 1. Public can read published posts, active categories, active ads, and active affiliates
 CREATE POLICY "Public read published posts" ON public.blog_posts
     FOR SELECT USING (status = 'published');
 
@@ -145,4 +146,42 @@ CREATE POLICY "Public read active affiliates" ON public.affiliate_promotions
 
 CREATE POLICY "Public read website settings" ON public.website_settings
     FOR SELECT USING (true);
+
+-- 2. Service Role has unrestricted access for cloud tasks & automations
+CREATE POLICY "Service role full access on posts" ON public.blog_posts
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on categories" ON public.categories
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on ads" ON public.ad_placements
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on affiliates" ON public.affiliate_promotions
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on settings" ON public.website_settings
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on clicks" ON public.ad_clicks
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+-- 3. Web Client & API Key operations (Permissive policies for site admin sync)
+CREATE POLICY "Admin sync full access on posts" ON public.blog_posts
+    FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Admin sync full access on categories" ON public.categories
+    FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Admin sync full access on ads" ON public.ad_placements
+    FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Admin sync full access on affiliates" ON public.affiliate_promotions
+    FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Admin sync full access on settings" ON public.website_settings
+    FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Admin sync full access on clicks" ON public.ad_clicks
+    FOR ALL TO anon USING (true) WITH CHECK (true);
 

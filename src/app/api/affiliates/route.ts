@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllAffiliates, createAffiliate } from '@/lib/db';
+import { getAllAffiliates, createAffiliate, getRecentClicks } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const affiliates = getAllAffiliates();
-  return NextResponse.json({ affiliates });
+  const recentClicks = getRecentClicks(25);
+  return NextResponse.json({ affiliates, recentClicks });
 }
 
 export async function POST(request: NextRequest) {

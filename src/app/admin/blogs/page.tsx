@@ -14,6 +14,8 @@ import {
   Clock,
   CheckCircle2,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { BlogPost, Category } from '@/lib/types';
 
@@ -22,6 +24,8 @@ export default function AdminBlogsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const postsPerPage = 10;
   const [loading, setLoading] = useState(true);
   const [dailyStats, setDailyStats] = useState<{ published_count: number; target: number; date: string }>({
     published_count: 0,
@@ -94,6 +98,11 @@ export default function AdminBlogsPage() {
     const q = searchQuery.toLowerCase();
     return p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / postsPerPage));
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (validCurrentPage - 1) * postsPerPage;
+  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
 
   const progressPercent = Math.min(Math.round((dailyStats.published_count / dailyStats.target) * 100), 100);
 
@@ -219,7 +228,7 @@ export default function AdminBlogsPage() {
                   </td>
                 </tr>
               ) : (
-                filteredPosts.map((post) => (
+                paginatedPosts.map((post) => (
                   <tr key={post.id} className="hover:bg-slate-50/70 transition">
                     <td className="px-6 py-4 max-w-sm">
                       <span className="font-bold text-slate-900 text-sm block truncate">{post.title}</span>
@@ -281,6 +290,41 @@ export default function AdminBlogsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {filteredPosts.length > 0 && (
+          <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <span className="text-slate-500 font-medium">
+              Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{' '}
+              <strong className="text-slate-900">{Math.min(startIndex + postsPerPage, filteredPosts.length)}</strong> of{' '}
+              <strong className="text-slate-900">{filteredPosts.length}</strong> articles
+            </span>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={validCurrentPage === 1}
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition shadow-2xs"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Previous
+              </button>
+
+              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold text-slate-800 shadow-2xs">
+                Page {validCurrentPage} of {totalPages}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={validCurrentPage >= totalPages}
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition shadow-2xs"
+              >
+                Next <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1363,3 +1363,10 @@ export function getAnalyticsSummary() {
     estimatedAdImpressions: totalPosts * 850 + totalClicks * 45, // Simulated measured metric model
   });
 }
+
+export function getRecentClicks(limit: number = 20) {
+  const db = getDb();
+  return toPlain(
+    db.prepare('SELECT * FROM ad_clicks ORDER BY clicked_at DESC LIMIT ?').all(limit)
+  );
+}

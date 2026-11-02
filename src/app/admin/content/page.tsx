@@ -19,6 +19,7 @@ import {
   Sparkles,
   Layers,
   Menu,
+  Upload,
 } from 'lucide-react';
 
 interface NavLinkItem {
@@ -39,7 +40,31 @@ export default function AdminContentCustomizerPage() {
   const [newLinkHref, setNewLinkHref] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: keyof WebsiteSettings) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setSettings((prev) => ({ ...prev, [targetField]: data.url }));
+      alert('Image uploaded successfully and linked!');
+    } catch (err: any) {
+      alert(err.message || 'Error uploading file');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     fetch('/api/settings')
@@ -309,6 +334,16 @@ export default function AdminContentCustomizerPage() {
                   placeholder="/images/srinoos-s-icon.jpg"
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-brand-500"
                 />
+                <label className="p-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs cursor-pointer flex items-center gap-1 transition shadow-2xs" title="Upload Logo Image">
+                  <Upload className="w-3.5 h-3.5" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'logo_image_url')}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                </label>
               </div>
             </div>
           </div>
