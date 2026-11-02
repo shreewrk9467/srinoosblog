@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { getSessionFromCookies } from '@/lib/auth';
+import { isSupabaseConfigured, getSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Limit size to 10MB
-    const MAX_SIZE = 10 * 1024 * 1024;
+    // Limit size to 5MB for fast serverless transmission
+    const MAX_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 });
+      return NextResponse.json({ error: 'File size exceeds 5MB limit' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
@@ -44,20 +44,45 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9_-]/g, '-');
     const uniqueFileName = `${baseName}-${Date.now()}${ext}`;
 
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
+    // 1. If Supabase is configured, attempt upload to Supabase 'media' bucket
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabaseClient();
+        if (client) {
+          const { data: uploadData, error: uploadErr } = await client.storage
+            .from('media')
+            .upload(uniqueFileName, buffer, { contentType: file.type, upsert: true });
 
-    const filePath = path.join(uploadsDir, uniqueFileName);
-    await writeFile(filePath, buffer);
+          if (!uploadErr && uploadData) {
+            const { data: publicUrlData } = client.storage.from('media').getPublicUrl(uniqueFileName);
+            if (publicUrlData?.publicUrl) {
+              return NextResponse.json({
+                success: true,
+                url: publicUrlData.publicUrl,
+                fileName: uniqueFileName,
+                size: file.size,
+                mimeType: file.type,
+                storage: 'supabase',
+              });
+            }
+          }
+        }
+      } catch (storageErr) {
+        console.warn('Supabase storage notice:', storageErr);
+      }
+    }
 
-    const publicUrl = `/uploads/${uniqueFileName}`;
+    // 2. Serverless-safe fallback: generate self-contained, zero-disk Data URL
+    const base64Data = buffer.toString('base64');
+    const dataUrl = `data:${file.type};base64,${base64Data}`;
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: dataUrl,
       fileName: uniqueFileName,
       size: file.size,
       mimeType: file.type,
+      storage: 'inline',
     });
   } catch (error: any) {
     console.error('File upload error:', error);
