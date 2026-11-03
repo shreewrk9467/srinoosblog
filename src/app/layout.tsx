@@ -19,15 +19,25 @@ function extractGoogleVerification(tag?: string): string | undefined {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getWebsiteSettings();
+  const brandName = settings.site_name.toLowerCase().includes('sricospace')
+    ? settings.site_name
+    : `SricoSpace | ${settings.site_name}`;
+
   return {
-    metadataBase: new URL(settings.site_url || 'https://srinoos.com'),
+    metadataBase: new URL(settings.site_url || 'https://sricospace.com'),
     title: {
-      default: `${settings.site_name} – ${settings.site_tagline}`,
-      template: `%s | ${settings.site_name}`,
+      default: `${brandName} – ${settings.site_tagline}`,
+      template: `%s | ${brandName}`,
     },
-    description: settings.site_description,
+    description: `SricoSpace (sricospace.com) – ${settings.site_description}`,
     keywords: [
+      'sricospace',
+      'sricospace.com',
+      'www.sricospace.com',
+      'SricoSpace',
       'Srinoos',
+      'Srinoos SricoSpace',
+      'Ketanboina Venkat Shrinivas',
       'Artificial Intelligence',
       'SEO Strategy',
       'Digital Marketing',
@@ -36,9 +46,12 @@ export async function generateMetadata(): Promise<Metadata> {
       'Technology Tutorials',
       'Website Monetization',
     ],
-    authors: [{ name: 'Srinoos Editorial Team', url: settings.site_url }],
-    creator: 'Srinoos',
-    publisher: 'Srinoos',
+    authors: [{ name: settings.founder_name || 'Ketanboina Venkat Shrinivas', url: settings.site_url }],
+    creator: 'SricoSpace',
+    publisher: 'SricoSpace',
+    alternates: {
+      canonical: settings.site_url || 'https://sricospace.com',
+    },
     icons: {
       icon: '/images/srinoos-s-icon.jpg',
       apple: '/images/srinoos-s-icon.jpg',
@@ -47,22 +60,22 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       locale: 'en_US',
       url: settings.site_url,
-      siteName: settings.site_name,
-      title: `${settings.site_name} – ${settings.site_tagline}`,
-      description: settings.site_description,
+      siteName: 'SricoSpace',
+      title: `${brandName} – ${settings.site_tagline}`,
+      description: `SricoSpace (sricospace.com) – ${settings.site_description}`,
       images: [
         {
           url: `${settings.site_url}/images/srinoos-logo.jpg`,
           width: 1200,
           height: 675,
-          alt: `${settings.site_name} Technology Collective`,
+          alt: `${brandName} Technology Collective`,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${settings.site_name} – ${settings.site_tagline}`,
-      description: settings.site_description,
+      title: `${brandName} – ${settings.site_tagline}`,
+      description: `SricoSpace (sricospace.com) – ${settings.site_description}`,
       creator: '@srinoos',
     },
     verification: {
@@ -93,22 +106,26 @@ export default function RootLayout({
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: settings.site_name,
+    name: 'SricoSpace',
+    alternateName: [settings.site_name, 'sricospace.com', 'www.sricospace.com', 'Srinoos SricoSpace'],
     url: settings.site_url,
     logo: `${settings.site_url}/images/srinoos-logo.jpg`,
-    description: settings.site_description,
+    description: `SricoSpace (sricospace.com) – ${settings.site_description}`,
     sameAs: [
       settings.twitter_url,
       settings.facebook_url,
       settings.linkedin_url,
       settings.youtube_url,
+      settings.portfolio_url,
+      settings.github_url,
     ].filter(Boolean),
   };
 
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: settings.site_name,
+    name: 'SricoSpace',
+    alternateName: ['sricospace', 'sricospace.com', 'www.sricospace.com', settings.site_name],
     url: settings.site_url,
     potentialAction: {
       '@type': 'SearchAction',

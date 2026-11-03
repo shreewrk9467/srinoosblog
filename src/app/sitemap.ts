@@ -3,7 +3,7 @@ import { getAllPosts, getAllCategories, getWebsiteSettings } from '@/lib/db';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const settings = getWebsiteSettings();
-  const baseUrl = settings.site_url || 'https://srinoos.com';
+  const baseUrl = settings.site_url || 'https://sricospace.com';
   const posts = getAllPosts({ status: 'published' });
   const categories = getAllCategories();
 

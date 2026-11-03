@@ -3,7 +3,7 @@ import { getWebsiteSettings } from '@/lib/db';
 
 export default function robots(): MetadataRoute.Robots {
   const settings = getWebsiteSettings();
-  const baseUrl = settings.site_url || 'https://srinoos.com';
+  const baseUrl = settings.site_url || 'https://sricospace.com';
 
   return {
     rules: {
