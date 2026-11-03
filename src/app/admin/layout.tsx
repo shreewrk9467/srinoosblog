@@ -20,6 +20,7 @@ import {
   Database,
   Lock,
   User,
+  Terminal,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -107,6 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Traffic & Earnings', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Hostinger Server & FTP', href: '/admin/hosting', icon: Server },
     { name: 'Supabase Database', href: '/admin/supabase', icon: Database },
+    { name: 'AI Developer Tools', href: '/admin/tools', icon: Terminal },
     { name: 'Website Settings', href: '/admin/settings', icon: Settings },
   ];
 

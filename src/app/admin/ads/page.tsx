@@ -69,7 +69,7 @@ export default function AdminAdsPage() {
   const fetchAds = async () => {
     try {
       setLoading(true);
-      const [resAds, resAff] = await Promise.all([
+      const [resAds, resAff]: [any, any] = await Promise.all([
         fetch('/api/ads').then((r) => r.json()),
         fetch('/api/affiliates').then((r) => r.json()),
       ]);
@@ -104,7 +104,7 @@ export default function AdminAdsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update ad placement');
 
       if (data.placement) {
@@ -145,7 +145,7 @@ export default function AdminAdsPage() {
         body: JSON.stringify(newAd),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to create ad placement');
 
       setPlacements((prev) => [data.placement, ...prev]);
