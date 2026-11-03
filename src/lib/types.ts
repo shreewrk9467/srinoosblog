@@ -180,6 +180,8 @@ export interface WebsiteSettings {
   hero_lead_badge?: string;
   footer_about_text?: string;
   nav_links_json?: string; // JSON array of { name: string, href: string }
+  homepage_sections_order_json?: string; // JSON array of page sections with drag-and-drop order & custom blocks
+  custom_blocks_json?: string;
 
   // Headless WordPress Integration
   wordpress_enabled?: boolean;
@@ -193,6 +195,39 @@ export interface WebsiteSettings {
   supabase_url?: string;
   supabase_anon_key?: string;
   supabase_last_synced?: string;
+}
+
+export interface PageSection {
+  id: string;
+  type:
+    | 'announcement'
+    | 'top_ad'
+    | 'hero'
+    | 'deals'
+    | 'lead_feature'
+    | 'trending'
+    | 'mid_ad'
+    | 'main_feed'
+    | 'footer_ad'
+    | 'custom_banner'
+    | 'custom_html'
+    | 'cta_box'
+    | 'faq_accordion'
+    | 'testimonial_bar';
+  title: string;
+  enabled: boolean;
+  headline?: string;
+  subheadline?: string;
+  badge?: string;
+  btn1_text?: string;
+  btn1_link?: string;
+  btn2_text?: string;
+  btn2_link?: string;
+  background_gradient?: string;
+  image_url?: string;
+  html_content?: string;
+  placementId?: string;
+  items_json?: string;
 }
 
 export interface Comment {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { WebsiteSettings } from '@/lib/types';
 import {
   Palette,
@@ -20,6 +21,8 @@ import {
   Layers,
   Menu,
   Upload,
+  MousePointerClick,
+  ArrowRight,
 } from 'lucide-react';
 
 interface NavLinkItem {
@@ -157,6 +160,26 @@ export default function AdminContentCustomizerPage() {
             <CheckCircle2 className="w-4 h-4 text-emerald-600" /> All Website Elements Updated Live!
           </div>
         )}
+      </div>
+
+      {/* Prominent Visual Builder Callout */}
+      <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 border border-slate-800 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1.5 max-w-2xl">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-500/20 text-brand-300 border border-brand-400/30 rounded-full text-xs font-bold uppercase tracking-wider">
+            <MousePointerClick className="w-3.5 h-3.5 text-brand-400" /> Full Page Drag &amp; Drop Studio
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-white">Need Live Visual Click-to-Edit &amp; Drag-and-Drop?</h2>
+          <p className="text-xs sm:text-sm text-slate-300">
+            Open the new Live Visual Builder where you can click anywhere on the page to edit, add, delete, and drag-and-drop sections with live responsive preview.
+          </p>
+        </div>
+        <Link
+          href="/admin/builder"
+          className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-2xl shadow-lg transition flex items-center gap-2 flex-shrink-0"
+        >
+          <span>Launch Live Visual Builder</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       <form onSubmit={handleSave} className="space-y-8">

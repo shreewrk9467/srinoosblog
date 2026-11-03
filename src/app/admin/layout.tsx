@@ -21,6 +21,7 @@ import {
   Lock,
   User,
   Terminal,
+  MousePointerClick,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -103,6 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'WordPress Integration', href: '/admin/wordpress', icon: Globe },
     { name: 'Ad Management', href: '/admin/ads', icon: Tag },
     { name: 'Site Content & Elements', href: '/admin/content', icon: Palette },
+    { name: 'Live Visual Builder', href: '/admin/builder', icon: MousePointerClick },
     { name: 'Affiliate Marketing', href: '/admin/affiliates', icon: DollarSign },
     { name: 'SEO & Search Console', href: '/admin/seo', icon: Search },
     { name: 'Traffic & Earnings', href: '/admin/analytics', icon: BarChart3 },
