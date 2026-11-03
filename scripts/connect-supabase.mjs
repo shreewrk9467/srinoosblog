@@ -50,14 +50,23 @@ async function main() {
 
     const { data, error } = await supabase.from('categories').select('id').limit(1);
 
-    if (error && error.code !== '42P01' && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+    const isMissingTable =
+      error &&
+      (error.code === '42P01' ||
+        error.code === 'PGRST205' ||
+        error.message?.includes('schema cache') ||
+        error.message?.includes('relation') ||
+        error.message?.includes('does not exist') ||
+        error.message?.includes('Could not find the table'));
+
+    if (error && !isMissingTable) {
       console.error('❌ Supabase connection failed:', error.message);
       process.exit(1);
     }
 
     console.log('✅ Successfully connected to Supabase PostgreSQL!');
 
-    if (error && (error.code === '42P01' || error.message.includes('does not exist'))) {
+    if (isMissingTable) {
       console.log('ℹ️  Note: Tables not created yet. Please execute supabase-schema.sql in your Supabase SQL Editor.');
     } else {
       console.log('✅ Tables verified in database.');

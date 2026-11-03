@@ -6,7 +6,7 @@ import { getSessionFromCookies } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const { url } = getSupabaseCredentials();
+  const { url, anonKey } = getSupabaseCredentials();
   const configured = isSupabaseConfigured();
 
   let test = null;
@@ -14,9 +14,14 @@ export async function GET() {
     test = await testSupabaseConnection();
   }
 
+  const projectRef = url.match(/https?:\/\/([^.]+)\.supabase\.co/i)?.[1] || 'udankkjapmjuurcveube';
+
   return NextResponse.json({
     configured,
     url: url ? `${url.substring(0, 18)}...` : '',
+    fullUrl: url || 'https://udankkjapmjuurcveube.supabase.co',
+    projectRef,
+    hasKey: Boolean(anonKey),
     test,
   });
 }

@@ -19,8 +19,8 @@ import {
 } from 'lucide-react';
 
 export default function AdminSupabasePage() {
-  const [url, setUrl] = useState('');
-  const [anonKey, setAnonKey] = useState('');
+  const [url, setUrl] = useState('https://udankkjapmjuurcveube.supabase.co');
+  const [anonKey, setAnonKey] = useState('sb_publishable_lhwvmIHCEF2qqAcBemsreQ_A_CaAI82');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<any>(null);
@@ -28,18 +28,26 @@ export default function AdminSupabasePage() {
   const [copiedSql, setCopiedSql] = useState(false);
   const [copiedSchema, setCopiedSchema] = useState(false);
 
-  const sqlSchemaSnippet = `-- Run this in your Supabase SQL Editor:
+  const sqlSchemaSnippet = `-- ========================================================================
+-- SRINOOS BLOGGING PLATFORM - SUPABASE POSTGRESQL SCHEMA
+-- Execute in Supabase SQL Editor: https://supabase.com/dashboard/project/udankkjapmjuurcveube/sql/new
+-- ========================================================================
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- 1. CATEGORIES TABLE
 CREATE TABLE IF NOT EXISTS public.categories (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     slug TEXT UNIQUE NOT NULL,
     description TEXT DEFAULT '',
     icon TEXT DEFAULT 'Folder',
+    meta_title TEXT DEFAULT '',
+    meta_description TEXT DEFAULT '',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 2. BLOG POSTS TABLE
 CREATE TABLE IF NOT EXISTS public.blog_posts (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -47,26 +55,107 @@ CREATE TABLE IF NOT EXISTS public.blog_posts (
     excerpt TEXT NOT NULL,
     content TEXT NOT NULL,
     featured_image TEXT NOT NULL,
-    category_id TEXT REFERENCES public.categories(id),
-    status TEXT DEFAULT 'draft',
+    category_id TEXT REFERENCES public.categories(id) ON DELETE RESTRICT,
+    tags TEXT DEFAULT '',
+    status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'scheduled', 'published', 'failed')),
     is_featured BOOLEAN DEFAULT FALSE,
     is_trending BOOLEAN DEFAULT FALSE,
     reading_time_minutes INTEGER DEFAULT 5,
     meta_title TEXT DEFAULT '',
     meta_description TEXT DEFAULT '',
+    focus_keyword TEXT DEFAULT '',
+    faq_schema JSONB DEFAULT '[]'::jsonb,
     published_at TIMESTAMP WITH TIME ZONE,
     author_name TEXT DEFAULT 'Srinoos Editorial Team',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. AD PLACEMENTS TABLE
+CREATE TABLE IF NOT EXISTS public.ad_placements (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    location_zone TEXT NOT NULL,
+    ad_type TEXT DEFAULT 'adsense',
+    ad_slot_id TEXT DEFAULT '',
+    format TEXT DEFAULT 'responsive',
+    dimensions TEXT DEFAULT 'responsive',
+    desktop_enabled BOOLEAN DEFAULT TRUE,
+    tablet_enabled BOOLEAN DEFAULT TRUE,
+    mobile_enabled BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    custom_html TEXT DEFAULT '',
+    affiliate_promo_id TEXT DEFAULT '',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 4. AFFILIATE PROMOTIONS TABLE
+CREATE TABLE IF NOT EXISTS public.affiliate_promotions (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    banner_url TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    destination_url TEXT NOT NULL,
+    tracking_slug TEXT UNIQUE NOT NULL,
+    campaign_name TEXT DEFAULT 'Direct',
+    disclosure_text TEXT DEFAULT 'Sponsored / Affiliate link',
+    total_clicks INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS and permissive policies for admin sync
+-- 5. AD CLICKS LOGS TABLE
+CREATE TABLE IF NOT EXISTS public.ad_clicks (
+    id TEXT PRIMARY KEY,
+    tracking_slug TEXT NOT NULL,
+    placement_id TEXT DEFAULT '',
+    user_agent TEXT DEFAULT '',
+    referrer TEXT DEFAULT '',
+    ip_hash TEXT DEFAULT '',
+    clicked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 6. WEBSITE SETTINGS KEY-VALUE STORE
+CREATE TABLE IF NOT EXISTS public.website_settings (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL
+);
+
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_posts_slug ON public.blog_posts(slug);
+CREATE INDEX IF NOT EXISTS idx_posts_status ON public.blog_posts(status);
+CREATE INDEX IF NOT EXISTS idx_posts_published ON public.blog_posts(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_cat ON public.blog_posts(category_id);
+CREATE INDEX IF NOT EXISTS idx_affiliate_slug ON public.affiliate_promotions(tracking_slug);
+CREATE INDEX IF NOT EXISTS idx_clicks_slug ON public.ad_clicks(tracking_slug);
+
+-- ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ad_placements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.affiliate_promotions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.website_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ad_clicks ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Public read published posts" ON public.blog_posts FOR SELECT USING (status = 'published');
 CREATE POLICY "Public read categories" ON public.categories FOR SELECT USING (true);
+CREATE POLICY "Public read active ads" ON public.ad_placements FOR SELECT USING (is_active = true);
+CREATE POLICY "Public read active affiliates" ON public.affiliate_promotions FOR SELECT USING (is_active = true);
+CREATE POLICY "Public read website settings" ON public.website_settings FOR SELECT USING (true);
+
+-- Admin & API sync policies
 CREATE POLICY "Admin sync posts" ON public.blog_posts FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "Admin sync categories" ON public.categories FOR ALL TO anon USING (true) WITH CHECK (true);`;
+CREATE POLICY "Admin sync categories" ON public.categories FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Admin sync ads" ON public.ad_placements FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Admin sync affiliates" ON public.affiliate_promotions FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Admin sync settings" ON public.website_settings FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Admin sync clicks" ON public.ad_clicks FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- API Access Grants
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;`;
 
   const handleCopySchema = () => {
     navigator.clipboard.writeText(sqlSchemaSnippet);
@@ -148,14 +237,23 @@ CREATE POLICY "Admin sync categories" ON public.categories FOR ALL TO anon USING
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <a
-            href="https://supabase.com/dashboard"
+            href="https://supabase.com/dashboard/project/udankkjapmjuurcveube/sql/new"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
+          >
+            <span>Open SQL Editor (udankkjapmjuurcveube)</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+          <a
+            href="https://supabase.com/dashboard/project/udankkjapmjuurcveube"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
           >
-            <span>Open Supabase Dashboard</span>
+            <span>Open Project Dashboard</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>

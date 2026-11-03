@@ -89,15 +89,18 @@ export async function testSupabaseConnection(
     const { data, error } = await testClient.from('categories').select('id').limit(1);
 
     if (error) {
-      // If error is code 42P01 or table doesn't exist, connection succeeded, schema needs provisioning
+      // If table doesn't exist yet (42P01, PGRST205 schema cache), connection succeeded
       if (
         error.code === '42P01' ||
+        error.code === 'PGRST205' ||
+        error.message?.includes('schema cache') ||
         error.message?.includes('relation') ||
-        error.message?.includes('does not exist')
+        error.message?.includes('does not exist') ||
+        error.message?.includes('Could not find the table')
       ) {
         return {
           success: true,
-          message: 'Connected to Supabase! (Database tables need to be created with supabase-schema.sql)',
+          message: 'Connected to Supabase PostgreSQL! (Tables ready to be created with supabase-schema.sql)',
         };
       }
       return {

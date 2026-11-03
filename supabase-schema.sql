@@ -185,3 +185,11 @@ CREATE POLICY "Admin sync full access on settings" ON public.website_settings
 CREATE POLICY "Admin sync full access on clicks" ON public.ad_clicks
     FOR ALL TO anon USING (true) WITH CHECK (true);
 
+-- 4. EXPLICIT GRANTS FOR SUPABASE DATA API (POSTGREST)
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+
