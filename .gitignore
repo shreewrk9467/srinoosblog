@@ -40,4 +40,5 @@ data/*.db-wal
 data/*.db-shm
 /backups/
 /tools/
+agent/output/
 

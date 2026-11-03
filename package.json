@@ -10,7 +10,11 @@
     "build": "next build",
     "start": "node server.js",
     "next:start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "agent": "node agent/srinoos-agent.js",
+    "agent:write": "node agent/srinoos-agent.js write",
+    "agent:ad": "node agent/srinoos-agent.js ad",
+    "agent:campaign": "node agent/srinoos-agent.js campaign"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
