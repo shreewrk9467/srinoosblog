@@ -37,6 +37,7 @@ export default function Header({ categories = [], settings }: HeaderProps) {
 
   let navLinks: Array<{ name: string; href: string }> = [
     { name: 'Home', href: '/' },
+    { name: 'Deals & Offers', href: '/offers' },
     { name: 'All Blogs', href: '/blog' },
     { name: 'Trending', href: '/trending' },
     { name: 'About', href: '/about' },

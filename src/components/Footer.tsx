@@ -187,6 +187,11 @@ export default function Footer({ categories = [], settings }: FooterProps) {
                 <Link href="/" className="hover:text-brand-400 transition">Home</Link>
               </li>
               <li>
+                <Link href="/offers" className="text-amber-400 font-semibold hover:text-amber-300 transition flex items-center gap-1.5">
+                  🔥 Deals & Free Offers
+                </Link>
+              </li>
+              <li>
                 <Link href="/blog" className="hover:text-brand-400 transition">All Blog Articles</Link>
               </li>
               <li>
@@ -196,7 +201,7 @@ export default function Footer({ categories = [], settings }: FooterProps) {
                 <Link href="/categories" className="hover:text-brand-400 transition">Browse Categories</Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-brand-400 transition">About Srinoos</Link>
+                <Link href="/about" className="hover:text-brand-400 transition">About Sricospace</Link>
               </li>
               <li>
                 <Link href="/contact" className="hover:text-brand-400 transition">Contact Editorial Team</Link>
@@ -250,18 +255,12 @@ export default function Footer({ categories = [], settings }: FooterProps) {
           </div>
         </div>
 
-        {/* Bottom Bar with Mandatory Credit */}
+        {/* Bottom Bar with Mandatory Credit: Sricospace.com • Made by Srinoos */}
         <div className="mt-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>&copy; {new Date().getFullYear()} {brandName}. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} <strong className="text-slate-300 font-semibold">Sricospace.com</strong>. All rights reserved.</p>
           <div className="flex items-center gap-2 font-medium text-slate-400 bg-slate-900/80 border border-slate-800 px-4 py-1.5 rounded-full">
             <span>
-              {creditText.includes('Srinoos') ? (
-                <>
-                  Designed and Developed by <strong className="text-brand-400 font-semibold">Srinoos</strong>
-                </>
-              ) : (
-                creditText
-              )}
+              Made by <strong className="text-brand-400 font-semibold">Srinoos</strong>
             </span>
           </div>
         </div>

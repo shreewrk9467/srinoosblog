@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts, getAllCategories, getWebsiteSettings } from '@/lib/db';
+import { getAllPosts, getAllCategories, getWebsiteSettings, getAllAffiliates } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import {
@@ -11,6 +11,10 @@ import {
   ShieldCheck,
   CheckCircle,
   Search,
+  ExternalLink,
+  Gift,
+  Star,
+  Tag,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -19,6 +23,7 @@ export const revalidate = 0;
 export default function HomePage() {
   const settings = getWebsiteSettings();
   const allPosts = getAllPosts({ status: 'published', limit: 20 });
+  const featuredAffiliates = getAllAffiliates({ is_featured: true, is_active: true, limit: 4 });
   const featuredPost = allPosts.find((p) => p.is_featured) || allPosts[0];
   const trendingPosts = allPosts.filter((p) => p.is_trending && p.id !== featuredPost?.id).slice(0, 4);
   const techPosts = allPosts.filter((p) => p.category_slug === 'technology-and-ai' && p.id !== featuredPost?.id).slice(0, 3);
@@ -71,6 +76,81 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 2.5 Featured Affiliate Offers & Free Trials Showcase */}
+      {featuredAffiliates.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 bg-amber-100 text-amber-700 rounded-lg">
+                <Gift className="w-4 h-4" />
+              </span>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                  Featured Deals & Free Registration Offers
+                </h2>
+                <span className="text-xs text-slate-500">
+                  Curated partner promotions with verified eligibility
+                </span>
+              </div>
+            </div>
+            <Link
+              href="/offers"
+              className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 group"
+            >
+              <span>Explore All Offers ({featuredAffiliates.length}+)</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {featuredAffiliates.map((aff) => (
+              <div
+                key={aff.id}
+                className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md uppercase">
+                      {aff.category || 'Deal'}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
+                      {aff.commission_model || 'CPA'}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-slate-900 text-sm group-hover:text-brand-600 transition leading-snug line-clamp-2 mt-2.5">
+                    {aff.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                    {aff.description}
+                  </p>
+
+                  {aff.payout_amount && (
+                    <div className="mt-3 py-1.5 px-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] flex items-center justify-between">
+                      <span className="text-slate-400 font-medium">Value:</span>
+                      <strong className="text-emerald-700 font-bold">{aff.payout_amount}</strong>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 mt-3">
+                  <a
+                    href={`/go/${aff.tracking_slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 px-3 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5"
+                  >
+                    <span>{aff.cta_button_text || 'Claim Offer'}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 3. Hero Featured Article Section */}
       {featuredPost && (

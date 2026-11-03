@@ -109,7 +109,7 @@ export default function AdminAnalyticsPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Tracked Affiliate Clicks</span>
-            <MousePointerClick className="w-5 h-5 text-emerald-600" />
+            <MousePointerClick className="w-5 h-5 text-blue-600" />
           </div>
           <span className="text-3xl font-black text-slate-900">{data.totalClicks}</span>
           <span className="block text-xs text-slate-500 mt-1">Direct click events recorded</span>
@@ -117,22 +117,24 @@ export default function AdminAnalyticsPage() {
 
         <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Google Search Traffic</span>
-            <Globe className="w-5 h-5 text-blue-600" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Approved Earnings</span>
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
           </div>
-          <span className="text-3xl font-black text-slate-900">76.8%</span>
-          <span className="block text-xs text-slate-500 mt-1">Primary traffic channel</span>
+          <span className="text-3xl font-black text-emerald-600">
+            ${(data.approvedEarnings || 0).toFixed(2)}
+          </span>
+          <span className="block text-xs text-slate-500 mt-1">Verified partner network payouts</span>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Est. Ad Impressions</span>
-            <TrendingUp className="w-5 h-5 text-amber-600" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Pending Pipeline</span>
+            <Globe className="w-5 h-5 text-amber-600" />
           </div>
-          <span className="text-3xl font-black text-slate-900">
-            {data.estimatedAdImpressions.toLocaleString()}
+          <span className="text-3xl font-black text-amber-600">
+            ${(data.pendingEarnings || 0).toFixed(2)}
           </span>
-          <span className="block text-xs text-slate-500 mt-1">Calculated across active ad units</span>
+          <span className="block text-xs text-slate-500 mt-1">In qualification window</span>
         </div>
       </div>
 

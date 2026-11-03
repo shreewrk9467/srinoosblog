@@ -7,6 +7,8 @@ import {
   Category,
   AdPlacement,
   AffiliatePromotion,
+  AffiliateNetwork,
+  AffiliateConversion,
   AdClickEvent,
   WebsiteSettings,
   Comment,
@@ -197,11 +199,41 @@ function initSchema(db: DatabaseSync) {
       created_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS affiliate_networks (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      logo TEXT DEFAULT '',
+      login_url TEXT DEFAULT '',
+      affiliate_id TEXT DEFAULT '',
+      api_key_masked TEXT DEFAULT '',
+      commission_types TEXT DEFAULT 'CPS, CPL, CPA',
+      notes TEXT DEFAULT '',
+      status TEXT DEFAULT 'active',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS affiliate_conversions (
+      id TEXT PRIMARY KEY,
+      tracking_slug TEXT NOT NULL,
+      offer_id TEXT DEFAULT '',
+      offer_title TEXT DEFAULT '',
+      network_name TEXT DEFAULT '',
+      conversion_type TEXT DEFAULT 'CPA',
+      commission_amount REAL DEFAULT 0,
+      currency TEXT DEFAULT 'USD',
+      status TEXT DEFAULT 'pending',
+      country TEXT DEFAULT 'US',
+      order_id TEXT DEFAULT '',
+      recorded_at TEXT NOT NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_posts_slug ON blog_posts(slug);
     CREATE INDEX IF NOT EXISTS idx_posts_status ON blog_posts(status);
     CREATE INDEX IF NOT EXISTS idx_posts_category ON blog_posts(category_id);
     CREATE INDEX IF NOT EXISTS idx_posts_published_at ON blog_posts(published_at);
     CREATE INDEX IF NOT EXISTS idx_ad_clicks_slug ON ad_clicks(tracking_slug);
+    CREATE INDEX IF NOT EXISTS idx_aff_promos_category ON affiliate_promotions(category);
+    CREATE INDEX IF NOT EXISTS idx_aff_promos_network ON affiliate_promotions(affiliate_network);
   `);
 
   // Column migrations for dynamic banner details
@@ -212,6 +244,23 @@ function initSchema(db: DatabaseSync) {
   try { db.exec('ALTER TABLE ad_placements ADD COLUMN badge_text TEXT DEFAULT "Sponsored"'); } catch {}
   try { db.exec('ALTER TABLE ad_placements ADD COLUMN button_text TEXT DEFAULT "Learn More"'); } catch {}
   try { db.exec('ALTER TABLE ad_placements ADD COLUMN open_in_new_tab INTEGER DEFAULT 1'); } catch {}
+
+  // Safe Column migrations for Advanced Affiliate Marketing & Monetization
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN company_name TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN company_logo TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN category TEXT DEFAULT "Technology and Software"'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN commission_model TEXT DEFAULT "CPA"'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN payout_amount TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN affiliate_network TEXT DEFAULT "Direct"'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN eligibility_terms TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN terms_conditions TEXT DEFAULT ""'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN cta_button_text TEXT DEFAULT "Claim Offer"'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN badge_text TEXT DEFAULT "Verified Deal"'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN rating REAL DEFAULT 4.8'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN is_featured INTEGER DEFAULT 0'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN is_trending INTEGER DEFAULT 0'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN expires_at TEXT'); } catch {}
+  try { db.exec('ALTER TABLE affiliate_promotions ADD COLUMN status TEXT DEFAULT "active"'); } catch {}
 
   // Seed default admin and seed categories/ads if empty
   seedDefaults(db);
@@ -441,6 +490,311 @@ function seedDefaults(db: DatabaseSync) {
         14,
         1,
         new Date().toISOString()
+      );
+    }
+  }
+
+  // Update existing seed offers with rich enterprise attributes if missing
+  try {
+    db.prepare(`
+      UPDATE affiliate_promotions SET
+        company_name = 'Hostinger',
+        category = 'Hosting and Domains',
+        commission_model = 'CPS',
+        payout_amount = 'Up to 75% Off + Commission',
+        affiliate_network = 'Direct',
+        cta_button_text = 'Claim 75% Discount',
+        badge_text = '🔥 Editor Choice',
+        rating = 4.9,
+        is_featured = 1,
+        is_trending = 1,
+        status = 'active'
+      WHERE id = 'aff-hostinger' AND (company_name IS NULL OR company_name = '')
+    `).run();
+
+    db.prepare(`
+      UPDATE affiliate_promotions SET
+        company_name = 'SEMrush',
+        category = 'Technology and Software',
+        commission_model = 'CPL',
+        payout_amount = '14-Day Free Trial ($5 / Free Trial)',
+        affiliate_network = 'Impact',
+        cta_button_text = 'Start Free 14-Day Trial',
+        badge_text = '⚡ Verified Free Trial',
+        rating = 4.8,
+        is_featured = 1,
+        status = 'active'
+      WHERE id = 'aff-semrush' AND (company_name IS NULL OR company_name = '')
+    `).run();
+
+    db.prepare(`
+      UPDATE affiliate_promotions SET
+        company_name = 'Anthropic Claude',
+        category = 'Digital Products and AI',
+        commission_model = 'CPA',
+        payout_amount = 'Pay-as-you-go Free Credits',
+        affiliate_network = 'PartnerStack',
+        cta_button_text = 'Explore Claude 3.5',
+        badge_text = '🚀 AI Innovation',
+        rating = 4.9,
+        is_featured = 1,
+        status = 'active'
+      WHERE id = 'aff-anthropic' AND (company_name IS NULL OR company_name = '')
+    `).run();
+  } catch {}
+
+  // Seed Rich Multi-Category Enterprise Affiliate Offers
+  const enterpriseOffers = [
+    {
+      id: 'aff-canva-pro',
+      title: 'Canva Pro Design Suite – 30 Days Free Registration',
+      company_name: 'Canva',
+      company_logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80',
+      banner_url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&auto=format&fit=crop&q=80',
+      description: 'Create social media graphics, video reels, and brand kits with millions of premium stock assets.',
+      destination_url: 'https://www.canva.com',
+      tracking_slug: 'canva-pro-free',
+      campaign_name: 'Creative Tools',
+      category: 'Free Registration Offers',
+      commission_model: 'CPL',
+      payout_amount: 'Free 30-Day Pro Trial',
+      affiliate_network: 'Impact',
+      eligibility_terms: 'Instant access for verified new registrations.',
+      terms_conditions: 'Terms apply. Zero billing during initial 30 days trial.',
+      cta_button_text: 'Start Free 30-Day Trial',
+      badge_text: '🎁 100% Free Registration',
+      rating: 4.9,
+      is_featured: 1,
+      is_trending: 1,
+      total_clicks: 28,
+    },
+    {
+      id: 'aff-wise-banking',
+      title: 'Wise Multi-Currency Digital Business Banking',
+      company_name: 'Wise',
+      company_logo: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=200&auto=format&fit=crop&q=80',
+      banner_url: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&auto=format&fit=crop&q=80',
+      description: 'Receive international affiliate payouts and customer transfers in 40+ currencies with real mid-market exchange rates.',
+      destination_url: 'https://www.wise.com',
+      tracking_slug: 'wise-business',
+      campaign_name: 'FinTech Banking',
+      category: 'Banking and Financial Services',
+      commission_model: 'CPA',
+      payout_amount: 'Free First Transfer up to $600',
+      affiliate_network: 'Awin',
+      eligibility_terms: 'Applicable to new verified business and personal accounts.',
+      terms_conditions: 'Commissions disbursed upon completed qualifying transfer.',
+      cta_button_text: 'Open Free Global Account',
+      badge_text: '💳 Zero Foreign Markup',
+      rating: 4.8,
+      is_featured: 1,
+      is_trending: 0,
+      total_clicks: 19,
+    },
+    {
+      id: 'aff-amazon-prime',
+      title: 'Amazon Prime & Creator Shopping Electronics Deals',
+      company_name: 'Amazon',
+      company_logo: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format&fit=crop&q=80',
+      banner_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
+      description: 'Access exclusive lightning deals, same-day delivery, and creator hardware discounts.',
+      destination_url: 'https://www.amazon.com',
+      tracking_slug: 'amazon-deals',
+      campaign_name: 'Consumer E-Commerce',
+      category: 'Shopping and E-commerce',
+      commission_model: 'CPS',
+      payout_amount: 'Up to 10% Qualifying Purchases',
+      affiliate_network: 'Amazon Associates',
+      eligibility_terms: 'Commissions credited on eligible cart checkouts within 24 hours.',
+      terms_conditions: 'Subject to Amazon Associates Operating Agreement.',
+      cta_button_text: 'Shop Today Deals',
+      badge_text: '🛍️ Verified Marketplace',
+      rating: 4.7,
+      is_featured: 0,
+      is_trending: 1,
+      total_clicks: 34,
+    },
+    {
+      id: 'aff-notion-ai',
+      title: 'Notion AI Connected Workspace for Builders & Teams',
+      company_name: 'Notion',
+      company_logo: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200&auto=format&fit=crop&q=80',
+      banner_url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80',
+      description: 'All-in-one productivity suite: project roadmaps, automated AI writing, and unified databases.',
+      destination_url: 'https://www.notion.so',
+      tracking_slug: 'notion-workspace',
+      campaign_name: 'SaaS Productivity',
+      category: 'Technology and Software',
+      commission_model: 'CPA',
+      payout_amount: '50% Recurring Commission',
+      affiliate_network: 'PartnerStack',
+      eligibility_terms: 'Applies to qualifying Plus and Business team upgrades.',
+      terms_conditions: 'Commissions tracked via PartnerStack monthly payouts.',
+      cta_button_text: 'Try Notion Free',
+      badge_text: '⭐ High Conversion',
+      rating: 4.9,
+      is_featured: 1,
+      is_trending: 1,
+      total_clicks: 22,
+    },
+    {
+      id: 'aff-coursera-plus',
+      title: 'Coursera Plus – 7,000+ Google, IBM & Meta Certifications',
+      company_name: 'Coursera',
+      company_logo: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80',
+      banner_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
+      description: 'Master in-demand machine learning, cybersecurity, cloud architecture, and data science skills with industry-recognized certificates.',
+      destination_url: 'https://www.coursera.org',
+      tracking_slug: 'coursera-certifications',
+      campaign_name: 'Professional Education',
+      category: 'Education and Courses',
+      commission_model: 'CPS',
+      payout_amount: '15% - 45% Course Commission',
+      affiliate_network: 'Impact',
+      eligibility_terms: 'Approved on paid subscriptions and individual professional certifications.',
+      terms_conditions: '30-day cookie window applies.',
+      cta_button_text: 'Enroll With 7-Day Free Trial',
+      badge_text: '🎓 Verified Credentials',
+      rating: 4.8,
+      is_featured: 0,
+      is_trending: 1,
+      total_clicks: 16,
+    },
+    {
+      id: 'aff-nordvpn',
+      title: 'NordVPN Threat Protection & Ultra-Fast Encrypted Tunnel',
+      company_name: 'Nord Security',
+      company_logo: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=200&auto=format&fit=crop&q=80',
+      banner_url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+      description: 'Shield mobile devices and laptops against malware, intrusive tracking, and insecure public Wi-Fi networks.',
+      destination_url: 'https://www.nordvpn.com',
+      tracking_slug: 'nordvpn-security',
+      campaign_name: 'Cybersecurity Apps',
+      category: 'Mobile Applications',
+      commission_model: 'CPI',
+      payout_amount: '40% - 100% Signup Commission',
+      affiliate_network: 'CJ Affiliate',
+      eligibility_terms: 'Valid on 1-year and 2-year cybersecurity app subscriptions.',
+      terms_conditions: 'Standard 30-day money-back guarantee honored.',
+      cta_button_text: 'Get 68% Off + 3 Months Free',
+      badge_text: '🛡️ #1 Privacy App',
+      rating: 4.9,
+      is_featured: 1,
+      is_trending: 0,
+      total_clicks: 25,
+    },
+  ];
+
+  const insertOffer = db.prepare(`
+    INSERT OR IGNORE INTO affiliate_promotions (
+      id, title, banner_url, description, destination_url, tracking_slug, campaign_name, disclosure_text,
+      total_clicks, is_active, created_at, company_name, company_logo, category, commission_model,
+      payout_amount, affiliate_network, eligibility_terms, terms_conditions, cta_button_text, badge_text,
+      rating, is_featured, is_trending, expires_at, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  for (const o of enterpriseOffers) {
+    try {
+      insertOffer.run(
+        o.id,
+        o.title,
+        o.banner_url,
+        o.description,
+        o.destination_url,
+        o.tracking_slug,
+        o.campaign_name,
+        'Sponsored / Affiliate partner link: We may earn a commission upon verified qualification at no extra cost to you.',
+        o.total_clicks,
+        1,
+        new Date().toISOString(),
+        o.company_name,
+        o.company_logo,
+        o.category,
+        o.commission_model,
+        o.payout_amount,
+        o.affiliate_network,
+        o.eligibility_terms,
+        o.terms_conditions,
+        o.cta_button_text,
+        o.badge_text,
+        o.rating,
+        o.is_featured,
+        o.is_trending,
+        null,
+        'active'
+      );
+    } catch {}
+  }
+
+  // Seed Affiliate Networks if empty
+  const netCount = db.prepare('SELECT count(*) as count FROM affiliate_networks').get() as { count: number };
+  if (netCount.count === 0) {
+    const defaultNetworks = [
+      { id: 'net-amazon', name: 'Amazon Associates', logo: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format&fit=crop&q=80', commission_types: 'CPS (1% - 10%)', notes: 'Premier global e-commerce and retail affiliate network.', status: 'active' },
+      { id: 'net-impact', name: 'Impact.com', logo: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&auto=format&fit=crop&q=80', commission_types: 'CPA, CPL, CPS', notes: 'Enterprise partnership automation for Canva, Semrush, Coursera, Uber.', status: 'active' },
+      { id: 'net-partnerstack', name: 'PartnerStack', logo: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&auto=format&fit=crop&q=80', commission_types: 'Recurring CPS, CPA', notes: 'B2B SaaS platforms: Notion, Webflow, Monday, Anthropic.', status: 'active' },
+      { id: 'net-cj', name: 'CJ Affiliate (Commission Junction)', logo: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=200&auto=format&fit=crop&q=80', commission_types: 'CPS, CPL, CPI', notes: 'Established global retail, finance and tech brands.', status: 'active' },
+      { id: 'net-awin', name: 'Awin', logo: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=200&auto=format&fit=crop&q=80', commission_types: 'CPS, CPA', notes: 'FinTech, travel, telecom and global retail network.', status: 'active' },
+      { id: 'net-shareasale', name: 'ShareASale', logo: 'https://images.unsplash.com/photo-1556742049-0a67e557224f?w=200&auto=format&fit=crop&q=80', commission_types: 'CPS, CPL', notes: 'E-commerce merchants, digital downloads, web services.', status: 'active' },
+      { id: 'net-earnkaro', name: 'EarnKaro', logo: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=200&auto=format&fit=crop&q=80', commission_types: 'CPS, CPL', notes: 'India leading deal-sharing and e-commerce affiliate platform.', status: 'active' },
+      { id: 'net-cuelinks', name: 'Cuelinks', logo: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=200&auto=format&fit=crop&q=80', commission_types: 'Automated 2-way monetization, CPS', notes: 'Content monetization tool for Indian and Southeast Asian publishers.', status: 'active' },
+      { id: 'net-admitad', name: 'Admitad', logo: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&auto=format&fit=crop&q=80', commission_types: 'CPA, CPL, CPI', notes: 'Global publisher affiliate network with gaming, finance, mobile app offers.', status: 'active' },
+      { id: 'net-vcommission', name: 'vCommission', logo: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&auto=format&fit=crop&q=80', commission_types: 'CPA, CPI, CPS, CPL', notes: 'First Indian affiliate network delivering performance marketing campaigns.', status: 'active' },
+      { id: 'net-rakuten', name: 'Rakuten Advertising', logo: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=200&auto=format&fit=crop&q=80', commission_types: 'CPS, CPA', notes: 'Premium brands, global affiliate and performance marketing network.', status: 'active' },
+    ];
+
+    const insertNet = db.prepare(`
+      INSERT INTO affiliate_networks (id, name, logo, login_url, affiliate_id, api_key_masked, commission_types, notes, status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const net of defaultNetworks) {
+      insertNet.run(
+        net.id,
+        net.name,
+        net.logo,
+        `https://${net.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+        '',
+        '',
+        net.commission_types,
+        net.notes,
+        net.status,
+        new Date().toISOString()
+      );
+    }
+  }
+
+  // Seed Initial Affiliate Conversions if empty
+  const convCount = db.prepare('SELECT count(*) as count FROM affiliate_conversions').get() as { count: number };
+  if (convCount.count === 0) {
+    const seedConversions = [
+      { id: 'conv-101', slug: 'hostinger-cloud', offerId: 'aff-hostinger', offerTitle: 'High-Performance Cloud Web Hosting', network: 'Direct', type: 'CPS', amount: 65.00, currency: 'USD', status: 'approved', country: 'US', orderId: 'HST-882194' },
+      { id: 'conv-102', slug: 'canva-pro-free', offerId: 'aff-canva-pro', offerTitle: 'Canva Pro Free 30-Day Registration', network: 'Impact', type: 'CPL', amount: 5.00, currency: 'USD', status: 'approved', country: 'IN', orderId: 'CNV-102941' },
+      { id: 'conv-103', slug: 'semrush-pro', offerId: 'aff-semrush', offerTitle: 'SEMrush 14-Day Free Trial', network: 'Impact', type: 'CPL', amount: 10.00, currency: 'USD', status: 'approved', country: 'UK', orderId: 'SEM-773104' },
+      { id: 'conv-104', slug: 'nordvpn-security', offerId: 'aff-nordvpn', offerTitle: 'NordVPN 2-Year Cybersecurity Plan', network: 'CJ Affiliate', type: 'CPI', amount: 32.50, currency: 'USD', status: 'pending', country: 'CA', orderId: 'NRD-441092' },
+      { id: 'conv-105', slug: 'notion-workspace', offerId: 'aff-notion-ai', offerTitle: 'Notion AI Workspace Plus Upgrade', network: 'PartnerStack', type: 'CPA', amount: 48.00, currency: 'USD', status: 'pending', country: 'DE', orderId: 'NTN-661902' },
+    ];
+
+    const insertConv = db.prepare(`
+      INSERT INTO affiliate_conversions (id, tracking_slug, offer_id, offer_title, network_name, conversion_type, commission_amount, currency, status, country, order_id, recorded_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const c of seedConversions) {
+      insertConv.run(
+        c.id,
+        c.slug,
+        c.offerId,
+        c.offerTitle,
+        c.network,
+        c.type,
+        c.amount,
+        c.currency,
+        c.status,
+        c.country,
+        c.orderId,
+        new Date(Date.now() - Math.floor(Math.random() * 86400000 * 5)).toISOString()
       );
     }
   }
@@ -1167,13 +1521,82 @@ export function deleteAdPlacement(id: string): boolean {
   return result.changes > 0;
 }
 
-export function getAllAffiliates(): AffiliatePromotion[] {
+export function getAllAffiliates(options?: {
+  category?: string;
+  commission_model?: string;
+  is_featured?: boolean;
+  is_trending?: boolean;
+  is_active?: boolean;
+  search?: string;
+  network?: string;
+  limit?: number;
+}): AffiliatePromotion[] {
   const db = getDb();
-  const rows = db.prepare('SELECT * FROM affiliate_promotions ORDER BY total_clicks DESC, title ASC').all() as any[];
+  let query = 'SELECT * FROM affiliate_promotions WHERE 1=1';
+  const params: any[] = [];
+
+  if (options?.is_active !== undefined) {
+    query += ' AND is_active = ?';
+    params.push(options.is_active ? 1 : 0);
+  }
+
+  if (options?.is_featured !== undefined) {
+    query += ' AND is_featured = ?';
+    params.push(options.is_featured ? 1 : 0);
+  }
+
+  if (options?.is_trending !== undefined) {
+    query += ' AND is_trending = ?';
+    params.push(options.is_trending ? 1 : 0);
+  }
+
+  if (options?.category && options.category !== 'all') {
+    query += ' AND category = ?';
+    params.push(options.category);
+  }
+
+  if (options?.commission_model && options.commission_model !== 'all') {
+    query += ' AND commission_model = ?';
+    params.push(options.commission_model);
+  }
+
+  if (options?.network && options.network !== 'all') {
+    query += ' AND affiliate_network = ?';
+    params.push(options.network);
+  }
+
+  if (options?.search) {
+    query += ' AND (title LIKE ? OR company_name LIKE ? OR description LIKE ? OR tracking_slug LIKE ?)';
+    const term = `%${options.search}%`;
+    params.push(term, term, term, term);
+  }
+
+  query += ' ORDER BY is_featured DESC, is_trending DESC, total_clicks DESC, created_at DESC';
+
+  if (options?.limit) {
+    query += ' LIMIT ?';
+    params.push(options.limit);
+  }
+
+  const rows = db.prepare(query).all(...params) as any[];
   return toPlain(rows.map((r) => ({
     ...r,
     is_active: Boolean(r.is_active),
+    is_featured: Boolean(r.is_featured),
+    is_trending: Boolean(r.is_trending),
   })));
+}
+
+export function getAffiliateById(id: string): AffiliatePromotion | null {
+  const db = getDb();
+  const r = db.prepare('SELECT * FROM affiliate_promotions WHERE id = ?').get(id) as any;
+  if (!r) return null;
+  return toPlain({
+    ...r,
+    is_active: Boolean(r.is_active),
+    is_featured: Boolean(r.is_featured),
+    is_trending: Boolean(r.is_trending),
+  });
 }
 
 export function getAffiliateBySlug(slug: string): AffiliatePromotion | null {
@@ -1183,30 +1606,51 @@ export function getAffiliateBySlug(slug: string): AffiliatePromotion | null {
   return toPlain({
     ...r,
     is_active: Boolean(r.is_active),
+    is_featured: Boolean(r.is_featured),
+    is_trending: Boolean(r.is_trending),
   });
 }
 
 export function createAffiliate(aff: Partial<AffiliatePromotion>): AffiliatePromotion {
   const db = getDb();
   const id = aff.id || `aff-${Date.now()}`;
+  const trackingSlug = (aff.tracking_slug || `promo-${Date.now()}`).toLowerCase().replace(/[^a-z0-9_-]/g, '-');
   db.prepare(`
     INSERT INTO affiliate_promotions (
-      id, title, banner_url, description, destination_url, tracking_slug, campaign_name, disclosure_text, total_clicks, is_active, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      id, title, banner_url, description, destination_url, tracking_slug, campaign_name, disclosure_text,
+      total_clicks, is_active, created_at, company_name, company_logo, category, commission_model,
+      payout_amount, affiliate_network, eligibility_terms, terms_conditions, cta_button_text, badge_text,
+      rating, is_featured, is_trending, expires_at, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id,
     aff.title || 'Affiliate Campaign',
     aff.banner_url || '',
     aff.description || '',
-    aff.destination_url || 'https://srinoos.com',
-    aff.tracking_slug || `promo-${Date.now()}`,
-    aff.campaign_name || 'General',
-    aff.disclosure_text || 'Sponsored / Affiliate link',
-    0,
+    aff.destination_url || 'https://sricospace.com',
+    trackingSlug,
+    aff.campaign_name || 'Direct',
+    aff.disclosure_text || 'Sponsored / Affiliate link: We may earn a commission upon verified conversion at no extra cost to you.',
+    aff.total_clicks || 0,
     aff.is_active !== undefined ? (aff.is_active ? 1 : 0) : 1,
-    new Date().toISOString()
+    aff.created_at || new Date().toISOString(),
+    aff.company_name || aff.title || '',
+    aff.company_logo || '',
+    aff.category || 'Technology and Software',
+    aff.commission_model || 'CPA',
+    aff.payout_amount || '',
+    aff.affiliate_network || 'Direct',
+    aff.eligibility_terms || 'Valid for qualifying new registrations or purchases.',
+    aff.terms_conditions || 'Commissions depend on affiliate network approval and verified conversion.',
+    aff.cta_button_text || 'Claim Offer',
+    aff.badge_text || 'Verified Deal',
+    aff.rating || 4.8,
+    aff.is_featured ? 1 : 0,
+    aff.is_trending ? 1 : 0,
+    aff.expires_at || null,
+    aff.status || 'active'
   );
-  return getAffiliateBySlug(aff.tracking_slug!)!;
+  return getAffiliateBySlug(trackingSlug)!;
 }
 
 export function recordAffiliateClick(slug: string, meta: { placementId?: string; userAgent?: string; referrer?: string; ipHash?: string } = {}): void {
@@ -1240,7 +1684,22 @@ export function updateAffiliate(id: string, updates: Partial<AffiliatePromotion>
       destination_url = coalesce(?, destination_url),
       campaign_name = coalesce(?, campaign_name),
       disclosure_text = coalesce(?, disclosure_text),
-      is_active = coalesce(?, is_active)
+      is_active = coalesce(?, is_active),
+      company_name = coalesce(?, company_name),
+      company_logo = coalesce(?, company_logo),
+      category = coalesce(?, category),
+      commission_model = coalesce(?, commission_model),
+      payout_amount = coalesce(?, payout_amount),
+      affiliate_network = coalesce(?, affiliate_network),
+      eligibility_terms = coalesce(?, eligibility_terms),
+      terms_conditions = coalesce(?, terms_conditions),
+      cta_button_text = coalesce(?, cta_button_text),
+      badge_text = coalesce(?, badge_text),
+      rating = coalesce(?, rating),
+      is_featured = coalesce(?, is_featured),
+      is_trending = coalesce(?, is_trending),
+      expires_at = coalesce(?, expires_at),
+      status = coalesce(?, status)
     WHERE id = ? OR tracking_slug = ?
   `).run(
     updates.title ?? null,
@@ -1250,13 +1709,123 @@ export function updateAffiliate(id: string, updates: Partial<AffiliatePromotion>
     updates.campaign_name ?? null,
     updates.disclosure_text ?? null,
     updates.is_active !== undefined ? (updates.is_active ? 1 : 0) : null,
+    updates.company_name ?? null,
+    updates.company_logo ?? null,
+    updates.category ?? null,
+    updates.commission_model ?? null,
+    updates.payout_amount ?? null,
+    updates.affiliate_network ?? null,
+    updates.eligibility_terms ?? null,
+    updates.terms_conditions ?? null,
+    updates.cta_button_text ?? null,
+    updates.badge_text ?? null,
+    updates.rating ?? null,
+    updates.is_featured !== undefined ? (updates.is_featured ? 1 : 0) : null,
+    updates.is_trending !== undefined ? (updates.is_trending ? 1 : 0) : null,
+    updates.expires_at ?? null,
+    updates.status ?? null,
     id,
     id
   );
 
   const row = db.prepare('SELECT * FROM affiliate_promotions WHERE id = ? OR tracking_slug = ?').get(id, id) as any;
   if (!row) return null;
-  return toPlain({ ...row, is_active: Boolean(row.is_active) });
+  return toPlain({
+    ...row,
+    is_active: Boolean(row.is_active),
+    is_featured: Boolean(row.is_featured),
+    is_trending: Boolean(row.is_trending),
+  });
+}
+
+export function getAllAffiliateNetworks(): AffiliateNetwork[] {
+  const db = getDb();
+  const rows = db.prepare('SELECT * FROM affiliate_networks ORDER BY name ASC').all() as any[];
+  return toPlain(rows);
+}
+
+export function createAffiliateNetwork(network: Partial<AffiliateNetwork>): AffiliateNetwork {
+  const db = getDb();
+  const id = network.id || `net-${Date.now()}`;
+  db.prepare(`
+    INSERT INTO affiliate_networks (id, name, logo, login_url, affiliate_id, api_key_masked, commission_types, notes, status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id,
+    network.name || 'New Network',
+    network.logo || '',
+    network.login_url || '',
+    network.affiliate_id || '',
+    network.api_key_masked || '',
+    network.commission_types || 'CPS, CPL, CPA',
+    network.notes || '',
+    network.status || 'active',
+    new Date().toISOString()
+  );
+  return toPlain(db.prepare('SELECT * FROM affiliate_networks WHERE id = ?').get(id) as any);
+}
+
+export function updateAffiliateNetwork(id: string, updates: Partial<AffiliateNetwork>): AffiliateNetwork | null {
+  const db = getDb();
+  db.prepare(`
+    UPDATE affiliate_networks SET
+      name = coalesce(?, name),
+      logo = coalesce(?, logo),
+      login_url = coalesce(?, login_url),
+      affiliate_id = coalesce(?, affiliate_id),
+      api_key_masked = coalesce(?, api_key_masked),
+      commission_types = coalesce(?, commission_types),
+      notes = coalesce(?, notes),
+      status = coalesce(?, status)
+    WHERE id = ?
+  `).run(
+    updates.name ?? null,
+    updates.logo ?? null,
+    updates.login_url ?? null,
+    updates.affiliate_id ?? null,
+    updates.api_key_masked ?? null,
+    updates.commission_types ?? null,
+    updates.notes ?? null,
+    updates.status ?? null,
+    id
+  );
+  const row = db.prepare('SELECT * FROM affiliate_networks WHERE id = ?').get(id) as any;
+  return row ? toPlain(row) : null;
+}
+
+export function deleteAffiliateNetwork(id: string): boolean {
+  const db = getDb();
+  const res = db.prepare('DELETE FROM affiliate_networks WHERE id = ?').run(id);
+  return res.changes > 0;
+}
+
+export function getAllConversions(limit: number = 100): AffiliateConversion[] {
+  const db = getDb();
+  const rows = db.prepare('SELECT * FROM affiliate_conversions ORDER BY recorded_at DESC LIMIT ?').all(limit) as any[];
+  return toPlain(rows);
+}
+
+export function recordConversion(conv: Partial<AffiliateConversion>): AffiliateConversion {
+  const db = getDb();
+  const id = conv.id || `conv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+  db.prepare(`
+    INSERT INTO affiliate_conversions (id, tracking_slug, offer_id, offer_title, network_name, conversion_type, commission_amount, currency, status, country, order_id, recorded_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id,
+    conv.tracking_slug || 'direct',
+    conv.offer_id || '',
+    conv.offer_title || '',
+    conv.network_name || 'Direct',
+    conv.conversion_type || 'CPA',
+    conv.commission_amount || 0,
+    conv.currency || 'USD',
+    conv.status || 'pending',
+    conv.country || 'US',
+    conv.order_id || '',
+    conv.recorded_at || new Date().toISOString()
+  );
+  return toPlain(db.prepare('SELECT * FROM affiliate_conversions WHERE id = ?').get(id) as any);
 }
 
 export function deleteAffiliate(id: string): boolean {
@@ -1350,8 +1919,18 @@ export function getAnalyticsSummary() {
   const totalDrafts = (db.prepare('SELECT count(*) as c FROM blog_posts WHERE status != ?').get('published') as any).c;
   const totalClicks = (db.prepare('SELECT sum(total_clicks) as s FROM affiliate_promotions').get() as any).s || 0;
   const totalCategories = (db.prepare('SELECT count(*) as c FROM categories').get() as any).c;
-  const topAffiliates = db.prepare('SELECT title, tracking_slug, total_clicks FROM affiliate_promotions ORDER BY total_clicks DESC LIMIT 5').all() as any[];
+  const topAffiliates = db.prepare('SELECT title, tracking_slug, total_clicks, category, commission_model FROM affiliate_promotions ORDER BY total_clicks DESC LIMIT 5').all() as any[];
   const recentClicks = db.prepare('SELECT * FROM ad_clicks ORDER BY clicked_at DESC LIMIT 10').all() as any[];
+
+  // Conversions Analytics
+  let totalConversions = 0;
+  let approvedEarnings = 0;
+  let pendingEarnings = 0;
+  try {
+    totalConversions = (db.prepare('SELECT count(*) as c FROM affiliate_conversions').get() as any).c || 0;
+    approvedEarnings = (db.prepare('SELECT sum(commission_amount) as s FROM affiliate_conversions WHERE status = "approved"').get() as any).s || 0;
+    pendingEarnings = (db.prepare('SELECT sum(commission_amount) as s FROM affiliate_conversions WHERE status = "pending"').get() as any).s || 0;
+  } catch {}
 
   return toPlain({
     totalPosts,
@@ -1360,7 +1939,10 @@ export function getAnalyticsSummary() {
     totalCategories,
     topAffiliates,
     recentClicks,
-    estimatedAdImpressions: totalPosts * 850 + totalClicks * 45, // Simulated measured metric model
+    totalConversions,
+    approvedEarnings: Number(approvedEarnings.toFixed(2)),
+    pendingEarnings: Number(pendingEarnings.toFixed(2)),
+    estimatedAdImpressions: totalPosts * 850 + totalClicks * 45, // Algorithmic edge estimate
   });
 }
 

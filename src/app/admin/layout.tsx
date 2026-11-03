@@ -126,8 +126,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 />
               </div>
               <div>
-                <span className="font-black text-white text-lg tracking-tight block group-hover:text-brand-400 transition">Srinoos</span>
-                <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">Technology Collective</span>
+                <span className="font-black text-white text-lg tracking-tight block group-hover:text-brand-400 transition">Sricospace</span>
+                <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">Made by Srinoos</span>
               </div>
             </Link>
           </div>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getPostBySlug, getAllPosts, getWebsiteSettings } from '@/lib/db';
+import { getPostBySlug, getAllPosts, getWebsiteSettings, getAllAffiliates } from '@/lib/db';
 import AdUnit from '@/components/AdUnit';
 import BlogCard from '@/components/BlogCard';
 import ShareButtons from '@/components/ShareButtons';
@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   HelpCircle,
   FolderOpen,
+  Gift,
+  ExternalLink,
+  Tag,
 } from 'lucide-react';
 
 interface BlogPostPageProps {
@@ -78,6 +81,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const settings = getWebsiteSettings();
+  const topOffers = getAllAffiliates({ is_active: true, limit: 3 });
   const relatedPosts = getAllPosts({
     categoryId: post.category_id,
     status: 'published',
@@ -389,6 +393,45 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="space-y-4">
                   {relatedPosts.map((rel) => (
                     <BlogCard key={rel.id} post={rel} variant="horizontal" />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Top Partner Offers & Free Trials */}
+            {topOffers.length > 0 && (
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <Gift className="w-3.5 h-3.5 text-amber-500" /> Verified Partner Offers
+                  </span>
+                  <Link href="/offers" className="text-[11px] font-bold text-brand-600 hover:underline">
+                    All Deals &rarr;
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {topOffers.map((off) => (
+                    <div key={off.id} className="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-slate-500">{off.company_name || 'Partner'}</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
+                          {off.commission_model || 'CPA'}
+                        </span>
+                      </div>
+                      <h5 className="font-bold text-xs text-slate-900 leading-snug line-clamp-1">{off.title}</h5>
+                      {off.payout_amount && (
+                        <span className="text-[11px] font-bold text-emerald-700 block">{off.payout_amount}</span>
+                      )}
+                      <a
+                        href={`/go/${off.tracking_slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-1.5 px-3 bg-brand-600 hover:bg-brand-500 text-white font-bold text-[11px] rounded-lg shadow-2xs transition flex items-center justify-center gap-1 mt-1"
+                      >
+                        <span>{off.cta_button_text || 'Claim Offer'}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   ))}
                 </div>
               </div>

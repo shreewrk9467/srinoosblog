@@ -61,6 +61,8 @@ export interface AdPlacement {
   updated_at: string;
 }
 
+export type CommissionModel = 'CPA' | 'CPL' | 'CPS' | 'CPI' | 'Hybrid';
+
 export interface AffiliatePromotion {
   id: string;
   title: string;
@@ -73,6 +75,50 @@ export interface AffiliatePromotion {
   total_clicks: number;
   is_active: boolean;
   created_at: string;
+  // Enterprise Affiliate Platform Attributes
+  company_name?: string;
+  company_logo?: string;
+  category?: string;
+  commission_model?: CommissionModel;
+  payout_amount?: string;
+  affiliate_network?: string;
+  eligibility_terms?: string;
+  terms_conditions?: string;
+  cta_button_text?: string;
+  badge_text?: string;
+  rating?: number;
+  is_featured?: boolean;
+  is_trending?: boolean;
+  expires_at?: string | null;
+  status?: 'active' | 'expired' | 'pending' | 'draft';
+}
+
+export interface AffiliateNetwork {
+  id: string;
+  name: string;
+  logo: string;
+  login_url?: string;
+  affiliate_id?: string;
+  api_key_masked?: string;
+  commission_types: string; // e.g. "CPS, CPL, CPA"
+  notes?: string;
+  status: 'active' | 'pending_approval' | 'inactive';
+  created_at: string;
+}
+
+export interface AffiliateConversion {
+  id: string;
+  tracking_slug: string;
+  offer_id?: string;
+  offer_title?: string;
+  network_name?: string;
+  conversion_type: 'CPA' | 'CPL' | 'CPS' | 'CPI' | 'Registration';
+  commission_amount: number;
+  currency: string;
+  status: 'pending' | 'approved' | 'rejected';
+  country?: string;
+  order_id?: string;
+  recorded_at: string;
 }
 
 export interface AdClickEvent {
