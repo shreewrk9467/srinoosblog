@@ -33,7 +33,10 @@ export function getSupabaseCredentials(): { url: string; anonKey: string } {
     }
   } catch {}
 
-  return { url: '', anonKey: '' };
+  // 3. Configured Project Fallback
+  const defaultUrl = 'https://udankkjapmjuurcveube.supabase.co';
+  const defaultKey = 'sb_publishable_lhwvmIHCEF2qqAcBemsreQ_A_CaAI82';
+  return { url: defaultUrl, anonKey: defaultKey };
 }
 
 export function isSupabaseConfigured(): boolean {
