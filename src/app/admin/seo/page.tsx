@@ -186,30 +186,56 @@ export default function AdminSeoPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Google Search Console & GA4 */}
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-4">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Search className="w-5 h-5 text-brand-600" /> Google Search Console & Web Analytics
-            </h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                <Search className="w-5 h-5 text-brand-600" /> Google Search Console & Web Analytics
+              </h3>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://search.google.com/search-console"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-[11px] rounded-lg transition inline-flex items-center gap-1"
+                >
+                  Search Console <ExternalLink className="w-3 h-3" />
+                </a>
+                <a
+                  href="https://analytics.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[11px] rounded-lg transition inline-flex items-center gap-1"
+                >
+                  Analytics (GA4) <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                Google Search Console Verification Tag
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold uppercase text-slate-700">
+                  Google Search Console Verification Tag
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">HTML Tag or Verification Code</span>
+              </div>
               <input
                 type="text"
-                placeholder="google-site-verification=XXXXXXXXXXXXXXXXXXXXX"
+                placeholder="google-site-verification=XXXXXXXXXXXXXXXXXXXXX or HTML tag"
                 value={settings.google_search_console_tag || ''}
                 onChange={(e) => setSettings({ ...settings, google_search_console_tag: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-brand-500"
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
-                Inserted automatically into the &lt;head&gt; meta tag of every page.
+                Automatically rendered as <code>&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;</code> in the <code>&lt;head&gt;</code> of all pages.
               </span>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                Google Analytics 4 Measurement ID
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold uppercase text-slate-700">
+                  Google Analytics 4 Measurement ID
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">Format: G-XXXXXXXXXX</span>
+              </div>
               <input
                 type="text"
                 placeholder="G-XXXXXXXXXX"
@@ -217,6 +243,9 @@ export default function AdminSeoPage() {
                 onChange={(e) => setSettings({ ...settings, google_analytics_id: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-brand-500"
               />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Injects official Google tag (gtag.js) for live traffic and event tracking.
+              </span>
             </div>
 
             <div>

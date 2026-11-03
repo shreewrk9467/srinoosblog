@@ -10,6 +10,13 @@ import { getAllCategories, getWebsiteSettings } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+function extractGoogleVerification(tag?: string): string | undefined {
+  if (!tag) return undefined;
+  const match = tag.match(/content=["']([^"']+)["']/i);
+  if (match) return match[1];
+  return tag.replace(/^google-site-verification[:=]\s*/i, '').replace(/["']/g, '').trim() || undefined;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getWebsiteSettings();
   return {
@@ -59,7 +66,7 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: '@srinoos',
     },
     verification: {
-      google: settings.google_search_console_tag?.replace('google-site-verification=', '') || undefined,
+      google: extractGoogleVerification(settings.google_search_console_tag),
     },
     robots: {
       index: true,
@@ -113,6 +120,27 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        {settings.google_analytics_id && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${settings.google_analytics_id}`}
+            />
+            <script
+              id="google-analytics-init"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${settings.google_analytics_id}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
