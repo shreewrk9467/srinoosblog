@@ -41,3 +41,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error?.message || 'Failed to record conversion' }, { status: 500 });
   }
 }
+

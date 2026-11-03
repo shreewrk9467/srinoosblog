@@ -44,3 +44,4 @@ export async function DELETE(
     return NextResponse.json({ error: error?.message || 'Failed to delete network' }, { status: 500 });
   }
 }
+

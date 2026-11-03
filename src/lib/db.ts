@@ -348,7 +348,7 @@ function seedDefaults(db: DatabaseSync) {
     adsense_active: true,
     ads_txt_content: 'google.com, pub-9876543210123456, DIRECT, f08c47fec0942fa0',
     google_analytics_id: 'G-SRINOOS2026',
-    google_search_console_tag: 'google-site-verification=srinoos_seo_verification_meta_2026',
+    google_search_console_tag: '<meta name="google-site-verification" content="uodEPcFClTUy1YlkAZF-QtHcAHBhYrkqXwyJmBq_D1I" />',
     facebook_url: 'https://facebook.com/srinoos',
     twitter_url: 'https://twitter.com/srinoos',
     linkedin_url: 'https://linkedin.com/company/srinoos',
@@ -1878,7 +1878,7 @@ export function getWebsiteSettings(): WebsiteSettings {
     adsense_active: true,
     ads_txt_content: 'google.com, pub-9876543210123456, DIRECT, f08c47fec0942fa0',
     google_analytics_id: 'G-SRINOOS2026',
-    google_search_console_tag: 'google-site-verification=srinoos_seo_verification_meta_2026',
+    google_search_console_tag: '<meta name="google-site-verification" content="uodEPcFClTUy1YlkAZF-QtHcAHBhYrkqXwyJmBq_D1I" />',
     nav_links_json: JSON.stringify([
       { name: 'Home', href: '/' },
       { name: 'All Blogs', href: '/blog' },

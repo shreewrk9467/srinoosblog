@@ -10,11 +10,13 @@ import { getAllCategories, getWebsiteSettings } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-function extractGoogleVerification(tag?: string): string | undefined {
-  if (!tag) return undefined;
+function extractGoogleVerification(tag?: string): string {
+  const fallback = 'uodEPcFClTUy1YlkAZF-QtHcAHBhYrkqXwyJmBq_D1I';
+  if (!tag) return fallback;
   const match = tag.match(/content=["']([^"']+)["']/i);
   if (match) return match[1];
-  return tag.replace(/^google-site-verification[:=]\s*/i, '').replace(/["']/g, '').trim() || undefined;
+  const cleaned = tag.replace(/^google-site-verification[:=]\s*/i, '').replace(/["']/g, '').trim();
+  return cleaned || fallback;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -137,6 +139,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <meta
+          name="google-site-verification"
+          content={extractGoogleVerification(settings.google_search_console_tag)}
+        />
         {settings.google_analytics_id && (
           <>
             <script
