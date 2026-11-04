@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { getWebsiteSettings } from './db';
+import { WebsiteSettings } from './types';
 
 let cachedClient: SupabaseClient | null = null;
 let lastKnownUrl = '';
@@ -22,21 +22,43 @@ export function getSupabaseCredentials(): { url: string; anonKey: string } {
     return { url: sanitizeSupabaseUrl(envUrl), anonKey: envKey.trim() };
   }
 
-  // 2. Check website settings fallback
-  try {
-    const settings = getWebsiteSettings();
-    if (settings.supabase_url && settings.supabase_anon_key) {
-      return {
-        url: sanitizeSupabaseUrl(settings.supabase_url),
-        anonKey: settings.supabase_anon_key.trim(),
-      };
-    }
-  } catch {}
-
-  // 3. Configured Project Fallback
+  // 2. Configured Project Fallback
   const defaultUrl = 'https://udankkjapmjuurcveube.supabase.co';
   const defaultKey = 'sb_publishable_lhwvmIHCEF2qqAcBemsreQ_A_CaAI82';
   return { url: defaultUrl, anonKey: defaultKey };
+}
+
+export async function getSupabaseWebsiteSettings(): Promise<Partial<WebsiteSettings> | null> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    const { data, error } = await client
+      .from('website_settings')
+      .select('value')
+      .eq('key', 'site_config')
+      .maybeSingle();
+
+    if (error || !data || !data.value) return null;
+    return typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveSupabaseWebsiteSettings(settings: Partial<WebsiteSettings>): Promise<boolean> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) return false;
+    const { error } = await client
+      .from('website_settings')
+      .upsert({
+        key: 'site_config',
+        value: settings,
+      });
+    return !error;
+  } catch {
+    return false;
+  }
 }
 
 export function isSupabaseConfigured(): boolean {

@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         revalidatePath('/blog/[slug]', 'page');
         revalidatePath('/admin/blogs');
         revalidatePath('/admin/content');
-      } catch {}
+      } catch { }
     }
 
     return NextResponse.json(result);
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         revalidatePath('/blog/[slug]', 'page');
         revalidatePath('/admin/blogs');
         revalidatePath('/admin/content');
-      } catch {}
+      } catch { }
     }
 
     return NextResponse.json(result);

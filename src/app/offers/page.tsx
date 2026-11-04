@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getAllAffiliates, getAllAffiliateNetworks, getWebsiteSettings } from '@/lib/db';
+import { getAllAffiliates, getAllAffiliateNetworks, getWebsiteSettingsAsync } from '@/lib/db';
 import AdUnit from '@/components/AdUnit';
 import OffersClientView from './OffersClientView';
 import { PageSection } from '@/lib/types';
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
   return {
     title: 'Top Verified Affiliate Deals, Free Registration Offers & Software Discounts | Sricospace',
     description:
@@ -40,8 +40,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function OffersPage() {
-  const settings = getWebsiteSettings();
+export default async function OffersPage() {
+  const settings = await getWebsiteSettingsAsync();
   const allAffiliates = getAllAffiliates({ is_active: true });
   const allNetworks = getAllAffiliateNetworks();
 

@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import AdSenseScript from '@/components/AdSenseScript';
 import AdminCornerBadge from '@/components/AdminCornerBadge';
-import { getAllCategories, getWebsiteSettings } from '@/lib/db';
+import { getAllCategories, getWebsiteSettingsAsync } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -29,7 +29,7 @@ function extractMitgoVerification(tag?: string): string {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
   const brandName = settings.site_name.toLowerCase().includes('sricospace')
     ? settings.site_name
     : `SricoSpace | ${settings.site_name}`;
@@ -109,13 +109,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const categories = getAllCategories();
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
 
   const organizationSchema = {
     '@context': 'https://schema.org',

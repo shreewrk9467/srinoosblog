@@ -106,9 +106,21 @@ export async function POST(request: NextRequest) {
             );
           }
 
+          // 3. Sync Website Settings & Page Layouts for real-time cloud persistence
+          const currentSettings = getWebsiteSettings();
+          try {
+            await client.from('website_settings').upsert({
+              key: 'site_config',
+              value: currentSettings,
+            });
+          } catch (settingsSyncErr: any) {
+            console.warn('Supabase website_settings sync note:', settingsSyncErr.message);
+          }
+
           syncStats = {
             categoriesSynced: categories.length,
             postsSynced: posts.length,
+            settingsSynced: true,
           };
         } catch (syncErr: any) {
           console.warn('Sync to Supabase warning:', syncErr.message);

@@ -16,15 +16,15 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
-import { getWebsiteSettings } from '@/lib/db';
+import { getWebsiteSettingsAsync } from '@/lib/db';
 import { PageSection } from '@/lib/types';
 import { getPageSections } from '@/lib/page-layouts';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function AboutPage() {
-  const settings = getWebsiteSettings();
+export default async function AboutPage() {
+  const settings = await getWebsiteSettingsAsync();
 
   const founderName = settings.founder_name || 'Ketanboina Venkat Shrinivas';
   const founderTitle = settings.founder_title || 'Founder, Full-Stack Engineer & Digital Growth Specialist';

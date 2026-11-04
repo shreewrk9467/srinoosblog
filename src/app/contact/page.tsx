@@ -2,15 +2,15 @@ import Link from 'next/link';
 import { Mail, Phone, Globe, ExternalLink, Briefcase, MapPin, HelpCircle, ArrowRight, Sparkles } from 'lucide-react';
 import AdUnit from '@/components/AdUnit';
 import ContactFormClient from '@/components/ContactFormClient';
-import { getWebsiteSettings } from '@/lib/db';
+import { getWebsiteSettingsAsync } from '@/lib/db';
 import { PageSection } from '@/lib/types';
 import { getPageSections } from '@/lib/page-layouts';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function ContactPage() {
-  const settings = getWebsiteSettings();
+export default async function ContactPage() {
+  const settings = await getWebsiteSettingsAsync();
 
   const founderName = settings.founder_name || 'Ketanboina Venkat Shrinivas';
   const contactEmail = settings.contact_email || 'ketanboinak@gmail.com';

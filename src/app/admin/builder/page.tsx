@@ -14,6 +14,7 @@ import {
   Edit3,
   Save,
   CheckCircle2,
+  AlertCircle,
   ExternalLink,
   Laptop,
   Tablet,
@@ -77,6 +78,7 @@ export default function AdminVisualBuilderPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Initialize from URL parameters on client mount
   useEffect(() => {
@@ -172,9 +174,11 @@ export default function AdminVisualBuilderPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to save layout');
 
       setSavedSuccess(true);
+      setSaveError(null);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err: any) {
       console.error('Error saving layout:', err);
+      setSaveError(err.message || 'Error saving layout to server. Please verify you are logged in as admin.');
     } finally {
       setSaving(false);
     }
@@ -542,6 +546,25 @@ export default function AdminVisualBuilderPage() {
           })}
         </div>
       </div>
+
+      {/* Save Error Notice (if any) */}
+      {saveError && (
+        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs text-rose-950 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+            <div>
+              <strong className="block">Save Error: {saveError}</strong>
+              <span className="text-[11px] text-rose-700">Changes could not be synced to the database. If your session expired, please log in again.</span>
+            </div>
+          </div>
+          <Link
+            href="/admin/login?redirect=/admin/builder"
+            className="px-3 py-1.5 bg-rose-600 text-white font-bold rounded-xl text-xs flex-shrink-0 hover:bg-rose-700 transition"
+          >
+            Re-Login to Admin
+          </Link>
+        </div>
+      )}
 
       {/* Active Page Info Banner */}
       <div className="bg-indigo-50 border border-indigo-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-indigo-950">

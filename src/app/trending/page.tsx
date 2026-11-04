@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts, getWebsiteSettings } from '@/lib/db';
+import { getAllPosts, getWebsiteSettingsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { TrendingUp, Flame, ArrowRight, HelpCircle, Sparkles } from 'lucide-react';
@@ -9,8 +9,8 @@ import { getPageSections } from '@/lib/page-layouts';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function TrendingPage() {
-  const settings = getWebsiteSettings();
+export default async function TrendingPage() {
+  const settings = await getWebsiteSettingsAsync();
   const trendingPosts = getAllPosts({
     status: 'published',
     isTrending: true,

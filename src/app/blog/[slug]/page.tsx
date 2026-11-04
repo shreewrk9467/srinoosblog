@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getPostBySlug, getAllPosts, getWebsiteSettings, getAllAffiliates } from '@/lib/db';
+import { getPostBySlug, getAllPosts, getWebsiteSettingsAsync, getAllAffiliates } from '@/lib/db';
 import AdUnit from '@/components/AdUnit';
 import BlogCard from '@/components/BlogCard';
 import ShareButtons from '@/components/ShareButtons';
@@ -32,7 +32,7 @@ export const revalidate = 0;
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const post = getPostBySlug(params.slug);
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
 
   if (!post) {
     return {
@@ -75,13 +75,13 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 }
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const post = getPostBySlug(params.slug);
   if (!post) {
     notFound();
   }
 
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
   const topOffers = getAllAffiliates({ is_active: true, limit: 3 });
   const relatedPosts = getAllPosts({
     categoryId: post.category_id,

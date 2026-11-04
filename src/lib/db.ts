@@ -1913,6 +1913,47 @@ export function updateWebsiteSettings(settings: Partial<WebsiteSettings>): Websi
   return toPlain(updated);
 }
 
+/**
+ * Universal async settings accessor.
+ * Fetches real-time layout and website settings from Supabase PostgreSQL (if configured)
+ * and falls back safely to SQLite. Ensures changes made in Visual Builder persist
+ * across all serverless containers, all devices, and browser refreshes.
+ */
+export async function getWebsiteSettingsAsync(): Promise<WebsiteSettings> {
+  const localSettings = getWebsiteSettings();
+  try {
+    const { getSupabaseWebsiteSettings } = await import('./supabase');
+    const remote = await getSupabaseWebsiteSettings();
+    if (remote && Object.keys(remote).length > 0) {
+      const merged = { ...localSettings, ...remote };
+      // Keep local SQLite in sync
+      try {
+        const db = getDb();
+        db.prepare('INSERT OR REPLACE INTO website_settings (key, value) VALUES (?, ?)').run('site_config', JSON.stringify(merged));
+      } catch {}
+      return toPlain(merged);
+    }
+  } catch (err) {
+    // Graceful fallback to SQLite
+  }
+  return localSettings;
+}
+
+/**
+ * Universal async settings mutator.
+ * Saves to SQLite and immediately pushes to Supabase PostgreSQL for cloud persistence.
+ */
+export async function updateWebsiteSettingsAsync(settings: Partial<WebsiteSettings>): Promise<WebsiteSettings> {
+  const updated = updateWebsiteSettings(settings);
+  try {
+    const { saveSupabaseWebsiteSettings } = await import('./supabase');
+    await saveSupabaseWebsiteSettings(updated);
+  } catch (err) {
+    console.warn('Supabase cloud settings sync notice:', err);
+  }
+  return updated;
+}
+
 // -------------------------------------------------------------
 // ANALYTICS SUMMARY
 // -------------------------------------------------------------

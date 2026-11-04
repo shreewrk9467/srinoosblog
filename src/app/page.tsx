@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts, getAllCategories, getWebsiteSettings, getAllAffiliates } from '@/lib/db';
+import { getAllPosts, getAllCategories, getWebsiteSettingsAsync, getAllAffiliates } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { PageSection } from '@/lib/types';
@@ -21,8 +21,8 @@ import {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function HomePage() {
-  const settings = getWebsiteSettings();
+export default async function HomePage() {
+  const settings = await getWebsiteSettingsAsync();
   const allPosts = getAllPosts({ status: 'published', limit: 20 });
   const featuredAffiliates = getAllAffiliates({ is_featured: true, is_active: true, limit: 4 });
   const featuredPost = allPosts.find((p) => p.is_featured) || allPosts[0];

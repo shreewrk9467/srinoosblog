@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts, getAllCategories, getWebsiteSettings } from '@/lib/db';
+import { getAllPosts, getAllCategories, getWebsiteSettingsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { BookOpen, Sparkles, ArrowRight, HelpCircle, ShieldCheck } from 'lucide-react';
@@ -17,8 +17,8 @@ interface AllBlogsPageProps {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function AllBlogsPage({ searchParams }: AllBlogsPageProps) {
-  const settings = getWebsiteSettings();
+export default async function AllBlogsPage({ searchParams }: AllBlogsPageProps) {
+  const settings = await getWebsiteSettingsAsync();
   const categories = getAllCategories();
   const selectedCat = searchParams.category;
   const posts = getAllPosts({

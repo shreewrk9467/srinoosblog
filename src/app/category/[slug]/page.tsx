@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getCategoryBySlug, getAllPosts, getWebsiteSettings } from '@/lib/db';
+import { getCategoryBySlug, getAllPosts, getWebsiteSettingsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { ChevronRight, Folder, HelpCircle, Sparkles, ArrowRight } from 'lucide-react';
@@ -28,13 +28,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   };
 }
 
-export default function CategoryArchivePage({ params }: CategoryPageProps) {
+export default async function CategoryArchivePage({ params }: CategoryPageProps) {
   const category = getCategoryBySlug(params.slug);
   if (!category) {
     notFound();
   }
 
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
   const posts = getAllPosts({
     categoryId: category.id,
     status: 'published',

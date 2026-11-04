@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getWebsiteSettings, updateWebsiteSettings } from '@/lib/db';
+import { getWebsiteSettingsAsync, updateWebsiteSettingsAsync } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const settings = getWebsiteSettings();
+  const settings = await getWebsiteSettingsAsync();
   return NextResponse.json({ settings });
 }
 
@@ -18,7 +18,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body: any = await request.json();
-    const updated = updateWebsiteSettings(body);
+    const updated = await updateWebsiteSettingsAsync(body);
 
     try {
       revalidatePath('/', 'layout');
