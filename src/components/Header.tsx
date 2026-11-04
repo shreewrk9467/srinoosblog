@@ -14,6 +14,7 @@ import {
   ShieldAlert,
   ChevronDown,
   LayoutDashboard,
+  Gift,
 } from 'lucide-react';
 import { WebsiteSettings } from '@/lib/types';
 
@@ -177,12 +178,13 @@ export default function Header({ categories = [], settings }: HeaderProps) {
               )}
             </div>
 
-            {/* Write / Admin CTA */}
+            {/* Public Offers CTA */}
             <Link
-              href="/admin/blogs/new"
-              className="ml-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-lg transition shadow-sm hover:shadow"
+              href="/offers"
+              className="ml-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-xl transition shadow-sm hover:shadow flex items-center gap-1.5"
             >
-              Write Blog
+              <Gift className="w-4 h-4 text-white" />
+              <span>Explore Deals</span>
             </Link>
           </nav>
 
