@@ -41,12 +41,6 @@ export default function AdminLoginPage() {
     }
   };
 
-  const handleFillDefaults = () => {
-    setEmail('admin@srinoos.com');
-    setPassword('Srinoos@Admin2026');
-    setError('');
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-slate-200/80 p-8 sm:p-10 space-y-6">
@@ -60,11 +54,11 @@ export default function AdminLoginPage() {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Srinoos Admin Suite</h1>
-            <span className="text-[11px] font-bold text-brand-600 uppercase tracking-widest block">Technology Collective</span>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Sricospace Admin Suite</h1>
+            <span className="text-[11px] font-bold text-brand-600 uppercase tracking-widest block">Made by Srinoos • Restricted Access</span>
           </div>
           <p className="text-xs text-slate-500">
-            Sign in to manage blogs, AdSense slots, affiliate links, and SEO
+            Secure administrative authentication required to manage the platform.
           </p>
         </div>
 
@@ -86,7 +80,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin or admin@srinoos.com"
+                placeholder="Enter admin username"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:bg-white"
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -115,31 +109,13 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl transition shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
-            {loading ? 'Authenticating...' : 'Sign In to Dashboard'} <ArrowRight className="w-4 h-4" />
+            {loading ? 'Verifying Security Clearance...' : 'Sign In to Admin Panel'} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between gap-2">
-          <div>
-            <div className="flex items-center gap-1 font-bold text-slate-800">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Default Credentials:
-            </div>
-            <div className="font-mono text-[11px] text-slate-500 mt-0.5">
-              admin@srinoos.com &bull; Srinoos@Admin2026
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleFillDefaults}
-            className="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-[11px] rounded-lg transition border border-brand-200 cursor-pointer flex-shrink-0"
-          >
-            Auto-fill
-          </button>
-        </div>
-
         <div className="text-center pt-2">
           <Link href="/" className="text-xs text-slate-400 hover:text-slate-600 transition">
-            &larr; Back to Srinoos Public Website
+            &larr; Back to Sricospace Public Website
           </Link>
         </div>
       </div>

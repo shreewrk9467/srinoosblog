@@ -1187,3 +1187,4 @@ export default function AdminVisualBuilderPage() {
     </div>
   );
 }
+
