@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model WebsiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@map("website_settings")
+}
+
+model BlogPost {
+  id           String    @id
+  slug         String    @unique
+  title        String
+  excerpt      String?
+  content      String
+  featuredImage String?  @map("featured_image")
+  categorySlug String    @map("category_slug")
+  authorName   String    @map("author_name")
+  readingTime  Int       @default(5) @map("reading_time")
+  isFeatured   Boolean   @default(false) @map("is_featured")
+  isTrending   Boolean   @default(false) @map("is_trending")
+  status       String    @default("published")
+  viewsCount   Int       @default(0) @map("views_count")
+  seoTitle     String?   @map("seo_title")
+  seoDesc      String?   @map("seo_description")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("blog_posts")
+}
+
+model Category {
+  id          String   @id
+  name        String
+  slug        String   @unique
+  description String?
+  postCount   Int      @default(0) @map("post_count")
+
+  @@map("categories")
+}
+
+model AffiliatePromotion {
+  id              String   @id
+  title           String
+  description     String?
+  targetUrl       String   @map("target_url")
+  trackingSlug    String   @unique @map("tracking_slug")
+  networkName     String?  @map("network_name")
+  commissionModel String?  @map("commission_model")
+  payoutAmount    String?  @map("payout_amount")
+  ctaButtonText   String?  @map("cta_button_text")
+  category        String?
+  isFeatured      Boolean  @default(false) @map("is_featured")
+  isActive        Boolean  @default(true) @map("is_active")
+  totalClicks     Int      @default(0) @map("total_clicks")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("affiliate_promotions")
+}
+

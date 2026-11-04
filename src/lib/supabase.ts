@@ -42,6 +42,12 @@ export function getSupabaseCredentials(): { url: string; anonKey: string; secret
   return { url: defaultUrl, anonKey: defaultKey };
 }
 
+export interface SupabaseSyncResult {
+  success: boolean;
+  error?: string;
+  tableMissing?: boolean;
+}
+
 export async function getSupabaseWebsiteSettings(): Promise<Partial<WebsiteSettings> | null> {
   try {
     const client = getSupabaseClient();
@@ -59,19 +65,36 @@ export async function getSupabaseWebsiteSettings(): Promise<Partial<WebsiteSetti
   }
 }
 
-export async function saveSupabaseWebsiteSettings(settings: Partial<WebsiteSettings>): Promise<boolean> {
+export async function saveSupabaseWebsiteSettings(settings: Partial<WebsiteSettings>): Promise<SupabaseSyncResult> {
   try {
     const client = getSupabaseClient();
-    if (!client) return false;
+    if (!client) {
+      return { success: false, error: 'Supabase client could not be initialized (missing URL or API key).' };
+    }
+
     const { error } = await client
       .from('website_settings')
       .upsert({
         key: 'site_config',
         value: settings,
-      });
-    return !error;
-  } catch {
-    return false;
+      }, { onConflict: 'key' });
+
+    if (error) {
+      const isMissingTable =
+        error.code === 'PGRST205' ||
+        error.message?.includes('schema cache') ||
+        error.message?.includes('not find the table');
+
+      return {
+        success: false,
+        error: error.message || 'Error writing to Supabase website_settings',
+        tableMissing: isMissingTable,
+      };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Exception during Supabase cloud save' };
   }
 }
 

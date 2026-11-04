@@ -79,6 +79,9 @@ export default function AdminVisualBuilderPage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [cloudNotice, setCloudNotice] = useState<{ tableMissing: boolean; error: string } | null>(null);
+  const [showSqlModal, setShowSqlModal] = useState<boolean>(false);
+  const [copiedSql, setCopiedSql] = useState<boolean>(false);
 
   // Initialize from URL parameters on client mount
   useEffect(() => {
@@ -130,6 +133,13 @@ export default function AdminVisualBuilderPage() {
           } catch {}
         }
 
+        if (d.tableMissing || d.supabaseSynced === false) {
+          setCloudNotice({
+            tableMissing: true,
+            error: "Could not find table 'public.website_settings' in Supabase cloud schema cache.",
+          });
+        }
+
         setPageLayouts(updated);
       })
       .catch((err) => console.error('Error fetching settings for builder:', err))
@@ -172,6 +182,15 @@ export default function AdminVisualBuilderPage() {
 
       const data: any = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save layout');
+
+      if (data.supabaseSynced === false) {
+        setCloudNotice({
+          tableMissing: Boolean(data.tableMissing),
+          error: data.supabaseError || 'Supabase cloud table website_settings not found.',
+        });
+      } else {
+        setCloudNotice(null);
+      }
 
       setSavedSuccess(true);
       setSaveError(null);
@@ -563,6 +582,30 @@ export default function AdminVisualBuilderPage() {
           >
             Re-Login to Admin
           </Link>
+        </div>
+      )}
+
+      {/* Cloud Database Persistence Notice */}
+      {cloudNotice && (
+        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-950 animate-in fade-in">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 sm:mt-0" />
+            <div>
+              <strong className="block text-sm font-bold text-amber-900">
+                Action Required: Initialize Supabase Cloud Database Table
+              </strong>
+              <span className="text-[11px] text-amber-800">
+                Visual builder edits are temporarily held in local server memory. To make all your changes 100% permanent across all devices and after page refreshes, initialize the <code>website_settings</code> table in your Supabase project.
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowSqlModal(true)}
+            className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs flex-shrink-0 transition flex items-center gap-1.5 self-start sm:self-auto shadow-xs"
+          >
+            <span>View 1-Click SQL</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
@@ -1268,6 +1311,117 @@ export default function AdminVisualBuilderPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: SUPABASE CLOUD DATABASE INITIALIZATION MODAL */}
+      {showSqlModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-black text-slate-900 text-lg">Initialize Supabase Cloud Database</h3>
+                <p className="text-xs text-slate-500">Run this 1-click SQL in your Supabase project to make all builder changes 100% permanent across all devices.</p>
+              </div>
+              <button
+                onClick={() => setShowSqlModal(false)}
+                className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-900 text-slate-200 rounded-2xl p-4 text-xs font-mono relative overflow-x-auto max-h-64 border border-slate-800">
+              <pre>{`-- 1. Create persistent website_settings table
+CREATE TABLE IF NOT EXISTS public.website_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 2. Enable RLS
+ALTER TABLE public.website_settings ENABLE ROW LEVEL SECURITY;
+
+-- 3. Grants for Data API
+GRANT ALL ON TABLE public.website_settings TO postgres, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.website_settings TO anon, authenticated;
+
+-- 4. RLS Policies
+DROP POLICY IF EXISTS "Allow public read access to website_settings" ON public.website_settings;
+CREATE POLICY "Allow public read access to website_settings"
+  ON public.website_settings FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow insert access to website_settings" ON public.website_settings;
+CREATE POLICY "Allow insert access to website_settings"
+  ON public.website_settings FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow update access to website_settings" ON public.website_settings;
+CREATE POLICY "Allow update access to website_settings"
+  ON public.website_settings FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);`}</pre>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <p className="font-bold text-slate-900">How to run in 3 quick steps:</p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Open your Supabase project: <a href="https://supabase.com/dashboard/project/udankkjapmjuurcveube/sql/new" target="_blank" rel="noreferrer" className="text-brand-600 font-bold underline">Supabase SQL Editor &rarr;</a></li>
+                <li>Click <strong>Copy SQL</strong> below and paste into the editor.</li>
+                <li>Click the green <strong>Run</strong> button.</li>
+              </ol>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs text-emerald-600 font-semibold">
+                {copiedSql ? '✓ SQL copied to clipboard!' : ''}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sql = `-- 1. Create persistent website_settings table
+CREATE TABLE IF NOT EXISTS public.website_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 2. Enable RLS
+ALTER TABLE public.website_settings ENABLE ROW LEVEL SECURITY;
+
+-- 3. Grants for Data API
+GRANT ALL ON TABLE public.website_settings TO postgres, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.website_settings TO anon, authenticated;
+
+-- 4. RLS Policies
+DROP POLICY IF EXISTS "Allow public read access to website_settings" ON public.website_settings;
+CREATE POLICY "Allow public read access to website_settings"
+  ON public.website_settings FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow insert access to website_settings" ON public.website_settings;
+CREATE POLICY "Allow insert access to website_settings"
+  ON public.website_settings FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow update access to website_settings" ON public.website_settings;
+CREATE POLICY "Allow update access to website_settings"
+  ON public.website_settings FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);`;
+                    navigator.clipboard.writeText(sql);
+                    setCopiedSql(true);
+                    setTimeout(() => setCopiedSql(false), 3000);
+                  }}
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copiedSql ? 'Copied!' : 'Copy SQL'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSqlModal(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

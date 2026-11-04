@@ -7,7 +7,25 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const settings = await getWebsiteSettingsAsync();
-  return NextResponse.json({ settings });
+  let supabaseSynced = true;
+  let tableMissing = false;
+
+  try {
+    const { getSupabaseWebsiteSettings, getSupabaseClient } = await import('@/lib/supabase');
+    const cloudSettings = await getSupabaseWebsiteSettings();
+    if (cloudSettings === null) {
+      const client = getSupabaseClient();
+      if (client) {
+        const { error } = await client.from('website_settings').select('key').limit(1);
+        if (error && (error.code === 'PGRST205' || error.message?.includes('schema cache'))) {
+          tableMissing = true;
+          supabaseSynced = false;
+        }
+      }
+    }
+  } catch {}
+
+  return NextResponse.json({ settings, supabaseSynced, tableMissing });
 }
 
 export async function PUT(request: NextRequest) {
@@ -18,7 +36,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body: any = await request.json();
-    const updated = await updateWebsiteSettingsAsync(body);
+    const result = await updateWebsiteSettingsAsync(body);
 
     try {
       revalidatePath('/', 'layout');
@@ -35,7 +53,13 @@ export async function PUT(request: NextRequest) {
       revalidatePath('/admin/settings');
     } catch {}
 
-    return NextResponse.json({ success: true, settings: updated });
+    return NextResponse.json({
+      success: true,
+      settings: result.updated,
+      supabaseSynced: result.supabaseSynced,
+      supabaseError: result.supabaseError,
+      tableMissing: result.tableMissing,
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Failed to update settings' }, { status: 500 });
   }

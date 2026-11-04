@@ -1943,15 +1943,29 @@ export async function getWebsiteSettingsAsync(): Promise<WebsiteSettings> {
  * Universal async settings mutator.
  * Saves to SQLite and immediately pushes to Supabase PostgreSQL for cloud persistence.
  */
-export async function updateWebsiteSettingsAsync(settings: Partial<WebsiteSettings>): Promise<WebsiteSettings> {
+export async function updateWebsiteSettingsAsync(settings: Partial<WebsiteSettings>): Promise<{
+  updated: WebsiteSettings;
+  supabaseSynced: boolean;
+  supabaseError?: string;
+  tableMissing?: boolean;
+}> {
   const updated = updateWebsiteSettings(settings);
+  let supabaseSynced = false;
+  let supabaseError: string | undefined;
+  let tableMissing = false;
+
   try {
     const { saveSupabaseWebsiteSettings } = await import('./supabase');
-    await saveSupabaseWebsiteSettings(updated);
-  } catch (err) {
+    const syncRes = await saveSupabaseWebsiteSettings(updated);
+    supabaseSynced = syncRes.success;
+    supabaseError = syncRes.error;
+    tableMissing = Boolean(syncRes.tableMissing);
+  } catch (err: any) {
+    supabaseError = err?.message || 'Failed to sync with Supabase cloud';
     console.warn('Supabase cloud settings sync notice:', err);
   }
-  return updated;
+
+  return { updated, supabaseSynced, supabaseError, tableMissing };
 }
 
 // -------------------------------------------------------------
