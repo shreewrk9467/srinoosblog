@@ -5,6 +5,7 @@ import { getPostBySlug, getAllPosts, getWebsiteSettings, getAllAffiliates } from
 import AdUnit from '@/components/AdUnit';
 import BlogCard from '@/components/BlogCard';
 import ShareButtons from '@/components/ShareButtons';
+import AdminPostEditPill from '@/components/AdminPostEditPill';
 import {
   Calendar,
   Clock,
@@ -207,6 +208,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           )}
           <span className="truncate max-w-[200px] sm:max-w-md text-slate-700 font-medium">{post.title}</span>
         </nav>
+
+        {/* Discreet In-Page Admin Controls Bar (Owner Only) */}
+        <AdminPostEditPill postId={post.id} variant="bar" />
 
         {/* Global Article Top Ad Placement */}
         <div className="mb-6">

@@ -89,6 +89,16 @@ export default function CategoryArchivePage({ params }: CategoryPageProps) {
       case 'category_grid':
         return (
           <div key={section.id} className="space-y-6">
+            {section.headline && (
+              <div className="border-b border-slate-200 pb-3">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  {section.headline}
+                </h2>
+                {section.subheadline && (
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1">{section.subheadline}</p>
+                )}
+              </div>
+            )}
             {posts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {posts.map((post) => (

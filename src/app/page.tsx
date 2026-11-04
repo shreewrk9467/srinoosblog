@@ -186,11 +186,16 @@ export default function HomePage() {
 
       case 'lead_feature':
         if (!featuredPost) return null;
+        const displayFeaturedPost = {
+          ...featuredPost,
+          title: section.headline?.trim() ? section.headline : featuredPost.title,
+          excerpt: section.subheadline?.trim() ? section.subheadline : featuredPost.excerpt,
+        };
         return (
           <section key={section.id} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4" /> Lead Feature
+                <Sparkles className="w-4 h-4" /> {section.badge || 'Lead Feature'}
               </span>
               <Link
                 href="/blog"
@@ -199,7 +204,7 @@ export default function HomePage() {
                 Browse All ({allPosts.length}) <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <BlogCard post={featuredPost} variant="featured" />
+            <BlogCard post={displayFeaturedPost} variant="featured" />
           </section>
         );
 
@@ -212,9 +217,14 @@ export default function HomePage() {
                 <div className="p-1.5 bg-amber-500/10 text-amber-600 rounded-lg">
                   <TrendingUp className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  {section.headline || 'Trending on Srinoos'}
-                </h2>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                    {section.headline || 'Trending on Srinoos'}
+                  </h2>
+                  {section.subheadline && (
+                    <p className="text-xs text-slate-500 mt-0.5">{section.subheadline}</p>
+                  )}
+                </div>
               </div>
               <Link
                 href="/trending"
@@ -295,9 +305,14 @@ export default function HomePage() {
                 {/* Latest Articles Feed */}
                 <div>
                   <div className="flex items-center justify-between mb-6 border-b border-slate-200 pb-3">
-                    <h3 className="text-xl font-black text-slate-900">
-                      Recent Publications
-                    </h3>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900">
+                        {section.headline || 'Recent Publications'}
+                      </h3>
+                      {section.subheadline && (
+                        <p className="text-xs text-slate-500 mt-1">{section.subheadline}</p>
+                      )}
+                    </div>
                     <Link
                       href="/blog"
                       className="text-xs font-semibold text-brand-600 hover:underline"

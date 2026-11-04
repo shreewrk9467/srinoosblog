@@ -796,14 +796,50 @@ export default function AdminVisualBuilderPage() {
                       </div>
                     )}
 
+                    {/* Lead Feature Spotlight */}
+                    {section.type === 'lead_feature' && (
+                      <div className="bg-slate-50 border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                          <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
+                            <Sparkles className="w-4 h-4" /> {section.badge || 'Lead Feature Spotlight'}
+                          </span>
+                          <span className="text-xs text-brand-600 font-bold">Featured Publication</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                          <div className="md:col-span-6 bg-slate-200 aspect-[16/10] rounded-2xl flex items-center justify-center text-xs text-slate-500 font-bold">
+                            Lead Article Thumbnail
+                          </div>
+                          <div className="md:col-span-6 space-y-2">
+                            <span className="px-2.5 py-0.5 bg-brand-100 text-brand-700 text-[10px] font-bold rounded-full uppercase">
+                              Technology &amp; AI
+                            </span>
+                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                              {section.headline || 'How to Build an Organic Traffic Engine with Modern SEO in 2026'}
+                            </h3>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              {section.subheadline || 'A comprehensive operational guide on architecting high-converting organic search channels with AI assistance.'}
+                            </p>
+                            <div className="pt-2 text-[11px] text-slate-400 font-medium flex items-center gap-2">
+                              <span>Srinoos Editorial Team</span> &bull; <span>5 min read</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Blog & Trending Grids */}
                     {(section.type === 'blog_grid' || section.type === 'trending_grid' || section.type === 'category_grid' || section.type === 'main_feed' || section.type === 'trending') && (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                          <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            <BookOpen className="w-4 h-4 text-brand-600" />
-                            {section.title}
-                          </h4>
+                          <div>
+                            <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                              <BookOpen className="w-4 h-4 text-brand-600" />
+                              {section.headline || section.title}
+                            </h4>
+                            {section.subheadline && (
+                              <p className="text-[11px] text-slate-500 mt-0.5">{section.subheadline}</p>
+                            )}
+                          </div>
                           <span className="text-xs text-slate-400 font-mono">Dynamic Database Query</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1046,6 +1082,28 @@ export default function AdminVisualBuilderPage() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>Any change saved here applies immediately and publishes live to the website.</span>
               </div>
+
+              {(editingSection.type === 'lead_feature' || editingSection.type === 'main_feed' || editingSection.type === 'blog_grid' || editingSection.type === 'trending_grid' || editingSection.type === 'category_grid') && (
+                <div className="p-3 bg-brand-50 border border-brand-200 rounded-xl text-brand-900 text-xs space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <BookOpen className="w-4 h-4 text-brand-600" />
+                    <span>Article Headline &amp; Title Controls</span>
+                  </div>
+                  <p className="text-brand-800 text-[11px] leading-relaxed">
+                    Changing the <strong>Headline Text</strong> below immediately updates the headline displayed for this article section on the live website.
+                  </p>
+                  <div className="pt-1">
+                    <Link
+                      href="/admin/blogs"
+                      target="_blank"
+                      className="inline-flex items-center gap-1 font-bold text-brand-700 hover:underline text-[11px]"
+                    >
+                      <span>To edit individual database posts, body content &amp; SEO, open Articles Manager &rarr;</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Internal Block Name</label>
                 <input
@@ -1069,7 +1127,9 @@ export default function AdminVisualBuilderPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Headline Text</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  {editingSection.type === 'lead_feature' ? 'Featured Article Headline / Heading' : 'Headline Text'}
+                </label>
                 <input
                   type="text"
                   value={editingSection.headline || ''}
@@ -1080,7 +1140,9 @@ export default function AdminVisualBuilderPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Description / Subtitle</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  {editingSection.type === 'lead_feature' ? 'Featured Article Excerpt / Subheading' : 'Description / Subtitle'}
+                </label>
                 <textarea
                   rows={3}
                   value={editingSection.subheadline || ''}
