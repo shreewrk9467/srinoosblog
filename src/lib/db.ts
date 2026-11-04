@@ -1880,6 +1880,7 @@ export function getWebsiteSettings(): WebsiteSettings {
     ads_txt_content: 'google.com, pub-9876543210123456, DIRECT, f08c47fec0942fa0',
     google_analytics_id: 'G-SRINOOS2026',
     google_search_console_tag: '<meta name="google-site-verification" content="uodEPcFClTUy1YlkAZF-QtHcAHBhYrkqXwyJmBq_D1I" />',
+    admitad_verification_tag: '<meta name="mitgo-verification" content="6015bfdb-7e9b-42b0-bfaa-6074e1b4eeab" />',
     nav_links_json: JSON.stringify([
       { name: 'Home', href: '/' },
       { name: 'All Blogs', href: '/blog' },

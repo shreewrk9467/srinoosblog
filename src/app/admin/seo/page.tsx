@@ -47,6 +47,7 @@ export default function AdminSeoPage() {
         robotsOk: robotsRes.ok,
         adsOk: adsRes.ok,
         gscConfigured: Boolean(settings.google_search_console_tag),
+        admitadConfigured: Boolean(settings.admitad_verification_tag),
         ga4Configured: Boolean(settings.google_analytics_id),
         canonicalOk: Boolean(settings.site_url),
         timestamp: new Date().toLocaleTimeString(),
@@ -164,6 +165,14 @@ export default function AdminSeoPage() {
             </div>
 
             <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Admitad / Mitgo</span>
+              <div className="flex items-center gap-1.5 font-bold text-white">
+                {auditResults.admitadConfigured ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-amber-400" />}
+                <span>{auditResults.admitadConfigured ? 'Verified' : 'Pending'}</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-1">
               <span className="text-[10px] text-slate-400 uppercase font-bold block">GA4 Analytics</span>
               <div className="flex items-center gap-1.5 font-bold text-white">
                 {auditResults.ga4Configured ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-amber-400" />}
@@ -226,6 +235,32 @@ export default function AdminSeoPage() {
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
                 Automatically rendered as <code>&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;</code> in the <code>&lt;head&gt;</code> of all pages.
+              </span>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold uppercase text-slate-700">
+                  Admitad / Mitgo Affiliate Verification Tag
+                </label>
+                <a
+                  href="https://admitad.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-brand-600 font-bold hover:underline inline-flex items-center gap-1"
+                >
+                  Admitad Portal <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
+              <input
+                type="text"
+                placeholder='<meta name="mitgo-verification" content="6015bfdb-7e9b-42b0-bfaa-6074e1b4eeab" />'
+                value={settings.admitad_verification_tag || ''}
+                onChange={(e) => setSettings({ ...settings, admitad_verification_tag: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-brand-500"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Automatically rendered as <code>&lt;meta name=&quot;mitgo-verification&quot; content=&quot;...&quot;&gt;</code> in the <code>&lt;head&gt;</code> for instant Mitgo / Admitad publisher verification.
               </span>
             </div>
 

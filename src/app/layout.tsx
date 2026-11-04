@@ -19,6 +19,15 @@ function extractGoogleVerification(tag?: string): string {
   return cleaned || fallback;
 }
 
+function extractMitgoVerification(tag?: string): string {
+  const fallback = '6015bfdb-7e9b-42b0-bfaa-6074e1b4eeab';
+  if (!tag) return fallback;
+  const match = tag.match(/content=["']([^"']+)["']/i);
+  if (match) return match[1];
+  const cleaned = tag.replace(/^mitgo-verification[:=]\s*/i, '').replace(/["']/g, '').trim();
+  return cleaned || fallback;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getWebsiteSettings();
   const brandName = settings.site_name.toLowerCase().includes('sricospace')
@@ -82,6 +91,9 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     verification: {
       google: extractGoogleVerification(settings.google_search_console_tag),
+      other: {
+        'mitgo-verification': extractMitgoVerification(settings.admitad_verification_tag),
+      },
     },
     robots: {
       index: true,
@@ -142,6 +154,10 @@ export default function RootLayout({
         <meta
           name="google-site-verification"
           content={extractGoogleVerification(settings.google_search_console_tag)}
+        />
+        <meta
+          name="mitgo-verification"
+          content={extractMitgoVerification(settings.admitad_verification_tag)}
         />
         {settings.google_analytics_id && (
           <>

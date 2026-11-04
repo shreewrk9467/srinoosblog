@@ -157,6 +157,7 @@ export interface WebsiteSettings {
   ads_txt_content: string;
   google_analytics_id: string;
   google_search_console_tag: string;
+  admitad_verification_tag?: string; // e.g. <meta name="mitgo-verification" content="6015bfdb-7e9b-42b0-bfaa-6074e1b4eeab" />
   facebook_url?: string;
   twitter_url?: string;
   linkedin_url?: string;
