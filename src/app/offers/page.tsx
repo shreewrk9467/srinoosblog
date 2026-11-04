@@ -4,6 +4,7 @@ import { getAllAffiliates, getAllAffiliateNetworks, getWebsiteSettings } from '@
 import AdUnit from '@/components/AdUnit';
 import OffersClientView from './OffersClientView';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 import { HelpCircle, Sparkles, ArrowRight, ShieldCheck, Flame } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -74,16 +75,8 @@ export default function OffersPage() {
     })),
   };
 
-  // Load visual builder layout if configured
-  let activeSections: PageSection[] | null = null;
-  if (settings.page_layouts_json) {
-    try {
-      const parsed = JSON.parse(settings.page_layouts_json);
-      if (parsed && Array.isArray(parsed.offers) && parsed.offers.length > 0) {
-        activeSections = parsed.offers.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch { }
-  }
+  // Load visual builder layout (always synchronized with Builder studio)
+  const activeSections = getPageSections('offers', settings).filter((sec: PageSection) => sec.enabled);
 
   const renderSection = (section: PageSection) => {
     switch (section.type) {

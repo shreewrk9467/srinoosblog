@@ -41,8 +41,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { PageSection, WebsiteSettings } from '@/lib/types';
-
-export type PageKey = 'home' | 'blog' | 'trending' | 'about' | 'contact' | 'category' | 'offers';
+import { PageKey, DEFAULT_PAGE_LAYOUTS } from '@/lib/page-layouts';
 
 interface PageOption {
   key: PageKey;
@@ -61,362 +60,6 @@ const PAGE_OPTIONS: PageOption[] = [
   { key: 'category', label: 'Category Archive', path: '/category/technology-and-ai', icon: Folder, description: 'Category breadcrumbs, filtered feed & sponsor banners' },
   { key: 'offers', label: 'Affiliate Deals', path: '/offers', icon: Gift, description: 'CPA/CPS/CPL deals marketplace & redirect links' },
 ];
-
-// Default layout sections for every single page across Sricospace
-const DEFAULT_PAGE_LAYOUTS: Record<PageKey, PageSection[]> = {
-  home: [
-    {
-      id: 'home_announcement',
-      type: 'announcement',
-      title: 'Top Announcement Banner',
-      enabled: true,
-      headline: '⚡ Welcome to Sricospace — Discover Verified Tech, AI & Affiliate Insights (Made by Srinoos)',
-      btn1_text: 'Explore Deals',
-      btn1_link: '/offers',
-      background_gradient: 'from-brand-600 to-indigo-700',
-    },
-    {
-      id: 'home_top_ad',
-      type: 'top_ad',
-      title: 'Top Header Ad Placement',
-      placementId: 'homepage-top',
-      enabled: true,
-    },
-    {
-      id: 'home_hero',
-      type: 'hero',
-      title: 'Hero Mission Banner',
-      enabled: true,
-      badge: '⚡ Technology Collective • Daily Dispatch',
-      headline: 'Artificial Intelligence, Quantum Computing & Digital Growth Insights',
-      subheadline: 'Deep technical analysis, high-speed full-stack development, and actionable online monetization playbooks designed for visionary digital builders.',
-      btn1_text: 'Read All Articles',
-      btn1_link: '/blog',
-      btn2_text: 'Trending Topics',
-      btn2_link: '/trending',
-      background_gradient: 'from-slate-900 via-indigo-950 to-slate-900',
-    },
-    {
-      id: 'home_deals',
-      type: 'deals',
-      title: 'Featured Deals & Free Registration Offers',
-      enabled: true,
-      headline: 'Featured Deals & Free Registration Offers',
-      subheadline: 'Curated partner promotions with verified eligibility',
-    },
-    {
-      id: 'home_lead_feature',
-      type: 'lead_feature',
-      title: 'Lead Featured Article Spotlight',
-      enabled: true,
-    },
-    {
-      id: 'home_trending',
-      type: 'trending',
-      title: 'Trending on Srinoos (4-Col Grid)',
-      enabled: true,
-      headline: 'Trending on Srinoos',
-    },
-    {
-      id: 'home_mid_ad',
-      type: 'mid_ad',
-      title: 'Mid-Page Content Ad Unit',
-      placementId: 'homepage-between-sections',
-      enabled: true,
-    },
-    {
-      id: 'home_main_feed',
-      type: 'main_feed',
-      title: 'Main Categorized Articles & Sticky Sidebar',
-      enabled: true,
-    },
-    {
-      id: 'home_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Banner',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-
-  blog: [
-    {
-      id: 'blog_header',
-      type: 'blog_header',
-      title: 'Article Archive Header & Search Box',
-      enabled: true,
-      badge: 'Srinoos Article Library',
-      headline: 'All Guides, Reviews & Articles',
-      subheadline: 'Explore our complete archive of original research on AI tools, organic SEO growth, digital monetization, and software comparisons.',
-    },
-    {
-      id: 'blog_top_ad',
-      type: 'top_ad',
-      title: 'Top Archive Ad Banner',
-      placementId: 'homepage-top',
-      enabled: true,
-    },
-    {
-      id: 'blog_grid',
-      type: 'blog_grid',
-      title: 'Articles Grid with Category Tabs & Pagination',
-      enabled: true,
-    },
-    {
-      id: 'blog_cta',
-      type: 'cta_box',
-      title: 'Newsletter & Guide Alerts Callout',
-      enabled: true,
-      badge: 'Weekly Dispatch',
-      headline: 'Never Miss a Breakthrough Architecture Guide',
-      subheadline: 'Subscribe to receive verified engineering teardowns, affiliate playbooks, and SEO updates.',
-      btn1_text: 'Subscribe Free',
-      btn1_link: '/contact',
-      background_gradient: 'from-slate-900 via-brand-950 to-slate-900',
-    },
-    {
-      id: 'blog_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Unit',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-
-  trending: [
-    {
-      id: 'trending_header',
-      type: 'trending_header',
-      title: 'Trending & High-Engagement Header',
-      enabled: true,
-      badge: 'High Engagement • Viral Insights',
-      headline: 'Trending Articles & Viral Insights',
-      subheadline: 'The most shared and actively discussed publications on Srinoos today across tech, marketing, and monetization.',
-    },
-    {
-      id: 'trending_top_ad',
-      type: 'top_ad',
-      title: 'Leaderboard Ad Unit',
-      placementId: 'homepage-top',
-      enabled: true,
-    },
-    {
-      id: 'trending_grid',
-      type: 'trending_grid',
-      title: '3-Column Trending Publications Grid',
-      enabled: true,
-    },
-    {
-      id: 'trending_callout',
-      type: 'custom_banner',
-      title: 'Trending Technology Special Callout',
-      enabled: true,
-      badge: 'Editorial Teardown',
-      headline: 'Next-Generation Full-Stack & AI Frameworks (2026)',
-      subheadline: 'Discover the emerging patterns shaping modern software scalability and search discoverability.',
-      btn1_text: 'Explore Technical Guides',
-      btn1_link: '/blog',
-      background_gradient: 'from-amber-600 via-orange-700 to-slate-950',
-    },
-    {
-      id: 'trending_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Banner',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-
-  about: [
-    {
-      id: 'about_mission',
-      type: 'about_mission',
-      title: 'Mission & Editorial Standards Hero',
-      enabled: true,
-      badge: 'Editorial Independence & Standards',
-      headline: 'Independent Technology Research & Monetization Insights',
-      subheadline: 'Sricospace was founded to provide transparent, research-backed technical tutorials, cloud architecture benchmarks, and ethical digital revenue playbooks.',
-      background_gradient: 'from-slate-900 via-indigo-950 to-slate-900',
-    },
-    {
-      id: 'about_values',
-      type: 'about_values',
-      title: 'Core Publishing Principles Grid',
-      enabled: true,
-      headline: 'Our Foundational Principles',
-      subheadline: 'How we test, verify, and maintain reader trust across all content.',
-    },
-    {
-      id: 'about_mid_ad',
-      type: 'mid_ad',
-      title: 'Mid-Page Content Ad Unit',
-      placementId: 'homepage-between-sections',
-      enabled: true,
-    },
-    {
-      id: 'about_founder',
-      type: 'about_founder',
-      title: 'Founder Profile & Portfolio Showcase (Srinoos Story)',
-      enabled: true,
-      headline: 'Meet the Founder: Ketanboina Venkat Shrinivas',
-      subheadline: 'Full-stack software engineer, digital growth specialist, and creator of the Srinoos collective.',
-    },
-    {
-      id: 'about_cta',
-      type: 'cta_box',
-      title: 'Inquiries & Partner Desk Callout',
-      enabled: true,
-      badge: 'Direct Editorial Contact',
-      headline: 'Have a Research Tip or Partnership Proposal?',
-      subheadline: 'Our editorial desk responds to technical inquiries and sponsor reviews within 24 hours.',
-      btn1_text: 'Contact Editorial Desk',
-      btn1_link: '/contact',
-      background_gradient: 'from-slate-900 to-brand-950',
-    },
-    {
-      id: 'about_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Banner',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-
-  contact: [
-    {
-      id: 'contact_header',
-      type: 'contact_header',
-      title: 'Contact Header & Inquiries Overview',
-      enabled: true,
-      badge: 'Get in Touch with Srinoos',
-      headline: 'Contact Sricospace Editorial & Support',
-      subheadline: 'Have an editorial tip, sponsorship proposal, or advertising inquiry? Our team typically responds within 24 to 48 hours.',
-    },
-    {
-      id: 'contact_top_ad',
-      type: 'top_ad',
-      title: 'Top Page Ad Placement',
-      placementId: 'homepage-top',
-      enabled: true,
-    },
-    {
-      id: 'contact_form',
-      type: 'contact_form',
-      title: 'Interactive Message Form & Department Selector',
-      enabled: true,
-    },
-    {
-      id: 'contact_info',
-      type: 'contact_info',
-      title: 'Direct Office Details & Verification Card',
-      enabled: true,
-      headline: 'Official Editorial Desk Details',
-      subheadline: 'Direct communication channels for press, advertisers, and readers.',
-    },
-    {
-      id: 'contact_faq',
-      type: 'faq_accordion',
-      title: 'Inquiry & Response Time FAQ',
-      enabled: true,
-      headline: 'Contact & Advertising FAQ',
-      subheadline: 'Quick answers regarding sponsored reviews, guest contributions, and response timelines.',
-    },
-    {
-      id: 'contact_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Banner',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-
-  category: [
-    {
-      id: 'category_header',
-      type: 'category_header',
-      title: 'Category Topic Hero & Breadcrumbs Banner',
-      enabled: true,
-      badge: 'Curated Topic Collection',
-      headline: 'Topic Guides, Reviews & Industry Benchmarks',
-      subheadline: 'In-depth tutorials and verified recommendations categorized for modern digital builders.',
-    },
-    {
-      id: 'category_top_ad',
-      type: 'top_ad',
-      title: 'Topic Header Ad Unit',
-      placementId: 'homepage-top',
-      enabled: true,
-    },
-    {
-      id: 'category_grid',
-      type: 'category_grid',
-      title: 'Categorized Articles Feed & Topic Sidebar',
-      enabled: true,
-    },
-    {
-      id: 'category_cta',
-      type: 'cta_box',
-      title: 'Category Topic Newsletter Alert',
-      enabled: true,
-      badge: 'Topic Alerts',
-      headline: 'Stay Updated on This Category',
-      subheadline: 'Receive new benchmarks and tutorials as soon as they are published.',
-      btn1_text: 'Get Topic Alerts',
-      btn1_link: '/contact',
-      background_gradient: 'from-slate-900 to-indigo-950',
-    },
-    {
-      id: 'category_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Banner',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-
-  offers: [
-    {
-      id: 'offers_header',
-      type: 'offers_header',
-      title: 'Deals Marketplace & Offers Hero',
-      enabled: true,
-      badge: 'Verified Deals & Free Registrations',
-      headline: 'Curated Partner Deals, Discounts & Free Trials',
-      subheadline: 'Browse verified high-value promotions across cloud hosting, financial software, developer tools, and e-commerce.',
-      background_gradient: 'from-brand-900 via-slate-900 to-indigo-950',
-    },
-    {
-      id: 'offers_top_ad',
-      type: 'top_ad',
-      title: 'Marketplace Header Ad',
-      placementId: 'homepage-top',
-      enabled: true,
-    },
-    {
-      id: 'offers_grid',
-      type: 'deals',
-      title: 'Filterable Partner Offers Grid (CPA, CPL, CPS, CPI)',
-      enabled: true,
-      headline: 'All Active Partner Offers',
-      subheadline: 'Filter by commission model, category, or discount value.',
-    },
-    {
-      id: 'offers_faq',
-      type: 'faq_accordion',
-      title: 'Offer Eligibility & FTC Disclosure FAQ',
-      enabled: true,
-      headline: 'Frequently Asked Questions About Deals',
-      subheadline: 'Important verification and disclosure information regarding partner links.',
-    },
-    {
-      id: 'offers_footer_ad',
-      type: 'footer_ad',
-      title: 'Above-Footer Ad Banner',
-      placementId: 'global-above-footer',
-      enabled: true,
-    },
-  ],
-};
 
 export default function AdminVisualBuilderPage() {
   const [currentPage, setCurrentPage] = useState<PageKey>('home');
@@ -494,30 +137,29 @@ export default function AdminVisualBuilderPage() {
   // Active sections for the currently selected page
   const currentSections = pageLayouts[currentPage] || [];
 
-  // Update sections for the active page
-  const updateCurrentSections = (newSections: PageSection[]) => {
-    setPageLayouts((prev) => ({
-      ...prev,
-      [currentPage]: newSections,
-    }));
-  };
-
-  // Save all page layouts to database
-  const handleSaveLayout = async () => {
+  // Immediate auto-persist to database & live website
+  const persistLayouts = async (layoutsToSave: Record<PageKey, PageSection[]>) => {
     setSaving(true);
-    setSavedSuccess(false);
     try {
       const payload: Partial<WebsiteSettings> = {
-        page_layouts_json: JSON.stringify(pageLayouts),
-        homepage_sections_order_json: JSON.stringify(pageLayouts.home),
+        page_layouts_json: JSON.stringify(layoutsToSave),
+        homepage_sections_order_json: JSON.stringify(layoutsToSave.home),
       };
 
       // Also sync top-level hero if home was updated
-      const heroSection = pageLayouts.home.find((s) => s.type === 'hero');
+      const heroSection = layoutsToSave.home?.find((s) => s.type === 'hero');
       if (heroSection) {
         if (heroSection.headline) payload.hero_headline = heroSection.headline;
         if (heroSection.subheadline) payload.hero_subheadline = heroSection.subheadline;
         if (heroSection.badge) payload.hero_lead_badge = heroSection.badge;
+      }
+
+      // Also sync announcement bar
+      const announcementSection = layoutsToSave.home?.find((s) => s.type === 'announcement');
+      if (announcementSection) {
+        payload.announcement_bar_enabled = announcementSection.enabled;
+        if (announcementSection.headline) payload.announcement_bar_text = announcementSection.headline;
+        if (announcementSection.btn1_link) payload.announcement_bar_link = announcementSection.btn1_link;
       }
 
       const res = await fetch('/api/settings', {
@@ -532,10 +174,27 @@ export default function AdminVisualBuilderPage() {
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err: any) {
-      alert(err.message || 'Error saving layout');
+      console.error('Error saving layout:', err);
     } finally {
       setSaving(false);
     }
+  };
+
+  // Update sections for the active page and immediately sync with database & live site
+  const updateCurrentSections = (newSections: PageSection[], shouldPersist: boolean = true) => {
+    const updatedLayouts = {
+      ...pageLayouts,
+      [currentPage]: newSections,
+    };
+    setPageLayouts(updatedLayouts);
+    if (shouldPersist) {
+      persistLayouts(updatedLayouts);
+    }
+  };
+
+  // Save all page layouts to database
+  const handleSaveLayout = async () => {
+    await persistLayouts(pageLayouts);
   };
 
   // Drag and Drop handlers
@@ -561,7 +220,7 @@ export default function AdminVisualBuilderPage() {
     const [movedItem] = reordered.splice(draggedIndex, 1);
     reordered.splice(targetIndex, 0, movedItem);
 
-    updateCurrentSections(reordered);
+    updateCurrentSections(reordered, true);
     setSelectedSectionId(movedItem.id);
     setDraggedIndex(null);
     setDropTargetIndex(null);
@@ -576,7 +235,7 @@ export default function AdminVisualBuilderPage() {
     const [moved] = reordered.splice(index, 1);
     reordered.splice(targetIndex, 0, moved);
 
-    updateCurrentSections(reordered);
+    updateCurrentSections(reordered, true);
     setSelectedSectionId(moved.id);
   };
 
@@ -585,14 +244,14 @@ export default function AdminVisualBuilderPage() {
     const updated = currentSections.map((sec) =>
       sec.id === id ? { ...sec, enabled: !sec.enabled } : sec
     );
-    updateCurrentSections(updated);
+    updateCurrentSections(updated, true);
   };
 
   // Delete Section
   const handleDeleteSection = (id: string) => {
     if (!confirm('Are you sure you want to remove this section from the page?')) return;
     const updated = currentSections.filter((sec) => sec.id !== id);
-    updateCurrentSections(updated);
+    updateCurrentSections(updated, true);
     if (selectedSectionId === id) setSelectedSectionId(null);
   };
 
@@ -606,7 +265,7 @@ export default function AdminVisualBuilderPage() {
     const index = currentSections.findIndex((s) => s.id === sec.id);
     const updated = [...currentSections];
     updated.splice(index + 1, 0, duplicate);
-    updateCurrentSections(updated);
+    updateCurrentSections(updated, true);
     setSelectedSectionId(duplicate.id);
   };
 
@@ -623,7 +282,7 @@ export default function AdminVisualBuilderPage() {
     const updated = currentSections.map((s) =>
       s.id === editingSection.id ? { ...editingSection } : s
     );
-    updateCurrentSections(updated);
+    updateCurrentSections(updated, true);
     setEditingSection(null);
   };
 
@@ -808,6 +467,18 @@ export default function AdminVisualBuilderPage() {
               </button>
             </div>
 
+            {/* View Live Page Link */}
+            <a
+              href={PAGE_OPTIONS.find((p) => p.key === currentPage)?.path || '/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
+              title="Open current page in a new tab to see changes live"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+              <span>View Live ({PAGE_OPTIONS.find((p) => p.key === currentPage)?.path || '/'})</span>
+            </a>
+
             {/* Mode Switcher */}
             <button
               onClick={() => setIsEditMode(!isEditMode)}
@@ -825,16 +496,20 @@ export default function AdminVisualBuilderPage() {
             <button
               onClick={handleSaveLayout}
               disabled={saving}
-              className="px-5 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2"
+              className={`px-5 py-2 font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2 ${
+                savedSuccess
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-brand-600 hover:bg-brand-500 text-white disabled:opacity-50'
+              }`}
             >
               {saving ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
               ) : savedSuccess ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-200" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              <span>{saving ? 'Saving...' : savedSuccess ? 'Saved & Live!' : 'Save & Publish Live'}</span>
+              <span>{saving ? 'Publishing Live...' : savedSuccess ? '✓ Published to Website!' : 'Save & Publish Live'}</span>
             </button>
           </div>
         </div>
@@ -1367,6 +1042,10 @@ export default function AdminVisualBuilderPage() {
             </div>
 
             <form onSubmit={handleSaveModalEdits} className="space-y-4">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>Any change saved here applies immediately and publishes live to the website.</span>
+              </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Internal Block Name</label>
                 <input
@@ -1496,10 +1175,11 @@ export default function AdminVisualBuilderPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
+                  disabled={saving}
+                  className="px-5 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>Apply Changes</span>
+                  <span>{saving ? 'Applying...' : 'Apply & Save to Website'}</span>
                 </button>
               </div>
             </form>

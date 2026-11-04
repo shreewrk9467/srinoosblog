@@ -4,6 +4,7 @@ import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { TrendingUp, Flame, ArrowRight, HelpCircle, Sparkles } from 'lucide-react';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,16 +17,8 @@ export default function TrendingPage() {
     limit: 20,
   });
 
-  // Load visual builder layout if configured
-  let activeSections: PageSection[] | null = null;
-  if (settings.page_layouts_json) {
-    try {
-      const parsed = JSON.parse(settings.page_layouts_json);
-      if (parsed && Array.isArray(parsed.trending) && parsed.trending.length > 0) {
-        activeSections = parsed.trending.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch { }
-  }
+  // Load visual builder layout (always synchronized with Builder studio)
+  const activeSections = getPageSections('trending', settings).filter((sec: PageSection) => sec.enabled);
 
   const renderSection = (section: PageSection) => {
     switch (section.type) {

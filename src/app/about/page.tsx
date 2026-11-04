@@ -18,6 +18,7 @@ import {
 import AdUnit from '@/components/AdUnit';
 import { getWebsiteSettings } from '@/lib/db';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -35,16 +36,8 @@ export default function AboutPage() {
   const location = settings.location || 'Pune, India';
   const portfolioUrl = settings.portfolio_url || 'https://quiet-pony-c4f26b.netlify.app';
 
-  // Load visual builder layout if configured
-  let activeSections: PageSection[] | null = null;
-  if (settings.page_layouts_json) {
-    try {
-      const parsed = JSON.parse(settings.page_layouts_json);
-      if (parsed && Array.isArray(parsed.about) && parsed.about.length > 0) {
-        activeSections = parsed.about.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch { }
-  }
+  // Load visual builder layout (always synchronized with Builder studio)
+  const activeSections = getPageSections('about', settings).filter((sec: PageSection) => sec.enabled);
 
   const renderSection = (section: PageSection) => {
     switch (section.type) {
@@ -93,8 +86,8 @@ export default function AboutPage() {
                       <MapPin className="w-3.5 h-3.5 text-brand-400" /> {location}
                     </span>
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">{founderName}</h2>
-                  <p className="text-sm text-brand-300 font-medium">{founderTitle}</p>
+                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">{section.headline || founderName}</h2>
+                  <p className="text-sm text-brand-300 font-medium">{section.subheadline || founderTitle}</p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-start lg:items-end gap-3">

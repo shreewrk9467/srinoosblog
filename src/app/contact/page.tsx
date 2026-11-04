@@ -4,6 +4,7 @@ import AdUnit from '@/components/AdUnit';
 import ContactFormClient from '@/components/ContactFormClient';
 import { getWebsiteSettings } from '@/lib/db';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -17,24 +18,16 @@ export default function ContactPage() {
   const location = settings.location || 'Pune, India';
   const portfolioUrl = settings.portfolio_url || 'https://quiet-pony-c4f26b.netlify.app';
 
-  // Load visual builder layout if configured
-  let activeSections: PageSection[] | null = null;
-  if (settings.page_layouts_json) {
-    try {
-      const parsed = JSON.parse(settings.page_layouts_json);
-      if (parsed && Array.isArray(parsed.contact) && parsed.contact.length > 0) {
-        activeSections = parsed.contact.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch { }
-  }
+  // Load visual builder layout (always synchronized with Builder studio)
+  const activeSections = getPageSections('contact', settings).filter((sec: PageSection) => sec.enabled);
 
   const renderContactInfoBlock = (section?: PageSection) => (
     <div key={section?.id || 'contact_info_block'} className="space-y-6">
       <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-4">
         <div className="border-b border-slate-100 pb-3">
           <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600 block">Founder Desk</span>
-          <h3 className="font-bold text-slate-900 text-lg">{founderName}</h3>
-          <p className="text-xs text-slate-500">Srinoos Platform Lead & Full-Stack Architect</p>
+          <h3 className="font-bold text-slate-900 text-lg">{section?.headline || founderName}</h3>
+          <p className="text-xs text-slate-500">{section?.subheadline || 'Srinoos Platform Lead & Full-Stack Architect'}</p>
         </div>
 
         <div className="flex items-start gap-3">

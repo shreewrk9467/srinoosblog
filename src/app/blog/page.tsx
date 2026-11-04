@@ -4,6 +4,7 @@ import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { BookOpen, Sparkles, ArrowRight, HelpCircle, ShieldCheck } from 'lucide-react';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 
 interface AllBlogsPageProps {
   searchParams: {
@@ -27,16 +28,8 @@ export default function AllBlogsPage({ searchParams }: AllBlogsPageProps) {
     limit: 30,
   });
 
-  // Load custom visual builder layout for the Blog page if configured
-  let activeSections: PageSection[] | null = null;
-  if (settings.page_layouts_json) {
-    try {
-      const parsed = JSON.parse(settings.page_layouts_json);
-      if (parsed && Array.isArray(parsed.blog) && parsed.blog.length > 0) {
-        activeSections = parsed.blog.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch {}
-  }
+  // Load visual builder layout (always synchronized with Builder studio)
+  const activeSections = getPageSections('blog', settings).filter((sec: PageSection) => sec.enabled);
 
   const renderSection = (section: PageSection) => {
     switch (section.type) {

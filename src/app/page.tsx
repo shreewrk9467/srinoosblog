@@ -3,6 +3,7 @@ import { getAllPosts, getAllCategories, getWebsiteSettings, getAllAffiliates } f
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 import {
   TrendingUp,
   Sparkles,
@@ -31,24 +32,33 @@ export default function HomePage() {
   const latestPosts = allPosts.filter((p) => p.id !== featuredPost?.id).slice(0, 6);
   const categories = getAllCategories();
 
-  // Parse custom visual builder layout order if configured by admin
-  let activeSections: PageSection[] | null = null;
-  if (settings.homepage_sections_order_json) {
-    try {
-      const parsed = JSON.parse(settings.homepage_sections_order_json);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        activeSections = parsed.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch {
-      activeSections = null;
-    }
-  }
+  // Parse custom visual builder layout order (always synchronized with Builder studio)
+  const activeSections = getPageSections('home', settings).filter((sec: PageSection) => sec.enabled);
 
   // Helper renderer for each section type
   const renderSection = (section: PageSection) => {
     switch (section.type) {
       case 'announcement':
-        return null; // Rendered globally in layout if enabled
+        return (
+          <div
+            key={section.id}
+            className={`w-full py-2.5 px-4 text-center text-xs font-bold text-white bg-gradient-to-r ${
+              section.background_gradient || 'from-brand-600 to-indigo-700'
+            } shadow-xs`}
+          >
+            <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+              <span>{section.headline || '⚡ Welcome to Sricospace — Discover Verified Tech, AI & Affiliate Insights (Made by Srinoos)'}</span>
+              {section.btn1_text && (
+                <Link
+                  href={section.btn1_link || '/offers'}
+                  className="underline underline-offset-2 hover:opacity-90 transition font-black ml-1"
+                >
+                  {section.btn1_text} &rarr;
+                </Link>
+              )}
+            </div>
+          </div>
+        );
 
       case 'top_ad':
         return (

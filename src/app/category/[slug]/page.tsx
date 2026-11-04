@@ -6,6 +6,7 @@ import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { ChevronRight, Folder, HelpCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { PageSection } from '@/lib/types';
+import { getPageSections } from '@/lib/page-layouts';
 
 interface CategoryPageProps {
   params: {
@@ -40,16 +41,8 @@ export default function CategoryArchivePage({ params }: CategoryPageProps) {
     limit: 30,
   });
 
-  // Load visual builder layout if configured
-  let activeSections: PageSection[] | null = null;
-  if (settings.page_layouts_json) {
-    try {
-      const parsed = JSON.parse(settings.page_layouts_json);
-      if (parsed && Array.isArray(parsed.category) && parsed.category.length > 0) {
-        activeSections = parsed.category.filter((sec: PageSection) => sec.enabled);
-      }
-    } catch { }
-  }
+  // Load visual builder layout (always synchronized with Builder studio)
+  const activeSections = getPageSections('category', settings).filter((sec: PageSection) => sec.enabled);
 
   const renderSection = (section: PageSection) => {
     switch (section.type) {

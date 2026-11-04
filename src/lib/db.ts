@@ -14,6 +14,7 @@ import {
   Comment,
   DailyGoalStatus,
 } from './types';
+import { DEFAULT_PAGE_LAYOUTS } from './page-layouts';
 
 // Persistent data directory handling (Vercel serverless /tmp safe + local filesystem)
 function resolveDatabasePath(): string {
@@ -1886,6 +1887,8 @@ export function getWebsiteSettings(): WebsiteSettings {
       { name: 'About', href: '/about' },
       { name: 'Contact', href: '/contact' },
     ]),
+    page_layouts_json: JSON.stringify(DEFAULT_PAGE_LAYOUTS),
+    homepage_sections_order_json: JSON.stringify(DEFAULT_PAGE_LAYOUTS.home),
   };
 
   const db = getDb();

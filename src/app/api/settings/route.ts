@@ -24,8 +24,13 @@ export async function PUT(request: NextRequest) {
       revalidatePath('/', 'layout');
       revalidatePath('/');
       revalidatePath('/blog');
+      revalidatePath('/trending');
       revalidatePath('/about');
       revalidatePath('/contact');
+      revalidatePath('/offers');
+      revalidatePath('/deals');
+      revalidatePath('/categories');
+      revalidatePath('/admin/builder');
       revalidatePath('/admin/content');
       revalidatePath('/admin/settings');
     } catch {}
