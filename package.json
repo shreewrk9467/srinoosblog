@@ -17,6 +17,7 @@
     "agent:campaign": "node agent/srinoos-agent.js campaign"
   },
   "dependencies": {
+    "@supabase/server": "^1.9.2",
     "@supabase/supabase-js": "^2.118.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",

@@ -13,13 +13,27 @@ export function sanitizeSupabaseUrl(raw: string): string {
   return url;
 }
 
-export function getSupabaseCredentials(): { url: string; anonKey: string } {
+export function getSupabaseCredentials(): { url: string; anonKey: string; secretKey?: string } {
   // 1. Check environment variables first
   const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
-  const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const secret = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const isServer = typeof window === 'undefined';
+
+  // Use secret key on server-side if available, otherwise publishable key
+  const envKey =
+    (isServer && secret && !secret.includes('••') && !secret.includes('your_'))
+      ? secret
+      : (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+         process.env.SUPABASE_ANON_KEY ||
+         process.env.SUPABASE_PUBLISHABLE_KEY ||
+         '');
 
   if (envUrl && envKey) {
-    return { url: sanitizeSupabaseUrl(envUrl), anonKey: envKey.trim() };
+    return {
+      url: sanitizeSupabaseUrl(envUrl),
+      anonKey: envKey.trim(),
+      secretKey: secret,
+    };
   }
 
   // 2. Configured Project Fallback
