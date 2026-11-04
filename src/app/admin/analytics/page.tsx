@@ -21,7 +21,7 @@ export default function AdminAnalyticsPage() {
   useEffect(() => {
     fetch('/api/analytics')
       .then((r) => r.json())
-      .then((d) => setData(d))
+      .then((d: any) => setData(d))
       .finally(() => setLoading(false));
   }, []);
 

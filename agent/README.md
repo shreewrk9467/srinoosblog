@@ -86,3 +86,4 @@ npm run agent:ad -- --product "Hostinger Cloud 75% Off" --platform "instagram_re
 npm run agent:campaign -- --offer "Hostinger Cloud Hosting" --model "CPS" --payout "75% Commission" --network "Impact"
 ```
 *Creates an FTC-compliant offer payload with automated tracking redirect URL (`https://www.sricospace.com/go/...`) and schema ready for deployment.*
+

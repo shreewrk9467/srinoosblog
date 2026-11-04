@@ -3,7 +3,7 @@ import { verifyAdminCredentials, generateSessionToken, AUTH_COOKIE_NAME } from '
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     const identifier = (body.email || body.username || '').trim();
     const password = (body.password || '').trim();
 

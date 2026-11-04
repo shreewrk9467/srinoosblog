@@ -43,3 +43,4 @@ You operate deterministically and strictly listen to the user's custom commands 
   - Short tracking redirect URL slug: `https://www.sricospace.com/go/{slug}`.
   - FTC/ASCI compliant affiliate disclosure statement.
   - JSON-LD Schema markup for Google Rich Snippets.
+

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     if (!body.title || !body.destination_url) {
       return NextResponse.json({ error: 'Title and Destination URL are required' }, { status: 400 });
     }

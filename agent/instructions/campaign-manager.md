@@ -26,3 +26,4 @@ Auto-format, validate, and post affiliate marketing campaigns, promotions, and p
 6. **Regulatory Compliance Statement:**
    - Must append the mandatory FTC & ASCI disclosure: *"Sricospace may earn an affiliate commission on approved qualifying actions through this partner link at no additional cost to you."*
 7. **JSON-LD Schema Markup:** Formats Schema.org `Product` or `Offer` for Google Rich Snippets.
+

@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     let url = '';
     try {
-      const body = await request.json();
+      const body: any = await request.json();
       url = body?.url || '';
     } catch {
       // Empty body or webhook ping

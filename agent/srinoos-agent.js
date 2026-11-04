@@ -305,3 +305,4 @@ switch (command) {
     printUsage();
     break;
 }
+

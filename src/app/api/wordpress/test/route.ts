@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     let autoSave = true;
 
     try {
-      const body = await request.json();
+      const body: any = await request.json();
       url = body?.url || '';
       if (body?.autoSave !== undefined) autoSave = body.autoSave;
     } catch {

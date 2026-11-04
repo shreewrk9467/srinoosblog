@@ -22,7 +22,7 @@ export default function DashboardRealtimeChart({ initialAnalytics }: DashboardRe
     try {
       const res = await fetch('/api/analytics');
       if (res.ok) {
-        const json = await res.json();
+        const json: any = await res.json();
         setData({
           totalPosts: json.totalPosts || initialAnalytics.totalPosts,
           totalDrafts: json.totalDrafts || initialAnalytics.totalDrafts,

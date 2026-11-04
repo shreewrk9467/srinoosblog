@@ -53,7 +53,7 @@ export default function AdminSettingsPage() {
         body: JSON.stringify(json),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to restore backup');
 
       setRestoreMessage(`Successfully restored ${data.restored?.posts || 0} articles, ${data.restored?.categories || 0} categories, and settings!`);
@@ -69,7 +69,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((d) => {
+      .then((d: any) => {
         const s = d.settings || {};
         if (!s.hosting_provider) s.hosting_provider = 'hostinger';
         if (!s.hosting_plan) s.hosting_plan = 'Hostinger Business / Cloud';

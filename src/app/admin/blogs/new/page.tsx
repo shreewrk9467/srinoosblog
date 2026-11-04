@@ -51,7 +51,7 @@ export default function NewBlogPage() {
   useEffect(() => {
     fetch('/api/categories')
       .then((r) => r.json())
-      .then((d) => {
+      .then((d: any) => {
         setCategories(d.categories || []);
         if (d.categories && d.categories.length > 0) {
           setFormData((prev) => ({ ...prev, category_id: d.categories[0].id }));
@@ -88,7 +88,7 @@ export default function NewBlogPage() {
         }),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.draft) {
         setFormData((prev) => ({
           ...prev,
@@ -136,7 +136,7 @@ export default function NewBlogPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok) {
         throw new Error(data.error || 'Failed to save post');
       }

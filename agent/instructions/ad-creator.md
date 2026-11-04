@@ -26,3 +26,4 @@ When commanded to generate a video ad asset, produce a complete production sheet
 
 - **ElevenLabs Voiceover Prompt:** Recommended tone (e.g., Adam / Rachel - confident, fast-paced, authoritative American English, stability 0.50, similarity 0.75).
 - **FFmpeg Automated Video Stitching Command:** (Integrates with `tools/video-use`).
+

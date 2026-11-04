@@ -103,7 +103,7 @@ export default function AdminAffiliatesPage() {
     try {
       setLoading(true);
       const res = await fetch('/api/affiliates');
-      const data = await res.json();
+      const data: any = await res.json();
       setAffiliates(data.affiliates || []);
       setRecentClicks(data.recentClicks || []);
       setNetworks(data.networks || []);
@@ -141,7 +141,7 @@ export default function AdminAffiliatesPage() {
         body: JSON.stringify(offerForm),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (res.ok) {
         setShowOfferModal(false);
         setEditingOffer(null);

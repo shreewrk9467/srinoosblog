@@ -31,88 +31,398 @@ import {
   X,
   Copy,
   Sliders,
-  Maximize2,
+  BookOpen,
+  Mail,
+  Folder,
+  Flame,
+  Home,
+  User,
+  ArrowLeft,
+  ChevronDown,
 } from 'lucide-react';
 import { PageSection, WebsiteSettings } from '@/lib/types';
 
-// Default layout sections mirroring the current Sricospace Homepage
-const DEFAULT_SECTIONS: PageSection[] = [
-  {
-    id: 'announcement_bar',
-    type: 'announcement',
-    title: 'Top Announcement Banner',
-    enabled: true,
-    headline: '⚡ Welcome to Sricospace — Discover Verified Tech, AI & Affiliate Insights (Made by Srinoos)',
-    btn1_text: 'Explore Deals',
-    btn1_link: '/offers',
-    background_gradient: 'from-brand-600 to-indigo-700',
-  },
-  {
-    id: 'top_ad',
-    type: 'top_ad',
-    title: 'Top Header Ad Placement',
-    placementId: 'homepage-top',
-    enabled: true,
-  },
-  {
-    id: 'hero',
-    type: 'hero',
-    title: 'Hero Mission Banner',
-    enabled: true,
-    badge: '⚡ Technology Collective • Daily Dispatch',
-    headline: 'Artificial Intelligence, Quantum Computing & Digital Growth Insights',
-    subheadline: 'Deep technical analysis, high-speed full-stack development, and actionable online monetization playbooks designed for visionary digital builders.',
-    btn1_text: 'Read All Articles',
-    btn1_link: '/blog',
-    btn2_text: 'Trending Topics',
-    btn2_link: '/trending',
-    background_gradient: 'from-slate-900 via-indigo-950 to-slate-900',
-  },
-  {
-    id: 'featured_deals',
-    type: 'deals',
-    title: 'Featured Deals & Free Registration Offers',
-    enabled: true,
-    headline: 'Featured Deals & Free Registration Offers',
-    subheadline: 'Curated partner promotions with verified eligibility',
-  },
-  {
-    id: 'lead_feature',
-    type: 'lead_feature',
-    title: 'Lead Featured Article Spotlight',
-    enabled: true,
-  },
-  {
-    id: 'trending',
-    type: 'trending',
-    title: 'Trending on Srinoos (4-Col Grid)',
-    enabled: true,
-    headline: 'Trending on Srinoos',
-  },
-  {
-    id: 'mid_ad',
-    type: 'mid_ad',
-    title: 'Mid-Page Content Ad Unit',
-    placementId: 'homepage-between-sections',
-    enabled: true,
-  },
-  {
-    id: 'main_feed',
-    type: 'main_feed',
-    title: 'Main Categorized Articles & Sticky Sidebar',
-    enabled: true,
-  },
-  {
-    id: 'footer_ad',
-    type: 'footer_ad',
-    title: 'Above-Footer Ad Banner',
-    placementId: 'global-above-footer',
-    enabled: true,
-  },
+export type PageKey = 'home' | 'blog' | 'trending' | 'about' | 'contact' | 'category' | 'offers';
+
+interface PageOption {
+  key: PageKey;
+  label: string;
+  path: string;
+  icon: any;
+  description: string;
+}
+
+const PAGE_OPTIONS: PageOption[] = [
+  { key: 'home', label: 'Home Page', path: '/', icon: Home, description: 'Hero banner, featured deals, articles feed & sidebar' },
+  { key: 'blog', label: 'All Blogs', path: '/blog', icon: BookOpen, description: 'Article archive, category pills & search grid' },
+  { key: 'trending', label: 'Trending', path: '/trending', icon: Flame, description: 'High-engagement viral publications & leaderboard ads' },
+  { key: 'about', label: 'About Page', path: '/about', icon: User, description: 'Mission, founder story, editorial standards & values' },
+  { key: 'contact', label: 'Contact Page', path: '/contact', icon: Mail, description: 'Contact form, editorial desk details & FAQs' },
+  { key: 'category', label: 'Category Archive', path: '/category/technology-and-ai', icon: Folder, description: 'Category breadcrumbs, filtered feed & sponsor banners' },
+  { key: 'offers', label: 'Affiliate Deals', path: '/offers', icon: Gift, description: 'CPA/CPS/CPL deals marketplace & redirect links' },
 ];
 
+// Default layout sections for every single page across Sricospace
+const DEFAULT_PAGE_LAYOUTS: Record<PageKey, PageSection[]> = {
+  home: [
+    {
+      id: 'home_announcement',
+      type: 'announcement',
+      title: 'Top Announcement Banner',
+      enabled: true,
+      headline: '⚡ Welcome to Sricospace — Discover Verified Tech, AI & Affiliate Insights (Made by Srinoos)',
+      btn1_text: 'Explore Deals',
+      btn1_link: '/offers',
+      background_gradient: 'from-brand-600 to-indigo-700',
+    },
+    {
+      id: 'home_top_ad',
+      type: 'top_ad',
+      title: 'Top Header Ad Placement',
+      placementId: 'homepage-top',
+      enabled: true,
+    },
+    {
+      id: 'home_hero',
+      type: 'hero',
+      title: 'Hero Mission Banner',
+      enabled: true,
+      badge: '⚡ Technology Collective • Daily Dispatch',
+      headline: 'Artificial Intelligence, Quantum Computing & Digital Growth Insights',
+      subheadline: 'Deep technical analysis, high-speed full-stack development, and actionable online monetization playbooks designed for visionary digital builders.',
+      btn1_text: 'Read All Articles',
+      btn1_link: '/blog',
+      btn2_text: 'Trending Topics',
+      btn2_link: '/trending',
+      background_gradient: 'from-slate-900 via-indigo-950 to-slate-900',
+    },
+    {
+      id: 'home_deals',
+      type: 'deals',
+      title: 'Featured Deals & Free Registration Offers',
+      enabled: true,
+      headline: 'Featured Deals & Free Registration Offers',
+      subheadline: 'Curated partner promotions with verified eligibility',
+    },
+    {
+      id: 'home_lead_feature',
+      type: 'lead_feature',
+      title: 'Lead Featured Article Spotlight',
+      enabled: true,
+    },
+    {
+      id: 'home_trending',
+      type: 'trending',
+      title: 'Trending on Srinoos (4-Col Grid)',
+      enabled: true,
+      headline: 'Trending on Srinoos',
+    },
+    {
+      id: 'home_mid_ad',
+      type: 'mid_ad',
+      title: 'Mid-Page Content Ad Unit',
+      placementId: 'homepage-between-sections',
+      enabled: true,
+    },
+    {
+      id: 'home_main_feed',
+      type: 'main_feed',
+      title: 'Main Categorized Articles & Sticky Sidebar',
+      enabled: true,
+    },
+    {
+      id: 'home_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Banner',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+
+  blog: [
+    {
+      id: 'blog_header',
+      type: 'blog_header',
+      title: 'Article Archive Header & Search Box',
+      enabled: true,
+      badge: 'Srinoos Article Library',
+      headline: 'All Guides, Reviews & Articles',
+      subheadline: 'Explore our complete archive of original research on AI tools, organic SEO growth, digital monetization, and software comparisons.',
+    },
+    {
+      id: 'blog_top_ad',
+      type: 'top_ad',
+      title: 'Top Archive Ad Banner',
+      placementId: 'homepage-top',
+      enabled: true,
+    },
+    {
+      id: 'blog_grid',
+      type: 'blog_grid',
+      title: 'Articles Grid with Category Tabs & Pagination',
+      enabled: true,
+    },
+    {
+      id: 'blog_cta',
+      type: 'cta_box',
+      title: 'Newsletter & Guide Alerts Callout',
+      enabled: true,
+      badge: 'Weekly Dispatch',
+      headline: 'Never Miss a Breakthrough Architecture Guide',
+      subheadline: 'Subscribe to receive verified engineering teardowns, affiliate playbooks, and SEO updates.',
+      btn1_text: 'Subscribe Free',
+      btn1_link: '/contact',
+      background_gradient: 'from-slate-900 via-brand-950 to-slate-900',
+    },
+    {
+      id: 'blog_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Unit',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+
+  trending: [
+    {
+      id: 'trending_header',
+      type: 'trending_header',
+      title: 'Trending & High-Engagement Header',
+      enabled: true,
+      badge: 'High Engagement • Viral Insights',
+      headline: 'Trending Articles & Viral Insights',
+      subheadline: 'The most shared and actively discussed publications on Srinoos today across tech, marketing, and monetization.',
+    },
+    {
+      id: 'trending_top_ad',
+      type: 'top_ad',
+      title: 'Leaderboard Ad Unit',
+      placementId: 'homepage-top',
+      enabled: true,
+    },
+    {
+      id: 'trending_grid',
+      type: 'trending_grid',
+      title: '3-Column Trending Publications Grid',
+      enabled: true,
+    },
+    {
+      id: 'trending_callout',
+      type: 'custom_banner',
+      title: 'Trending Technology Special Callout',
+      enabled: true,
+      badge: 'Editorial Teardown',
+      headline: 'Next-Generation Full-Stack & AI Frameworks (2026)',
+      subheadline: 'Discover the emerging patterns shaping modern software scalability and search discoverability.',
+      btn1_text: 'Explore Technical Guides',
+      btn1_link: '/blog',
+      background_gradient: 'from-amber-600 via-orange-700 to-slate-950',
+    },
+    {
+      id: 'trending_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Banner',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+
+  about: [
+    {
+      id: 'about_mission',
+      type: 'about_mission',
+      title: 'Mission & Editorial Standards Hero',
+      enabled: true,
+      badge: 'Editorial Independence & Standards',
+      headline: 'Independent Technology Research & Monetization Insights',
+      subheadline: 'Sricospace was founded to provide transparent, research-backed technical tutorials, cloud architecture benchmarks, and ethical digital revenue playbooks.',
+      background_gradient: 'from-slate-900 via-indigo-950 to-slate-900',
+    },
+    {
+      id: 'about_values',
+      type: 'about_values',
+      title: 'Core Publishing Principles Grid',
+      enabled: true,
+      headline: 'Our Foundational Principles',
+      subheadline: 'How we test, verify, and maintain reader trust across all content.',
+    },
+    {
+      id: 'about_mid_ad',
+      type: 'mid_ad',
+      title: 'Mid-Page Content Ad Unit',
+      placementId: 'homepage-between-sections',
+      enabled: true,
+    },
+    {
+      id: 'about_founder',
+      type: 'about_founder',
+      title: 'Founder Profile & Portfolio Showcase (Srinoos Story)',
+      enabled: true,
+      headline: 'Meet the Founder: Ketanboina Venkat Shrinivas',
+      subheadline: 'Full-stack software engineer, digital growth specialist, and creator of the Srinoos collective.',
+    },
+    {
+      id: 'about_cta',
+      type: 'cta_box',
+      title: 'Inquiries & Partner Desk Callout',
+      enabled: true,
+      badge: 'Direct Editorial Contact',
+      headline: 'Have a Research Tip or Partnership Proposal?',
+      subheadline: 'Our editorial desk responds to technical inquiries and sponsor reviews within 24 hours.',
+      btn1_text: 'Contact Editorial Desk',
+      btn1_link: '/contact',
+      background_gradient: 'from-slate-900 to-brand-950',
+    },
+    {
+      id: 'about_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Banner',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+
+  contact: [
+    {
+      id: 'contact_header',
+      type: 'contact_header',
+      title: 'Contact Header & Inquiries Overview',
+      enabled: true,
+      badge: 'Get in Touch with Srinoos',
+      headline: 'Contact Sricospace Editorial & Support',
+      subheadline: 'Have an editorial tip, sponsorship proposal, or advertising inquiry? Our team typically responds within 24 to 48 hours.',
+    },
+    {
+      id: 'contact_top_ad',
+      type: 'top_ad',
+      title: 'Top Page Ad Placement',
+      placementId: 'homepage-top',
+      enabled: true,
+    },
+    {
+      id: 'contact_form',
+      type: 'contact_form',
+      title: 'Interactive Message Form & Department Selector',
+      enabled: true,
+    },
+    {
+      id: 'contact_info',
+      type: 'contact_info',
+      title: 'Direct Office Details & Verification Card',
+      enabled: true,
+      headline: 'Official Editorial Desk Details',
+      subheadline: 'Direct communication channels for press, advertisers, and readers.',
+    },
+    {
+      id: 'contact_faq',
+      type: 'faq_accordion',
+      title: 'Inquiry & Response Time FAQ',
+      enabled: true,
+      headline: 'Contact & Advertising FAQ',
+      subheadline: 'Quick answers regarding sponsored reviews, guest contributions, and response timelines.',
+    },
+    {
+      id: 'contact_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Banner',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+
+  category: [
+    {
+      id: 'category_header',
+      type: 'category_header',
+      title: 'Category Topic Hero & Breadcrumbs Banner',
+      enabled: true,
+      badge: 'Curated Topic Collection',
+      headline: 'Topic Guides, Reviews & Industry Benchmarks',
+      subheadline: 'In-depth tutorials and verified recommendations categorized for modern digital builders.',
+    },
+    {
+      id: 'category_top_ad',
+      type: 'top_ad',
+      title: 'Topic Header Ad Unit',
+      placementId: 'homepage-top',
+      enabled: true,
+    },
+    {
+      id: 'category_grid',
+      type: 'category_grid',
+      title: 'Categorized Articles Feed & Topic Sidebar',
+      enabled: true,
+    },
+    {
+      id: 'category_cta',
+      type: 'cta_box',
+      title: 'Category Topic Newsletter Alert',
+      enabled: true,
+      badge: 'Topic Alerts',
+      headline: 'Stay Updated on This Category',
+      subheadline: 'Receive new benchmarks and tutorials as soon as they are published.',
+      btn1_text: 'Get Topic Alerts',
+      btn1_link: '/contact',
+      background_gradient: 'from-slate-900 to-indigo-950',
+    },
+    {
+      id: 'category_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Banner',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+
+  offers: [
+    {
+      id: 'offers_header',
+      type: 'offers_header',
+      title: 'Deals Marketplace & Offers Hero',
+      enabled: true,
+      badge: 'Verified Deals & Free Registrations',
+      headline: 'Curated Partner Deals, Discounts & Free Trials',
+      subheadline: 'Browse verified high-value promotions across cloud hosting, financial software, developer tools, and e-commerce.',
+      background_gradient: 'from-brand-900 via-slate-900 to-indigo-950',
+    },
+    {
+      id: 'offers_top_ad',
+      type: 'top_ad',
+      title: 'Marketplace Header Ad',
+      placementId: 'homepage-top',
+      enabled: true,
+    },
+    {
+      id: 'offers_grid',
+      type: 'deals',
+      title: 'Filterable Partner Offers Grid (CPA, CPL, CPS, CPI)',
+      enabled: true,
+      headline: 'All Active Partner Offers',
+      subheadline: 'Filter by commission model, category, or discount value.',
+    },
+    {
+      id: 'offers_faq',
+      type: 'faq_accordion',
+      title: 'Offer Eligibility & FTC Disclosure FAQ',
+      enabled: true,
+      headline: 'Frequently Asked Questions About Deals',
+      subheadline: 'Important verification and disclosure information regarding partner links.',
+    },
+    {
+      id: 'offers_footer_ad',
+      type: 'footer_ad',
+      title: 'Above-Footer Ad Banner',
+      placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+};
+
 export default function AdminVisualBuilderPage() {
-  const [sections, setSections] = useState<PageSection[]>(DEFAULT_SECTIONS);
+  const [currentPage, setCurrentPage] = useState<PageKey>('home');
+  const [pageLayouts, setPageLayouts] = useState<Record<PageKey, PageSection[]>>(DEFAULT_PAGE_LAYOUTS);
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
+
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [editingSection, setEditingSection] = useState<PageSection | null>(null);
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -125,64 +435,89 @@ export default function AdminVisualBuilderPage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
 
-  // Load existing settings
+  // Initialize from URL parameters on client mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const pageParam = params.get('page') as PageKey | null;
+      const returnParam = params.get('return');
+
+      if (pageParam && DEFAULT_PAGE_LAYOUTS[pageParam]) {
+        setCurrentPage(pageParam);
+      }
+      if (returnParam) {
+        setReturnUrl(returnParam);
+      }
+    }
+  }, []);
+
+  // Fetch saved layouts from server
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((d) => {
+      .then((d: any) => {
         const s = d.settings || {};
-        if (s.homepage_sections_order_json) {
+        const updated = { ...DEFAULT_PAGE_LAYOUTS };
+
+        // 1. Check for global multi-page layout map
+        if (s.page_layouts_json) {
           try {
-            const parsed = JSON.parse(s.homepage_sections_order_json);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setSections(parsed);
+            const parsed = JSON.parse(s.page_layouts_json);
+            if (typeof parsed === 'object' && parsed !== null) {
+              for (const [k, v] of Object.entries(parsed)) {
+                if (Array.isArray(v) && v.length > 0 && updated[k as PageKey]) {
+                  updated[k as PageKey] = v as PageSection[];
+                }
+              }
             }
           } catch (e) {
-            console.error('Failed to parse saved layout, using default:', e);
+            console.error('Error parsing page_layouts_json:', e);
           }
-        } else if (s.hero_headline || s.hero_subheadline || s.hero_lead_badge) {
-          // Merge top-level settings into default hero section
-          setSections((prev) =>
-            prev.map((sec) =>
-              sec.id === 'hero'
-                ? {
-                    ...sec,
-                    headline: s.hero_headline || sec.headline,
-                    subheadline: s.hero_subheadline || sec.subheadline,
-                    badge: s.hero_lead_badge || sec.badge,
-                  }
-                : sec
-            )
-          );
         }
+
+        // 2. Backwards-compatibility for homepage sections
+        if (s.homepage_sections_order_json) {
+          try {
+            const parsedHome = JSON.parse(s.homepage_sections_order_json);
+            if (Array.isArray(parsedHome) && parsedHome.length > 0) {
+              updated.home = parsedHome;
+            }
+          } catch {}
+        }
+
+        setPageLayouts(updated);
       })
       .catch((err) => console.error('Error fetching settings for builder:', err))
       .finally(() => setLoading(false));
   }, []);
 
-  // Save changes to database
+  // Active sections for the currently selected page
+  const currentSections = pageLayouts[currentPage] || [];
+
+  // Update sections for the active page
+  const updateCurrentSections = (newSections: PageSection[]) => {
+    setPageLayouts((prev) => ({
+      ...prev,
+      [currentPage]: newSections,
+    }));
+  };
+
+  // Save all page layouts to database
   const handleSaveLayout = async () => {
     setSaving(true);
     setSavedSuccess(false);
     try {
-      // Find updated hero values to keep global settings synced
-      const heroSection = sections.find((s) => s.type === 'hero');
-      const announcementSection = sections.find((s) => s.type === 'announcement');
-
       const payload: Partial<WebsiteSettings> = {
-        homepage_sections_order_json: JSON.stringify(sections),
+        page_layouts_json: JSON.stringify(pageLayouts),
+        homepage_sections_order_json: JSON.stringify(pageLayouts.home),
       };
 
+      // Also sync top-level hero if home was updated
+      const heroSection = pageLayouts.home.find((s) => s.type === 'hero');
       if (heroSection) {
         if (heroSection.headline) payload.hero_headline = heroSection.headline;
         if (heroSection.subheadline) payload.hero_subheadline = heroSection.subheadline;
         if (heroSection.badge) payload.hero_lead_badge = heroSection.badge;
-      }
-
-      if (announcementSection) {
-        payload.announcement_bar_enabled = announcementSection.enabled;
-        payload.announcement_bar_text = announcementSection.headline;
-        payload.announcement_bar_link = announcementSection.btn1_link;
       }
 
       const res = await fetch('/api/settings', {
@@ -191,7 +526,7 @@ export default function AdminVisualBuilderPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save layout');
 
       setSavedSuccess(true);
@@ -203,7 +538,7 @@ export default function AdminVisualBuilderPage() {
     }
   };
 
-  // Drag and Drop Handlers
+  // Drag and Drop handlers
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
   };
@@ -222,11 +557,11 @@ export default function AdminVisualBuilderPage() {
       return;
     }
 
-    const reordered = [...sections];
+    const reordered = [...currentSections];
     const [movedItem] = reordered.splice(draggedIndex, 1);
     reordered.splice(targetIndex, 0, movedItem);
 
-    setSections(reordered);
+    updateCurrentSections(reordered);
     setSelectedSectionId(movedItem.id);
     setDraggedIndex(null);
     setDropTargetIndex(null);
@@ -235,27 +570,29 @@ export default function AdminVisualBuilderPage() {
   // Reorder buttons (Move Up / Down)
   const handleMove = (index: number, direction: 'up' | 'down') => {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= sections.length) return;
+    if (targetIndex < 0 || targetIndex >= currentSections.length) return;
 
-    const reordered = [...sections];
+    const reordered = [...currentSections];
     const [moved] = reordered.splice(index, 1);
     reordered.splice(targetIndex, 0, moved);
 
-    setSections(reordered);
+    updateCurrentSections(reordered);
     setSelectedSectionId(moved.id);
   };
 
   // Toggle Visibility
   const handleToggleVisibility = (id: string) => {
-    setSections((prev) =>
-      prev.map((sec) => (sec.id === id ? { ...sec, enabled: !sec.enabled } : sec))
+    const updated = currentSections.map((sec) =>
+      sec.id === id ? { ...sec, enabled: !sec.enabled } : sec
     );
+    updateCurrentSections(updated);
   };
 
   // Delete Section
   const handleDeleteSection = (id: string) => {
     if (!confirm('Are you sure you want to remove this section from the page?')) return;
-    setSections((prev) => prev.filter((sec) => sec.id !== id));
+    const updated = currentSections.filter((sec) => sec.id !== id);
+    updateCurrentSections(updated);
     if (selectedSectionId === id) setSelectedSectionId(null);
   };
 
@@ -263,13 +600,13 @@ export default function AdminVisualBuilderPage() {
   const handleDuplicateSection = (sec: PageSection) => {
     const duplicate: PageSection = {
       ...sec,
-      id: `sec-${Date.now()}`,
+      id: `${currentPage}_${Date.now()}`,
       title: `${sec.title} (Copy)`,
     };
-    const index = sections.findIndex((s) => s.id === sec.id);
-    const updated = [...sections];
+    const index = currentSections.findIndex((s) => s.id === sec.id);
+    const updated = [...currentSections];
     updated.splice(index + 1, 0, duplicate);
-    setSections(updated);
+    updateCurrentSections(updated);
     setSelectedSectionId(duplicate.id);
   };
 
@@ -283,15 +620,16 @@ export default function AdminVisualBuilderPage() {
     e.preventDefault();
     if (!editingSection) return;
 
-    setSections((prev) =>
-      prev.map((s) => (s.id === editingSection.id ? { ...editingSection } : s))
+    const updated = currentSections.map((s) =>
+      s.id === editingSection.id ? { ...editingSection } : s
     );
+    updateCurrentSections(updated);
     setEditingSection(null);
   };
 
   // Add New Section from Library
   const handleAddNewSection = (type: PageSection['type']) => {
-    const newId = `custom-${type}-${Date.now()}`;
+    const newId = `${currentPage}_custom_${Date.now()}`;
     let newBlock: PageSection;
 
     switch (type) {
@@ -301,13 +639,13 @@ export default function AdminVisualBuilderPage() {
           type: 'custom_banner',
           title: 'Promotional Callout Banner',
           enabled: true,
-          badge: 'Limited Time Partner Offer',
-          headline: 'Unlock 75% Off Cloud Infrastructure with Free SSL',
-          subheadline: 'Claim enterprise cloud speed, dedicated CPU allocation, and 24/7 priority support.',
-          btn1_text: 'Claim Offer Now',
-          btn1_link: '/go/hostinger-promo',
-          btn2_text: 'Learn More',
-          btn2_link: '/offers',
+          badge: 'Exclusive Announcement',
+          headline: 'High-Impact Cloud & AI Strategy for 2026',
+          subheadline: 'Engineered for speed, search dominance, and predictable digital revenue.',
+          btn1_text: 'Explore Deals',
+          btn1_link: '/offers',
+          btn2_text: 'Read Guides',
+          btn2_link: '/blog',
           background_gradient: 'from-brand-900 via-indigo-950 to-slate-900',
         };
         break;
@@ -315,11 +653,11 @@ export default function AdminVisualBuilderPage() {
         newBlock = {
           id: newId,
           type: 'cta_box',
-          title: 'Newsletter & Lead Capture Box',
+          title: 'Lead Capture & Newsletter Box',
           enabled: true,
           badge: 'Daily Tech Dispatch',
-          headline: 'Stay Ahead of the Curve with Srinoos Research',
-          subheadline: 'Join 15,000+ engineers, founders, and affiliate publishers receiving our weekly breakdown.',
+          headline: 'Stay Ahead with Srinoos Research & Analysis',
+          subheadline: 'Join over 15,000+ engineers, creators, and affiliate publishers.',
           btn1_text: 'Subscribe Free',
           btn1_link: '/contact',
           background_gradient: 'from-slate-900 to-brand-950',
@@ -332,45 +670,37 @@ export default function AdminVisualBuilderPage() {
           title: 'Frequently Asked Questions (FAQ)',
           enabled: true,
           headline: 'Frequently Asked Questions',
-          subheadline: 'Common questions about our guides, recommendations, and platform.',
-          html_content: JSON.stringify([
-            { q: 'How does Sricospace select affiliate partners?', a: 'We rigorously benchmark products for performance, uptime, and reader value before recommending them.' },
-            { q: 'Is registration on Sricospace free?', a: 'Yes! All guides, benchmarks, and deal comparisons are 100% free for all readers.' },
-          ]),
+          subheadline: 'Everything you need to know about this section.',
         };
         break;
       case 'testimonial_bar':
         newBlock = {
           id: newId,
           type: 'testimonial_bar',
-          title: 'Social Proof & Partner Trust Bar',
+          title: 'Trust Badges & Social Proof Bar',
           enabled: true,
-          headline: 'Trusted by Digital Builders Worldwide',
-          subheadline: 'Over 500,000+ monthly readers trust our verified technical benchmarks.',
-          background_gradient: 'from-slate-900 to-slate-950',
+          headline: 'Trusted by Over 500,000+ Monthly Readers',
+          subheadline: 'Independent, benchmarked tutorials researched for accuracy and reader value.',
         };
         break;
       case 'custom_html':
         newBlock = {
           id: newId,
           type: 'custom_html',
-          title: 'Custom HTML / Rich Embed Block',
+          title: 'Custom HTML / Embed Block',
           enabled: true,
-          html_content: '<div class="p-8 bg-slate-900 text-white rounded-2xl text-center"><h3 class="text-xl font-bold">Custom Embedded Widget</h3><p class="text-slate-400 text-sm mt-2">Paste any custom HTML, iframe, or affiliate widget here.</p></div>',
+          html_content: '<div class="p-8 bg-slate-900 text-white rounded-2xl text-center"><h3 class="text-xl font-bold">Custom Embedded Content</h3><p class="text-slate-400 text-sm mt-2">Paste raw HTML, YouTube embeds, or widgets here.</p></div>',
         };
         break;
-      case 'hero':
+      case 'top_ad':
+      case 'mid_ad':
+      case 'footer_ad':
         newBlock = {
           id: newId,
-          type: 'hero',
-          title: 'Alternative Hero Banner',
+          type: type,
+          title: 'Ad Unit Placement',
+          placementId: 'homepage-top',
           enabled: true,
-          badge: 'Special Announcement',
-          headline: 'High-Impact Digital Insights for 2026',
-          subheadline: 'Engineered for speed, search dominance, and predictable affiliate monetization.',
-          btn1_text: 'Explore Deals',
-          btn1_link: '/offers',
-          background_gradient: 'from-purple-900 via-slate-900 to-indigo-950',
         };
         break;
       default:
@@ -385,11 +715,11 @@ export default function AdminVisualBuilderPage() {
         break;
     }
 
-    const insertAt = addInsertIndex !== null ? addInsertIndex : sections.length;
-    const updated = [...sections];
+    const insertAt = addInsertIndex !== null ? addInsertIndex : currentSections.length;
+    const updated = [...currentSections];
     updated.splice(insertAt, 0, newBlock);
 
-    setSections(updated);
+    updateCurrentSections(updated);
     setSelectedSectionId(newBlock.id);
     setShowAddModal(false);
     setAddInsertIndex(null);
@@ -408,120 +738,175 @@ export default function AdminVisualBuilderPage() {
     }
   };
 
+  const activeOption = PAGE_OPTIONS.find((p) => p.key === currentPage) || PAGE_OPTIONS[0];
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-24">
-      {/* Top Header & Actions Bar */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-brand-50 text-brand-600 rounded-xl">
-              <MousePointerClick className="w-5 h-5" />
-            </span>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Live Visual Website Builder
-            </h1>
-            <span className="px-2.5 py-0.5 bg-brand-100 text-brand-700 text-[11px] font-bold rounded-full">
-              Full Page Drag &amp; Drop
-            </span>
+      {/* Top Header & Page Selector Navigation */}
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="p-2 bg-brand-50 text-brand-600 rounded-xl">
+                <MousePointerClick className="w-5 h-5" />
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Live Visual Builder &amp; Page Customizer
+              </h1>
+              <span className="px-2.5 py-0.5 bg-brand-100 text-brand-700 text-[11px] font-bold rounded-full">
+                Entire Website
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Customize any page on your website: Click to edit text, swap links, add or remove sections, and drag and drop to reorder in real time.
+            </p>
           </div>
-          <p className="text-xs text-slate-500">
-            Click any element on the page canvas to edit text, swap links, add new sections, delete, or drag and drop to reorder.
-          </p>
+
+          <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            {/* Return to Live Page Button (if opened from public site) */}
+            {returnUrl && (
+              <a
+                href={returnUrl}
+                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-slate-200"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Return to Live Site</span>
+              </a>
+            )}
+
+            {/* Device Switcher */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                onClick={() => setPreviewDevice('desktop')}
+                className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
+                  previewDevice === 'desktop' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                title="Desktop View"
+              >
+                <Laptop className="w-4 h-4" />
+                <span className="hidden sm:inline">Desktop</span>
+              </button>
+              <button
+                onClick={() => setPreviewDevice('tablet')}
+                className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
+                  previewDevice === 'tablet' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                title="Tablet View"
+              >
+                <Tablet className="w-4 h-4" />
+                <span className="hidden sm:inline">Tablet</span>
+              </button>
+              <button
+                onClick={() => setPreviewDevice('mobile')}
+                className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
+                  previewDevice === 'mobile' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                title="Mobile View"
+              >
+                <Smartphone className="w-4 h-4" />
+                <span className="hidden sm:inline">Mobile</span>
+              </button>
+            </div>
+
+            {/* Mode Switcher */}
+            <button
+              onClick={() => setIsEditMode(!isEditMode)}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                isEditMode
+                  ? 'bg-amber-50 text-amber-700 border-amber-300'
+                  : 'bg-slate-100 text-slate-600 border-slate-200'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>{isEditMode ? 'Visual Editing: ON' : 'Preview Mode'}</span>
+            </button>
+
+            {/* Save All Layouts Button */}
+            <button
+              onClick={handleSaveLayout}
+              disabled={saving}
+              className="px-5 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2"
+            >
+              {saving ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : savedSuccess ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              <span>{saving ? 'Saving...' : savedSuccess ? 'Saved & Live!' : 'Save & Publish Live'}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          {/* Device Switcher */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-            <button
-              onClick={() => setPreviewDevice('desktop')}
-              className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
-                previewDevice === 'desktop' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-              title="Desktop View"
-            >
-              <Laptop className="w-4 h-4" />
-              <span className="hidden sm:inline">Desktop</span>
-            </button>
-            <button
-              onClick={() => setPreviewDevice('tablet')}
-              className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
-                previewDevice === 'tablet' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-              title="Tablet View"
-            >
-              <Tablet className="w-4 h-4" />
-              <span className="hidden sm:inline">Tablet</span>
-            </button>
-            <button
-              onClick={() => setPreviewDevice('mobile')}
-              className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
-                previewDevice === 'mobile' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-              title="Mobile View"
-            >
-              <Smartphone className="w-4 h-4" />
-              <span className="hidden sm:inline">Mobile</span>
-            </button>
-          </div>
-
-          {/* Mode Switcher */}
-          <button
-            onClick={() => setIsEditMode(!isEditMode)}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
-              isEditMode
-                ? 'bg-amber-50 text-amber-700 border-amber-300'
-                : 'bg-slate-100 text-slate-600 border-slate-200'
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>{isEditMode ? 'Visual Editing: ON' : 'Preview Mode'}</span>
-          </button>
-
-          {/* Save Button */}
-          <button
-            onClick={handleSaveLayout}
-            disabled={saving}
-            className="px-5 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2"
-          >
-            {saving ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : savedSuccess ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            <span>{saving ? 'Saving...' : savedSuccess ? 'Saved & Live!' : 'Save & Publish Live'}</span>
-          </button>
+        {/* Page Switcher Tabs */}
+        <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1 pr-2 flex-shrink-0">
+            Select Page:
+          </span>
+          {PAGE_OPTIONS.map((page) => {
+            const Icon = page.icon;
+            const isSelected = currentPage === page.key;
+            return (
+              <button
+                key={page.key}
+                onClick={() => {
+                  setCurrentPage(page.key);
+                  setSelectedSectionId(null);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0 border ${
+                  isSelected
+                    ? 'bg-brand-600 text-white border-brand-600 shadow-xs'
+                    : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-slate-200/80'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{page.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Instructions Pill */}
-      {isEditMode && (
-        <div className="bg-indigo-50 border border-indigo-200/80 rounded-2xl p-3.5 flex items-center justify-between text-xs text-indigo-900">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-            <span>
-              <strong>Visual Mode Active:</strong> Click on any section below to reveal its inline editing toolbar, or grab the <GripVertical className="w-3.5 h-3.5 inline text-indigo-500" /> handle to drag and drop sections up or down.
-            </span>
+      {/* Active Page Info Banner */}
+      <div className="bg-indigo-50 border border-indigo-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-indigo-950">
+        <div className="flex items-center gap-2.5">
+          <span className="p-1.5 bg-indigo-600 text-white rounded-lg">
+            <activeOption.icon className="w-4 h-4" />
+          </span>
+          <div>
+            <span className="font-bold text-sm block">Currently Customizing: {activeOption.label}</span>
+            <span className="text-indigo-700 text-[11px] block">{activeOption.description} &bull; Live URL: <code>{activeOption.path}</code></span>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <a
+            href={activeOption.path}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 bg-white hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs border border-indigo-200 flex items-center gap-1 shadow-2xs"
+          >
+            <span>View Live Page</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
           <button
             onClick={() => {
               setAddInsertIndex(0);
               setShowAddModal(true);
             }}
-            className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs"
+            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" /> Add Block at Top
           </button>
         </div>
-      )}
+      </div>
 
       {/* Canvas Wrapper */}
-      <div className="flex justify-center bg-slate-900/5 p-2 sm:p-6 rounded-3xl border border-slate-200/80 overflow-hidden min-h-[800px]">
+      <div className="flex justify-center bg-slate-900/5 p-2 sm:p-6 rounded-3xl border border-slate-200/80 overflow-hidden min-h-[750px]">
         <div className={`transition-all duration-300 bg-white ${getDeviceClass()}`}>
-          {/* Canvas Section Stack */}
           <div className="divide-y divide-slate-100">
-            {sections.map((section, index) => {
+            {currentSections.map((section, index) => {
               const isSelected = selectedSectionId === section.id;
               const isBeingDragged = draggedIndex === index;
               const isDropTarget = dropTargetIndex === index;
@@ -548,7 +933,7 @@ export default function AdminVisualBuilderPage() {
                       : ''
                   }`}
                 >
-                  {/* Floating Contextual Toolbar (Appears over active element on click) */}
+                  {/* Floating Context Toolbar on Active Element */}
                   {isEditMode && isSelected && (
                     <div className="absolute -top-12 left-4 z-40 bg-slate-950 text-white rounded-xl shadow-2xl border border-slate-700 px-2 py-1.5 flex items-center gap-1 text-xs animate-in fade-in zoom-in-95">
                       <div className="flex items-center gap-1 px-2 border-r border-slate-800 text-slate-300 font-mono text-[11px]">
@@ -556,20 +941,18 @@ export default function AdminVisualBuilderPage() {
                         <span className="font-bold text-white max-w-[120px] truncate">{section.title}</span>
                       </div>
 
-                      {/* Edit Content Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenEdit(section);
                         }}
                         className="p-1.5 hover:bg-slate-800 text-brand-300 rounded-lg flex items-center gap-1 font-semibold"
-                        title="Edit element text, image &amp; links"
+                        title="Edit text, links &amp; appearance"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Edit</span>
                       </button>
 
-                      {/* Add Block Below */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -577,13 +960,12 @@ export default function AdminVisualBuilderPage() {
                           setShowAddModal(true);
                         }}
                         className="p-1.5 hover:bg-slate-800 text-emerald-400 rounded-lg flex items-center gap-1 font-semibold"
-                        title="Insert new element below"
+                        title="Add new block below"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add Below</span>
                       </button>
 
-                      {/* Move Up */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -591,25 +973,23 @@ export default function AdminVisualBuilderPage() {
                         }}
                         disabled={index === 0}
                         className="p-1.5 hover:bg-slate-800 disabled:opacity-30 rounded-lg"
-                        title="Move Section Up"
+                        title="Move Up"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Move Down */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleMove(index, 'down');
                         }}
-                        disabled={index === sections.length - 1}
+                        disabled={index === currentSections.length - 1}
                         className="p-1.5 hover:bg-slate-800 disabled:opacity-30 rounded-lg"
-                        title="Move Section Down"
+                        title="Move Down"
                       >
                         <ArrowDown className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Duplicate */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -621,7 +1001,6 @@ export default function AdminVisualBuilderPage() {
                         <Copy className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Toggle Enabled */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -635,7 +1014,6 @@ export default function AdminVisualBuilderPage() {
                         {section.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                       </button>
 
-                      {/* Delete */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -649,9 +1027,9 @@ export default function AdminVisualBuilderPage() {
                     </div>
                   )}
 
-                  {/* Section Visual Render Output */}
+                  {/* Section Render Output */}
                   <div className="p-4 sm:p-6 cursor-pointer">
-                    {/* 1. Announcement Bar */}
+                    {/* Announcement Bar */}
                     {section.type === 'announcement' && (
                       <div className={`p-3 text-center text-white text-xs font-semibold rounded-xl bg-gradient-to-r ${section.background_gradient || 'from-brand-600 to-indigo-700'} shadow-sm flex items-center justify-center gap-3`}>
                         <span>{section.headline || 'Announcement Message'}</span>
@@ -663,147 +1041,133 @@ export default function AdminVisualBuilderPage() {
                       </div>
                     )}
 
-                    {/* 2. Top Ad Unit */}
-                    {section.type === 'top_ad' && (
+                    {/* Ad Slots */}
+                    {(section.type === 'top_ad' || section.type === 'mid_ad' || section.type === 'footer_ad') && (
                       <div className="border border-dashed border-amber-300 bg-amber-50/50 rounded-2xl p-4 text-center">
                         <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 uppercase tracking-wider">
                           <Tag className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Google AdSense Header Placement ({section.placementId || 'homepage-top'})</span>
+                          <span>Ad Unit Placement: {section.title} ({section.placementId || 'responsive-ad'})</span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1">
-                          Responsive Leaderboard (728x90 desktop / 320x50 mobile)
-                        </p>
+                        <p className="text-[11px] text-slate-500 mt-1">Google AdSense / Custom Sponsor Slot</p>
                       </div>
                     )}
 
-                    {/* 3. Hero Mission Banner */}
-                    {section.type === 'hero' && (
+                    {/* Hero Banners */}
+                    {(section.type === 'hero' || section.type === 'about_mission' || section.type === 'offers_header') && (
                       <div className={`rounded-3xl p-6 sm:p-10 text-white bg-gradient-to-r ${section.background_gradient || 'from-slate-900 via-indigo-950 to-slate-900'} relative overflow-hidden shadow-lg`}>
                         <div className="space-y-4 max-w-3xl">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-500/20 border border-brand-400/30 text-brand-300 rounded-full text-xs font-bold uppercase tracking-wider">
-                            <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-                            {section.badge || '⚡ Technology Collective • Daily Dispatch'}
-                          </span>
-                          <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight font-display">
-                            {section.headline || 'Your Headline Here'}
-                          </h1>
+                          {section.badge && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-500/20 border border-brand-400/30 text-brand-300 rounded-full text-xs font-bold uppercase tracking-wider">
+                              <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                              {section.badge}
+                            </span>
+                          )}
+                          <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight font-display">
+                            {section.headline}
+                          </h2>
                           <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                            {section.subheadline || 'Subheadline description explaining your brand value proposition.'}
+                            {section.subheadline}
                           </p>
-                          <div className="flex flex-wrap items-center gap-3 pt-2">
-                            {section.btn1_text && (
-                              <span className="px-5 py-2.5 bg-brand-600 text-white font-bold text-xs rounded-xl shadow-xs inline-flex items-center gap-1.5">
-                                {section.btn1_text} <ArrowRight className="w-3.5 h-3.5" />
-                              </span>
-                            )}
-                            {section.btn2_text && (
-                              <span className="px-5 py-2.5 bg-slate-800 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 inline-flex items-center gap-1.5">
-                                <TrendingUp className="w-3.5 h-3.5 text-amber-400" /> {section.btn2_text}
-                              </span>
-                            )}
-                          </div>
+                          {(section.btn1_text || section.btn2_text) && (
+                            <div className="flex flex-wrap items-center gap-3 pt-2">
+                              {section.btn1_text && (
+                                <span className="px-5 py-2.5 bg-brand-600 text-white font-bold text-xs rounded-xl shadow-xs inline-flex items-center gap-1.5">
+                                  {section.btn1_text} <ArrowRight className="w-3.5 h-3.5" />
+                                </span>
+                              )}
+                              {section.btn2_text && (
+                                <span className="px-5 py-2.5 bg-slate-800 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 inline-flex items-center gap-1.5">
+                                  {section.btn2_text}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
 
-                    {/* 4. Featured Deals Showcase */}
+                    {/* Page Headers (Blog, Trending, Contact, Category) */}
+                    {(section.type === 'blog_header' || section.type === 'trending_header' || section.type === 'contact_header' || section.type === 'category_header') && (
+                      <div className="bg-slate-50 border border-slate-200/90 rounded-3xl p-6 sm:p-8 text-center max-w-3xl mx-auto space-y-3">
+                        {section.badge && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-bold uppercase tracking-wider">
+                            {section.badge}
+                          </span>
+                        )}
+                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{section.headline}</h2>
+                        <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">{section.subheadline}</p>
+                      </div>
+                    )}
+
+                    {/* Deals & Affiliate Grid */}
                     {section.type === 'deals' && (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="p-1.5 bg-amber-100 text-amber-700 rounded-lg">
-                              <Gift className="w-4 h-4" />
-                            </span>
-                            <h3 className="font-bold text-slate-900 text-base">
-                              {section.headline || 'Featured Deals & Free Registration Offers'}
-                            </h3>
-                          </div>
+                          <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <Gift className="w-4 h-4 text-amber-600" />
+                            {section.headline || 'Featured Deals & Partner Offers'}
+                          </h3>
                           <span className="text-xs text-brand-600 font-bold">Explore All Offers &rarr;</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          {['Hostinger 75% Off', 'Amazon Associates Picks', 'Zerodha Free Demat'].map((deal, idx) => (
-                            <div key={idx} className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5">
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 uppercase">CPA Offer</span>
+                          {['Hostinger Cloud 75% Off', 'Amazon Prime Specials', 'Zerodha Free Demat'].map((deal, idx) => (
+                            <div key={idx} className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 uppercase">CPA Deal</span>
                               <h4 className="font-bold text-xs text-slate-900">{deal}</h4>
-                              <p className="text-[11px] text-slate-500">Verified partner promotion with instant tracking link.</p>
-                              <span className="inline-block text-[11px] font-bold text-brand-600 underline">Claim Deal &rarr;</span>
+                              <p className="text-[11px] text-slate-500">Verified partner promotion with tracking redirect.</p>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {/* 5. Lead Feature Article */}
-                    {section.type === 'lead_feature' && (
-                      <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col sm:flex-row gap-4 items-center">
-                        <div className="w-full sm:w-48 h-32 bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 text-xs font-semibold">
-                          Featured Image
-                        </div>
-                        <div className="space-y-2 flex-1">
-                          <span className="text-[10px] font-bold text-brand-400 uppercase tracking-wider">Lead Feature Spotlight</span>
-                          <h4 className="font-bold text-base text-white">High-Speed Next.js Architecture for Affiliate Marketing</h4>
-                          <p className="text-xs text-slate-300">Detailed breakdown of server-rendered blogs, Google Core Web Vitals, and tracking attribution.</p>
-                          <span className="text-xs text-brand-300 font-bold inline-block">Read Article &rarr;</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 6. Trending Articles Grid */}
-                    {section.type === 'trending' && (
+                    {/* Blog & Trending Grids */}
+                    {(section.type === 'blog_grid' || section.type === 'trending_grid' || section.type === 'category_grid' || section.type === 'main_feed' || section.type === 'trending') && (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                          <h3 className="font-black text-slate-900 text-base flex items-center gap-2">
-                            <TrendingUp className="w-4 h-4 text-amber-500" />
-                            {section.headline || 'Trending on Srinoos'}
-                          </h3>
-                          <span className="text-xs text-brand-600 font-semibold">All Trending &rarr;</span>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="p-2.5 border border-slate-100 rounded-xl bg-slate-50 space-y-1">
-                              <div className="w-full h-16 bg-slate-200 rounded-lg" />
-                              <span className="text-[9px] font-bold text-slate-400 uppercase">AI &amp; Tech</span>
-                              <h5 className="font-bold text-[11px] text-slate-800 line-clamp-1">Trending Story #{i}</h5>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 7. Mid Ad Placement */}
-                    {section.type === 'mid_ad' && (
-                      <div className="border border-dashed border-slate-300 bg-slate-50 rounded-xl p-3 text-center">
-                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                          In-Feed Native Ad Slot ({section.placementId || 'homepage-between-sections'})
-                        </span>
-                      </div>
-                    )}
-
-                    {/* 8. Main Feed & Sidebar */}
-                    {section.type === 'main_feed' && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="md:col-span-2 space-y-3">
-                          <h4 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-1.5">
-                            Recent Publications Feed
+                          <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <BookOpen className="w-4 h-4 text-brand-600" />
+                            {section.title}
                           </h4>
-                          {[1, 2].map((i) => (
-                            <div key={i} className="p-3 border border-slate-100 rounded-xl flex items-center gap-3">
-                              <div className="w-16 h-14 bg-slate-100 rounded-lg flex-shrink-0" />
-                              <div>
-                                <h5 className="font-bold text-xs text-slate-900">Article Title #{i}</h5>
-                                <p className="text-[11px] text-slate-500 line-clamp-1">Practical technical overview and case study.</p>
-                              </div>
+                          <span className="text-xs text-slate-400 font-mono">Dynamic Database Query</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="p-3 border border-slate-200/80 rounded-xl bg-slate-50 space-y-1.5">
+                              <div className="w-full h-20 bg-slate-200 rounded-lg flex items-center justify-center text-[11px] text-slate-400 font-semibold">Featured Thumbnail</div>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase">Technology &amp; AI</span>
+                              <h5 className="font-bold text-xs text-slate-800 line-clamp-1">Sample Publication Post #{i}</h5>
                             </div>
                           ))}
-                        </div>
-                        <div className="p-3 bg-slate-50 border border-slate-200/70 rounded-xl space-y-2">
-                          <h5 className="font-bold text-xs text-slate-900">Sidebar Widget</h5>
-                          <p className="text-[11px] text-slate-500">Categories, sticky ads, and Srinoos editorial standards badge.</p>
                         </div>
                       </div>
                     )}
 
-                    {/* 9. Custom Banner / Promo Callout */}
+                    {/* About Values & Founder Profile */}
+                    {(section.type === 'about_values' || section.type === 'about_founder' || section.type === 'contact_info') && (
+                      <div className="p-6 bg-slate-900 text-white rounded-3xl space-y-3">
+                        <div className="flex items-center gap-2 text-brand-400 font-bold text-xs uppercase tracking-wider">
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>{section.title}</span>
+                        </div>
+                        <h3 className="text-xl font-bold">{section.headline}</h3>
+                        <p className="text-xs text-slate-300 leading-relaxed max-w-xl">{section.subheadline}</p>
+                      </div>
+                    )}
+
+                    {/* Contact Form Element */}
+                    {section.type === 'contact_form' && (
+                      <div className="p-6 border border-slate-200 rounded-3xl bg-slate-50 space-y-3">
+                        <h4 className="font-bold text-slate-900 text-sm">Interactive Message Submission Form</h4>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400">Your Full Name</div>
+                          <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400">Email Address</div>
+                        </div>
+                        <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 text-xs h-16">Enter your inquiry message here...</div>
+                      </div>
+                    )}
+
+                    {/* Custom Banner / Promotional Box */}
                     {section.type === 'custom_banner' && (
                       <div className={`p-6 sm:p-8 rounded-2xl text-white bg-gradient-to-r ${section.background_gradient || 'from-brand-900 to-indigo-950'} shadow-md space-y-2.5`}>
                         {section.badge && (
@@ -823,23 +1187,23 @@ export default function AdminVisualBuilderPage() {
                       </div>
                     )}
 
-                    {/* 10. Call to Action Box */}
+                    {/* Call to Action Box */}
                     {section.type === 'cta_box' && (
-                      <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-brand-950 text-white border border-slate-800 text-center space-y-3">
+                      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 to-brand-950 text-white border border-slate-800 text-center space-y-3 shadow-md">
                         <span className="px-2.5 py-0.5 bg-brand-500/20 text-brand-300 border border-brand-400/30 rounded-full text-[10px] font-bold uppercase tracking-wider">
                           {section.badge || 'Newsletter & Updates'}
                         </span>
                         <h3 className="text-xl font-bold">{section.headline}</h3>
                         <p className="text-xs text-slate-300 max-w-md mx-auto">{section.subheadline}</p>
                         {section.btn1_text && (
-                          <span className="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-xs inline-block">
+                          <span className="px-5 py-2 bg-brand-600 text-white font-bold text-xs rounded-xl shadow-xs inline-block">
                             {section.btn1_text}
                           </span>
                         )}
                       </div>
                     )}
 
-                    {/* 11. FAQ Accordion Block */}
+                    {/* FAQ Accordion Block */}
                     {section.type === 'faq_accordion' && (
                       <div className="p-5 border border-slate-200 rounded-2xl bg-white space-y-3">
                         <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -855,7 +1219,7 @@ export default function AdminVisualBuilderPage() {
                       </div>
                     )}
 
-                    {/* 12. Social Proof / Testimonials */}
+                    {/* Social Proof / Testimonials */}
                     {section.type === 'testimonial_bar' && (
                       <div className="p-5 rounded-2xl bg-slate-900 text-white text-center space-y-2">
                         <ShieldCheck className="w-6 h-6 text-brand-400 mx-auto" />
@@ -864,21 +1228,12 @@ export default function AdminVisualBuilderPage() {
                       </div>
                     )}
 
-                    {/* 13. Custom Raw HTML */}
+                    {/* Custom Raw HTML */}
                     {section.type === 'custom_html' && (
                       <div
                         className="rounded-2xl overflow-hidden"
                         dangerouslySetInnerHTML={{ __html: section.html_content || '<p>Empty HTML block</p>' }}
                       />
-                    )}
-
-                    {/* 14. Footer Ad */}
-                    {section.type === 'footer_ad' && (
-                      <div className="border border-dashed border-slate-300 bg-slate-50/70 rounded-xl p-3 text-center">
-                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                          Above Footer Ad Placement ({section.placementId || 'global-above-footer'})
-                        </span>
-                      </div>
                     )}
                   </div>
                 </div>
@@ -891,13 +1246,13 @@ export default function AdminVisualBuilderPage() {
             <div className="p-6 border-t-2 border-dashed border-slate-200 text-center bg-slate-50/50">
               <button
                 onClick={() => {
-                  setAddInsertIndex(sections.length);
+                  setAddInsertIndex(currentSections.length);
                   setShowAddModal(true);
                 }}
                 className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 shadow-xs transition inline-flex items-center gap-2"
               >
                 <Plus className="w-4 h-4 text-brand-600" />
-                <span>Add New Section to Bottom</span>
+                <span>Add New Section to {activeOption.label}</span>
               </button>
             </div>
           )}
@@ -910,9 +1265,9 @@ export default function AdminVisualBuilderPage() {
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="font-black text-slate-900 text-lg">Add New Section Block</h3>
+                <h3 className="font-black text-slate-900 text-lg">Add New Section to {activeOption.label}</h3>
                 <p className="text-xs text-slate-500">
-                  Select a pre-designed modular component to add to your page layout.
+                  Select a pre-designed modular component to add to this page layout.
                 </p>
               </div>
               <button
@@ -924,7 +1279,6 @@ export default function AdminVisualBuilderPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {/* Option 1: Promotional Banner */}
               <button
                 onClick={() => handleAddNewSection('custom_banner')}
                 className="p-4 rounded-2xl border border-slate-200/90 hover:border-brand-500 hover:bg-brand-50/20 text-left transition group space-y-1.5"
@@ -933,12 +1287,9 @@ export default function AdminVisualBuilderPage() {
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">Promotional Callout Banner</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  High-converting callout with custom headline, badge, and dual CTA buttons.
-                </p>
+                <p className="text-[11px] text-slate-500 leading-relaxed">High-converting callout with headline, badge, and dual CTA buttons.</p>
               </button>
 
-              {/* Option 2: Newsletter / CTA Box */}
               <button
                 onClick={() => handleAddNewSection('cta_box')}
                 className="p-4 rounded-2xl border border-slate-200/90 hover:border-brand-500 hover:bg-brand-50/20 text-left transition group space-y-1.5"
@@ -947,12 +1298,9 @@ export default function AdminVisualBuilderPage() {
                   <Layers className="w-4 h-4" />
                 </div>
                 <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">Lead Capture / Newsletter</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Engaging subscriber box with value proposition and sign-up button.
-                </p>
+                <p className="text-[11px] text-slate-500 leading-relaxed">Engaging subscriber box with value proposition and sign-up button.</p>
               </button>
 
-              {/* Option 3: FAQ Accordion */}
               <button
                 onClick={() => handleAddNewSection('faq_accordion')}
                 className="p-4 rounded-2xl border border-slate-200/90 hover:border-brand-500 hover:bg-brand-50/20 text-left transition group space-y-1.5"
@@ -961,12 +1309,9 @@ export default function AdminVisualBuilderPage() {
                   <HelpCircle className="w-4 h-4" />
                 </div>
                 <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">FAQ Accordion Block</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Interactive Q&amp;A accordion structured for Google FAQPage schema.
-                </p>
+                <p className="text-[11px] text-slate-500 leading-relaxed">Interactive Q&amp;A accordion structured for Google FAQPage schema.</p>
               </button>
 
-              {/* Option 4: Social Proof & Trust Bar */}
               <button
                 onClick={() => handleAddNewSection('testimonial_bar')}
                 className="p-4 rounded-2xl border border-slate-200/90 hover:border-brand-500 hover:bg-brand-50/20 text-left transition group space-y-1.5"
@@ -975,12 +1320,9 @@ export default function AdminVisualBuilderPage() {
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">Social Proof &amp; Trust Bar</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Display subscriber counts, ratings, and reader security guarantees.
-                </p>
+                <p className="text-[11px] text-slate-500 leading-relaxed">Display subscriber counts, ratings, and reader security guarantees.</p>
               </button>
 
-              {/* Option 5: Custom HTML / Embed */}
               <button
                 onClick={() => handleAddNewSection('custom_html')}
                 className="p-4 rounded-2xl border border-slate-200/90 hover:border-brand-500 hover:bg-brand-50/20 text-left transition group space-y-1.5"
@@ -989,23 +1331,18 @@ export default function AdminVisualBuilderPage() {
                   <FileCode className="w-4 h-4" />
                 </div>
                 <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">Custom HTML / Embed</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Paste raw HTML, YouTube embeds, affiliate widgets, or third-party code.
-                </p>
+                <p className="text-[11px] text-slate-500 leading-relaxed">Paste raw HTML, YouTube embeds, affiliate widgets, or third-party code.</p>
               </button>
 
-              {/* Option 6: Secondary Hero */}
               <button
-                onClick={() => handleAddNewSection('hero')}
+                onClick={() => handleAddNewSection('top_ad')}
                 className="p-4 rounded-2xl border border-slate-200/90 hover:border-brand-500 hover:bg-brand-50/20 text-left transition group space-y-1.5"
               >
                 <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" />
+                  <Tag className="w-4 h-4" />
                 </div>
-                <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">Full Hero Showcase</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  High-impact gradient hero with custom background colors and links.
-                </p>
+                <h4 className="font-bold text-slate-900 text-sm group-hover:text-brand-600">Ad Placement Container</h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed">Insert a responsive Google AdSense or sponsor banner container.</p>
               </button>
             </div>
           </div>
@@ -1030,7 +1367,6 @@ export default function AdminVisualBuilderPage() {
             </div>
 
             <form onSubmit={handleSaveModalEdits} className="space-y-4">
-              {/* Internal Title */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Internal Block Name</label>
                 <input
@@ -1042,49 +1378,39 @@ export default function AdminVisualBuilderPage() {
                 />
               </div>
 
-              {/* Badge Text */}
-              {editingSection.type !== 'top_ad' && editingSection.type !== 'mid_ad' && editingSection.type !== 'footer_ad' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Badge Text (Top Pill)</label>
-                  <input
-                    type="text"
-                    value={editingSection.badge || ''}
-                    onChange={(e) => setEditingSection({ ...editingSection, badge: e.target.value })}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
-                    placeholder="e.g. ⚡ Limited Time Deal • Verified by Srinoos"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Badge Text (Top Pill)</label>
+                <input
+                  type="text"
+                  value={editingSection.badge || ''}
+                  onChange={(e) => setEditingSection({ ...editingSection, badge: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
+                  placeholder="e.g. ⚡ Limited Time Deal • Verified by Srinoos"
+                />
+              </div>
 
-              {/* Headline */}
-              {editingSection.type !== 'top_ad' && editingSection.type !== 'mid_ad' && editingSection.type !== 'footer_ad' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Headline Text</label>
-                  <input
-                    type="text"
-                    value={editingSection.headline || ''}
-                    onChange={(e) => setEditingSection({ ...editingSection, headline: e.target.value })}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-bold focus:outline-brand-500"
-                    placeholder="Enter main headline"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Headline Text</label>
+                <input
+                  type="text"
+                  value={editingSection.headline || ''}
+                  onChange={(e) => setEditingSection({ ...editingSection, headline: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-bold focus:outline-brand-500"
+                  placeholder="Enter main headline"
+                />
+              </div>
 
-              {/* Subheadline / Description */}
-              {editingSection.type !== 'top_ad' && editingSection.type !== 'mid_ad' && editingSection.type !== 'footer_ad' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Description / Subtitle</label>
-                  <textarea
-                    rows={3}
-                    value={editingSection.subheadline || ''}
-                    onChange={(e) => setEditingSection({ ...editingSection, subheadline: e.target.value })}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
-                    placeholder="Enter description text"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Description / Subtitle</label>
+                <textarea
+                  rows={3}
+                  value={editingSection.subheadline || ''}
+                  onChange={(e) => setEditingSection({ ...editingSection, subheadline: e.target.value })}
+                  className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
+                  placeholder="Enter description text"
+                />
+              </div>
 
-              {/* Call to Action Button 1 */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Primary Button Label</label>
@@ -1093,7 +1419,7 @@ export default function AdminVisualBuilderPage() {
                     value={editingSection.btn1_text || ''}
                     onChange={(e) => setEditingSection({ ...editingSection, btn1_text: e.target.value })}
                     className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
-                    placeholder="e.g. Claim Offer Now"
+                    placeholder="e.g. Explore Guides"
                   />
                 </div>
                 <div>
@@ -1103,12 +1429,11 @@ export default function AdminVisualBuilderPage() {
                     value={editingSection.btn1_link || ''}
                     onChange={(e) => setEditingSection({ ...editingSection, btn1_link: e.target.value })}
                     className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
-                    placeholder="e.g. /offers or /go/promo"
+                    placeholder="e.g. /offers or /blog"
                   />
                 </div>
               </div>
 
-              {/* Call to Action Button 2 */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Secondary Button Label</label>
@@ -1117,7 +1442,7 @@ export default function AdminVisualBuilderPage() {
                     value={editingSection.btn2_text || ''}
                     onChange={(e) => setEditingSection({ ...editingSection, btn2_text: e.target.value })}
                     className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
-                    placeholder="e.g. Trending Topics"
+                    placeholder="e.g. Learn More"
                   />
                 </div>
                 <div>
@@ -1127,12 +1452,11 @@ export default function AdminVisualBuilderPage() {
                     value={editingSection.btn2_link || ''}
                     onChange={(e) => setEditingSection({ ...editingSection, btn2_link: e.target.value })}
                     className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-brand-500"
-                    placeholder="e.g. /trending"
+                    placeholder="e.g. /about"
                   />
                 </div>
               </div>
 
-              {/* Background Gradient */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Background Gradient Theme</label>
                 <select
@@ -1149,7 +1473,6 @@ export default function AdminVisualBuilderPage() {
                 </select>
               </div>
 
-              {/* Custom HTML Content (if custom_html) */}
               {editingSection.type === 'custom_html' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Custom HTML / Embed Code</label>
@@ -1163,7 +1486,6 @@ export default function AdminVisualBuilderPage() {
                 </div>
               )}
 
-              {/* Action Buttons */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
@@ -1187,4 +1509,3 @@ export default function AdminVisualBuilderPage() {
     </div>
   );
 }
-

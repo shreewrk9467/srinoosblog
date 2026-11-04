@@ -26,7 +26,7 @@ export async function PUT(
   }
 
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     const updated = updateAdPlacement(params.id, body);
     if (!updated) {
       return NextResponse.json({ error: 'Placement not found' }, { status: 404 });

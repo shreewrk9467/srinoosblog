@@ -37,7 +37,7 @@ export default function AdminBlogsPage() {
     try {
       setLoading(true);
       const url = filterStatus !== 'all' ? `/api/blogs?status=${filterStatus}` : '/api/blogs';
-      const [resBlogs, resCats, resAnalytics] = await Promise.all([
+      const [resBlogs, resCats, resAnalytics]: [any, any, any] = await Promise.all([
         fetch(url).then((r) => r.json()),
         fetch('/api/categories').then((r) => r.json()),
         fetch('/api/analytics').then((r) => r.json()).catch(() => null),

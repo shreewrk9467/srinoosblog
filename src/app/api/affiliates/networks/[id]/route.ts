@@ -14,7 +14,7 @@ export async function PUT(
   }
 
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     const updated = updateAffiliateNetwork(params.id, body);
     if (!updated) {
       return NextResponse.json({ error: 'Network not found' }, { status: 404 });

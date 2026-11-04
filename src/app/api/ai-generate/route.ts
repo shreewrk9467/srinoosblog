@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { topic, categoryName, targetAudience, focusKeyword } = await request.json();
+    const body: any = await request.json();
+    const { topic, categoryName, targetAudience, focusKeyword } = body;
 
     if (!topic) {
       return NextResponse.json({ error: 'Topic or keyword prompt is required' }, { status: 400 });

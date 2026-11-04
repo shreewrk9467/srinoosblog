@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     if (!body.title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }

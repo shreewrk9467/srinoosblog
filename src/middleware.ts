@@ -48,7 +48,7 @@ async function verifyJwtInEdge(token: string, secretStr: string): Promise<boolea
     const data = enc.encode(`${headerB64}.${payloadB64}`);
     const signature = base64UrlToBytes(signatureB64);
 
-    return await crypto.subtle.verify('HMAC', key, signature, data);
+    return await crypto.subtle.verify('HMAC', key, signature as any, data as any);
   } catch {
     return false;
   }

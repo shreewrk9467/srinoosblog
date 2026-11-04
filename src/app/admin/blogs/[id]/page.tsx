@@ -46,7 +46,7 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
       fetch('/api/categories').then((r) => r.json()),
       fetch(`/api/blogs/${params.id}`).then((r) => r.json()),
     ])
-      .then(([catData, blogData]) => {
+      .then(([catData, blogData]: [any, any]) => {
         setCategories(catData.categories || []);
         if (blogData.post) {
           setFormData(blogData.post);

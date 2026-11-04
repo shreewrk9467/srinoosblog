@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
         return res.json();
       })
-      .then((data) => {
+      .then((data: any) => {
         if (isMounted) {
           if (data && data.authenticated && data.user) {
             setAdminUser(data.user);

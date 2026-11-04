@@ -36,7 +36,7 @@ export default function AdminWordPressPage() {
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((d) => {
+      .then((d: any) => {
         const s = d.settings || {};
         setSettings(s);
         setWpUrl(s.wordpress_url || '');
@@ -58,7 +58,7 @@ export default function AdminWordPressPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: wpUrl.trim(), autoSave: true }),
       });
-      const data = await res.json();
+      const data: any = await res.json();
       setTestResult(data);
 
       if (data.success && data.cleanedUrl) {
@@ -92,7 +92,7 @@ export default function AdminWordPressPage() {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
       } else {
-        const data = await res.json();
+        const data: any = await res.json();
         alert(data.error || 'Failed to save settings');
       }
     } catch {
@@ -114,7 +114,7 @@ export default function AdminWordPressPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: wpUrl.trim() }),
       });
-      const data = await res.json();
+      const data: any = await res.json();
       setSyncResult(data);
     } catch (err: any) {
       setSyncResult({

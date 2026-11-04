@@ -34,7 +34,7 @@ export default function AdminHostingPage() {
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((d) => setSettings(d.settings || {}))
+      .then((d: any) => setSettings(d.settings || {}))
       .finally(() => setLoading(false));
 
     // Auto-ping Hostinger server on page load
@@ -45,7 +45,7 @@ export default function AdminHostingPage() {
     setPinging(true);
     try {
       const res = await fetch('/api/hosting/ping');
-      const data = await res.json();
+      const data: any = await res.json();
       setPingResult(data);
     } catch (err: any) {
       setPingResult({

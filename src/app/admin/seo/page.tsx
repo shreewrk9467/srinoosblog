@@ -26,13 +26,13 @@ export default function AdminSeoPage() {
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((d) => setSettings(d.settings || {}));
+      .then((d: any) => setSettings(d.settings || {}));
   }, []);
 
   const handleRunAudit = async () => {
     setRunningAudit(true);
     try {
-      const [sitemapRes, robotsRes, adsRes] = await Promise.all([
+      const [sitemapRes, robotsRes, adsRes]: [any, any, any] = await Promise.all([
         fetch('/sitemap.xml'),
         fetch('/robots.txt'),
         fetch('/ads.txt'),

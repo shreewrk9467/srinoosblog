@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     const { url, anonKey, syncData } = body;
 
     if (!url || !anonKey) {

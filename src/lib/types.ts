@@ -181,6 +181,7 @@ export interface WebsiteSettings {
   footer_about_text?: string;
   nav_links_json?: string; // JSON array of { name: string, href: string }
   homepage_sections_order_json?: string; // JSON array of page sections with drag-and-drop order & custom blocks
+  page_layouts_json?: string; // Global multi-page layout map for all pages (home, blog, about, contact, etc.)
   custom_blocks_json?: string;
 
   // Headless WordPress Integration
@@ -200,20 +201,35 @@ export interface WebsiteSettings {
 export interface PageSection {
   id: string;
   type:
-    | 'announcement'
-    | 'top_ad'
-    | 'hero'
-    | 'deals'
-    | 'lead_feature'
-    | 'trending'
-    | 'mid_ad'
-    | 'main_feed'
-    | 'footer_ad'
-    | 'custom_banner'
-    | 'custom_html'
-    | 'cta_box'
-    | 'faq_accordion'
-    | 'testimonial_bar';
+  | 'announcement'
+  | 'top_ad'
+  | 'hero'
+  | 'deals'
+  | 'lead_feature'
+  | 'trending'
+  | 'mid_ad'
+  | 'main_feed'
+  | 'footer_ad'
+  | 'custom_banner'
+  | 'custom_html'
+  | 'cta_box'
+  | 'faq_accordion'
+  | 'testimonial_bar'
+  | 'blog_header'
+  | 'blog_grid'
+  | 'trending_header'
+  | 'trending_grid'
+  | 'about_mission'
+  | 'about_founder'
+  | 'about_values'
+  | 'contact_header'
+  | 'contact_form'
+  | 'contact_info'
+  | 'category_header'
+  | 'category_grid'
+  | 'offers_header'
+  | 'offers_grid'
+  | (string & {});
   title: string;
   enabled: boolean;
   headline?: string;
@@ -226,6 +242,7 @@ export interface PageSection {
   background_gradient?: string;
   image_url?: string;
   html_content?: string;
+  html_code?: string;
   placementId?: string;
   items_json?: string;
 }

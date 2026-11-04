@@ -57,7 +57,7 @@ export default function AdminContentCustomizerPage() {
         method: 'POST',
         body: fd,
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (!res.ok) throw new Error(data.error || 'Upload failed');
       setSettings((prev) => ({ ...prev, [targetField]: data.url }));
       alert('Image uploaded successfully and linked!');
@@ -72,7 +72,7 @@ export default function AdminContentCustomizerPage() {
   useEffect(() => {
     fetch('/api/settings')
       .then((r) => r.json())
-      .then((d) => {
+      .then((d: any) => {
         const s = d.settings || {};
         setSettings(s);
         if (s.nav_links_json) {

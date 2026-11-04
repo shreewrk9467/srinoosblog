@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const data = await request.json();
+    const data: any = await request.json();
     const db = getDb();
 
     // 1. Restore Website Settings

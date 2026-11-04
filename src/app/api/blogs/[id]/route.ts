@@ -27,7 +27,7 @@ export async function PUT(
   }
 
   try {
-    const body = await request.json();
+    const body: any = await request.json();
     const updated = updatePost(params.id, body);
     if (!updated) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });

@@ -171,7 +171,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authentic
     setLoading(true);
     try {
       const res = await fetch('/api/supabase');
-      const data = await res.json();
+      const data: any = await res.json();
       setStatus(data);
     } catch {
       setStatus({ configured: false });
@@ -197,7 +197,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authentic
         body: JSON.stringify({ url: url.trim(), anonKey: anonKey.trim(), syncData: true }),
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || 'Connection failed');
