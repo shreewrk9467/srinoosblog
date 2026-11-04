@@ -59,7 +59,11 @@ export async function getSupabaseWebsiteSettings(): Promise<Partial<WebsiteSetti
       .maybeSingle();
 
     if (error || !data || !data.value) return null;
-    return typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+    const val = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+    if (val && typeof val === 'object' && val.site_config && typeof val.site_config === 'object') {
+      return val.site_config;
+    }
+    return val;
   } catch {
     return null;
   }
