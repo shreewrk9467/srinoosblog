@@ -51,3 +51,4 @@ node tools/scrape-deals.js --keyword "Hostinger" --limit 3
 # 3. Cloud Database Sync Verification
 node tools/test-supabase.js
 ```
+

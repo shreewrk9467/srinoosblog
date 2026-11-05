@@ -40,3 +40,4 @@ Establish a reliable, zero-cost mechanism to discover trending affiliate hosting
 ## 3. Tracer Slice Definition
 The tracer bullet slice for Phase 1 is:
 > Run a command `node tools/scrape-deals.js --keyword "Hostinger" --platform reddit` that fetches 1 live discount thread, extracts the coupon code, and writes a pending deal entry into SQLite/Supabase.
+

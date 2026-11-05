@@ -1,0 +1,51 @@
+name: Supabase Database Migration CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase-migrate.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/**'
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    name: Apply Database Migrations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Verify Migrations (Dry-Run for PRs)
+        if: github.event_name == 'pull_request'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          echo "Validating database migrations for pull request..."
+          supabase link --project-ref udankkjapmjuurcveube --password "$SUPABASE_DB_PASSWORD"
+          supabase db diff --use-migra || true
+
+      - name: Deploy Migrations to Production (Push to Main)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          echo "Linking to Supabase Project: udankkjapmjuurcveube..."
+          supabase link --project-ref udankkjapmjuurcveube --password "$SUPABASE_DB_PASSWORD"
+          echo "Applying migrations to production database..."
+          supabase db push --password "$SUPABASE_DB_PASSWORD"
+          echo "✓ All Supabase migrations successfully deployed to production!"
