@@ -40,9 +40,19 @@ import {
   User,
   ArrowLeft,
   ChevronDown,
+  Check,
+  FileText,
+  Wand2,
+  Columns,
+  RotateCcw,
+  Code,
+  AlignLeft,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
-import { PageSection, WebsiteSettings } from '@/lib/types';
+import { PageSection, WebsiteSettings, BlogPost } from '@/lib/types';
 import { PageKey, DEFAULT_PAGE_LAYOUTS } from '@/lib/page-layouts';
+import { formatArticleWithAi, FormatOptions, FormatResult } from '@/lib/ai-article-formatter';
 
 interface PageOption {
   key: PageKey;
@@ -54,6 +64,7 @@ interface PageOption {
 
 const PAGE_OPTIONS: PageOption[] = [
   { key: 'home', label: 'Home Page', path: '/', icon: Home, description: 'Hero banner, featured deals, articles feed & sidebar' },
+  { key: 'article', label: 'Article Live Formatter', path: '/blog', icon: Sparkles, description: 'AI-powered article content editing, styling, headings, lists & professional layout' },
   { key: 'blog', label: 'All Blogs', path: '/blog', icon: BookOpen, description: 'Article archive, category pills & search grid' },
   { key: 'trending', label: 'Trending', path: '/trending', icon: Flame, description: 'High-engagement viral publications & leaderboard ads' },
   { key: 'about', label: 'About Page', path: '/about', icon: User, description: 'Mission, founder story, editorial standards & values' },
@@ -61,6 +72,30 @@ const PAGE_OPTIONS: PageOption[] = [
   { key: 'category', label: 'Category Archive', path: '/category/technology-and-ai', icon: Folder, description: 'Category breadcrumbs, filtered feed & sponsor banners' },
   { key: 'offers', label: 'Affiliate Deals', path: '/offers', icon: Gift, description: 'CPA/CPS/CPL deals marketplace & redirect links' },
 ];
+
+const SAMPLE_RAW_ARTICLE = `Next.js 15 & Supabase: The Complete Architecture Blueprint for High-Traffic Applications
+
+Building web applications in 2026 requires speed, resilience, and clean architecture. In today's fast-paced digital world, developers often struggle to choose the right combination of server rendering, database caching, and edge computing. In this comprehensive guide, we will delve into the architectural decisions that enable websites to handle 500,000+ monthly requests with sub-100ms response times.
+
+Why Architecture Matters for High-Velocity Projects
+Architecture is not merely about writing code; it is about establishing a predictable system where updates can be deployed without regressions. Teams that implement proper database pooling and optimistic UI updates experience 4x faster iteration cycles and a 65% reduction in production outages. Furthermore, your infrastructure cost drops by up to $1,200 per month when edge caching is configured correctly.
+
+Core Pillars of Modern Web Stacks
+There are three fundamental pillars every engineering lead must evaluate before writing code:
+1. Edge Rendering and ISR: Serving pre-rendered pages with incremental background revalidation ensures instant First Contentful Paint.
+2. Connection Pooling and Row Level Security: Utilizing Supabase PostgreSQL with Supavisor prevents database connection starvation during traffic spikes.
+3. Type-Safe Data Contracts: Enforcing TypeScript across database schemas, API responses, and front-end components eliminates runtime type errors.
+
+Pro Tip: Always configure Supabase connection pooling in transaction mode on port 6543 when deploying serverless functions or Next.js App Router API routes to avoid running out of database connections.
+
+Step-by-Step Implementation Strategy
+To get the best performance out of your application, follow these sequential steps:
+Step 1: Set up Supabase with Row Level Security policies so client tokens can safely query only authorized records.
+Step 2: Implement Next.js App Router dynamic routes with generateStaticParams to pre-render high-traffic article and product pages.
+Step 3: Add automated schema migration pipelines in GitHub Actions to keep local, staging, and production databases synchronized.
+Step 4: Monitor Core Web Vitals with real-user metrics to maintain a 99+ Google PageSpeed score.
+
+Key Takeaway: A well-designed web architecture should be invisible to your users. They should only experience instant page loads, zero downtime, and seamless interactive experiences.`;
 
 export default function AdminVisualBuilderPage() {
   const [currentPage, setCurrentPage] = useState<PageKey>('home');
@@ -83,6 +118,33 @@ export default function AdminVisualBuilderPage() {
   const [showSqlModal, setShowSqlModal] = useState<boolean>(false);
   const [copiedSql, setCopiedSql] = useState<boolean>(false);
 
+  // Article Live Formatter State
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [selectedPostId, setSelectedPostId] = useState<string>('sample');
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [articleContent, setArticleContent] = useState<string>(SAMPLE_RAW_ARTICLE);
+  const [rawBackupContent, setRawBackupContent] = useState<string>(SAMPLE_RAW_ARTICLE);
+  const [articleTitle, setArticleTitle] = useState<string>('Next.js 15 & Supabase: The Complete Architecture Blueprint for High-Traffic Applications');
+  const [articleCategory, setArticleCategory] = useState<string>('Technology & AI');
+  const [articleFeaturedImage, setArticleFeaturedImage] = useState<string>('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80');
+  const [articleViewTab, setArticleViewTab] = useState<'preview' | 'diff' | 'editor'>('preview');
+  const [formattingLoading, setFormattingLoading] = useState<boolean>(false);
+  const [savingArticle, setSavingArticle] = useState<boolean>(false);
+  const [articleSavedSuccess, setArticleSavedSuccess] = useState<boolean>(false);
+  const [articleSaveError, setArticleSaveError] = useState<string | null>(null);
+  const [copiedArticleHtml, setCopiedArticleHtml] = useState<boolean>(false);
+  const [formatStats, setFormatStats] = useState<FormatResult['stats'] | null>(null);
+  const [formatImprovements, setFormatImprovements] = useState<string[]>([]);
+  const [showLayoutBlocks, setShowLayoutBlocks] = useState<boolean>(false);
+  const [formatOptions, setFormatOptions] = useState<FormatOptions>({
+    boldKeyPoints: true,
+    structureHeadings: true,
+    convertLists: true,
+    addCallouts: true,
+    improveSpacing: true,
+    balanceAlignment: true,
+  });
+
   // Initialize from URL parameters on client mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -90,13 +152,41 @@ export default function AdminVisualBuilderPage() {
       const pageParam = params.get('page') as PageKey | null;
       const returnParam = params.get('return');
 
-      if (pageParam && DEFAULT_PAGE_LAYOUTS[pageParam]) {
+      if (pageParam && (DEFAULT_PAGE_LAYOUTS[pageParam] || pageParam === 'article')) {
         setCurrentPage(pageParam);
       }
       if (returnParam) {
         setReturnUrl(returnParam);
       }
     }
+  }, []);
+
+  // Fetch blog posts for the Article Formatter
+  useEffect(() => {
+    fetch('/api/blogs?limit=50')
+      .then((r) => r.json())
+      .then((d: any) => {
+        if (d.posts && Array.isArray(d.posts) && d.posts.length > 0) {
+          setBlogPosts(d.posts);
+          if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const requestedPostId = params.get('postId');
+            if (requestedPostId) {
+              const matched = d.posts.find((p: BlogPost) => p.id === requestedPostId);
+              if (matched) {
+                setSelectedPostId(matched.id);
+                setSelectedPost(matched);
+                setArticleContent(matched.content || '');
+                setRawBackupContent(matched.content || '');
+                setArticleTitle(matched.title || '');
+                setArticleCategory(matched.category_name || 'Technology & AI');
+                if (matched.featured_image) setArticleFeaturedImage(matched.featured_image);
+              }
+            }
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching blog posts for builder:', err));
   }, []);
 
   // Fetch saved layouts from server
@@ -218,6 +308,128 @@ export default function AdminVisualBuilderPage() {
   // Save all page layouts to database
   const handleSaveLayout = async () => {
     await persistLayouts(pageLayouts);
+  };
+
+  // --- ARTICLE LIVE FORMATTER ACTIONS ---
+  const handleSelectArticle = (postId: string) => {
+    setSelectedPostId(postId);
+    setFormatStats(null);
+    setFormatImprovements([]);
+    setArticleSavedSuccess(false);
+    setArticleSaveError(null);
+
+    if (postId === 'sample') {
+      setArticleContent(SAMPLE_RAW_ARTICLE);
+      setRawBackupContent(SAMPLE_RAW_ARTICLE);
+      setArticleTitle('Next.js 15 & Supabase: The Complete Architecture Blueprint for High-Traffic Applications');
+      setArticleCategory('Technology & AI');
+      setArticleFeaturedImage('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80');
+      setSelectedPost(null);
+      return;
+    }
+
+    const post = blogPosts.find((p) => p.id === postId);
+    if (post) {
+      setSelectedPost(post);
+      setArticleContent(post.content || '');
+      setRawBackupContent(post.content || '');
+      setArticleTitle(post.title || 'Untitled Post');
+      setArticleCategory(post.category_name || 'Technology & AI');
+      if (post.featured_image) setArticleFeaturedImage(post.featured_image);
+    }
+  };
+
+  const handleRunAiFormat = async () => {
+    if (!articleContent || !articleContent.trim()) {
+      alert('Please enter or select article content to format.');
+      return;
+    }
+
+    setFormattingLoading(true);
+    setArticleSaveError(null);
+
+    if (!rawBackupContent) {
+      setRawBackupContent(articleContent);
+    }
+
+    try {
+      const res = await fetch('/api/ai-format', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: articleContent,
+          options: formatOptions,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setArticleContent(data.formattedContent);
+        setFormatStats(data.stats);
+        setFormatImprovements(data.improvements || []);
+      } else {
+        const fallback = formatArticleWithAi(articleContent, formatOptions);
+        setArticleContent(fallback.formattedContent);
+        setFormatStats(fallback.stats);
+        setFormatImprovements(fallback.improvements);
+      }
+    } catch (err: any) {
+      console.warn('Network call failed, utilizing client-side AI formatter:', err);
+      const fallback = formatArticleWithAi(articleContent, formatOptions);
+      setArticleContent(fallback.formattedContent);
+      setFormatStats(fallback.stats);
+      setFormatImprovements(fallback.improvements);
+    } finally {
+      setFormattingLoading(false);
+    }
+  };
+
+  const handleSaveArticle = async () => {
+    if (!selectedPostId || selectedPostId === 'sample') {
+      alert('This is a sample article draft. To save directly to the database, select an existing article from the dropdown, or copy the formatted HTML.');
+      return;
+    }
+
+    setSavingArticle(true);
+    setArticleSaveError(null);
+
+    try {
+      const res = await fetch(`/api/blogs/${selectedPostId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: articleContent,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update article');
+
+      setArticleSavedSuccess(true);
+      setTimeout(() => setArticleSavedSuccess(false), 3500);
+
+      setBlogPosts((prev) =>
+        prev.map((p) => (p.id === selectedPostId ? { ...p, content: articleContent } : p))
+      );
+    } catch (err: any) {
+      setArticleSaveError(err.message || 'Error saving formatted article to database');
+    } finally {
+      setSavingArticle(false);
+    }
+  };
+
+  const handleCopyHtml = () => {
+    navigator.clipboard.writeText(articleContent);
+    setCopiedArticleHtml(true);
+    setTimeout(() => setCopiedArticleHtml(false), 2500);
+  };
+
+  const handleResetToRaw = () => {
+    if (confirm('Revert all AI changes back to the original unformatted draft?')) {
+      setArticleContent(rawBackupContent);
+      setFormatStats(null);
+      setFormatImprovements([]);
+    }
   };
 
   // Drag and Drop handlers
@@ -617,13 +829,17 @@ export default function AdminVisualBuilderPage() {
           </span>
           <div>
             <span className="font-bold text-sm block">Currently Customizing: {activeOption.label}</span>
-            <span className="text-indigo-700 text-[11px] block">{activeOption.description} &bull; Live URL: <code>{activeOption.path}</code></span>
+            <span className="text-indigo-700 text-[11px] block">
+              {currentPage === 'article'
+                ? 'AI-Powered article formatting: Auto-enhances headings (H2/H3), bold key points, bullet lists & modern callouts'
+                : `${activeOption.description} • Live URL: ${activeOption.path}`}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
           <a
-            href={activeOption.path}
+            href={currentPage === 'article' && selectedPost?.slug ? `/blog/${selectedPost.slug}` : activeOption.path}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-1.5 bg-white hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs border border-indigo-200 flex items-center gap-1 shadow-2xs"
@@ -631,22 +847,549 @@ export default function AdminVisualBuilderPage() {
             <span>View Live Page</span>
             <ExternalLink className="w-3 h-3" />
           </a>
-          <button
-            onClick={() => {
-              setAddInsertIndex(0);
-              setShowAddModal(true);
-            }}
-            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Block at Top
-          </button>
+          {currentPage === 'article' ? (
+            <Link
+              href="/admin/blogs"
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs"
+            >
+              <BookOpen className="w-3.5 h-3.5" /> Manage All Articles
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                setAddInsertIndex(0);
+                setShowAddModal(true);
+              }}
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Block at Top
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Canvas Wrapper */}
-      <div className="flex justify-center bg-slate-900/5 p-2 sm:p-6 rounded-3xl border border-slate-200/80 overflow-hidden min-h-[750px]">
-        <div className={`transition-all duration-300 bg-white ${getDeviceClass()}`}>
-          <div className="divide-y divide-slate-100">
+      {/* RENDER MODE: EITHER AI ARTICLE STUDIO OR MULTI-PAGE VISUAL CANVAS */}
+      {currentPage === 'article' ? (
+        <div className="space-y-6">
+          {/* Article Selection & AI Action Toolbar */}
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-sm space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div className="flex-1 space-y-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Select Article to Edit &amp; Format:
+                </label>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <select
+                    value={selectedPostId}
+                    onChange={(e) => handleSelectArticle(e.target.value)}
+                    className="flex-1 min-w-[280px] bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-brand-500"
+                  >
+                    <option value="sample">⚡ Sample Unformatted Draft (High-Traffic Architecture)</option>
+                    {blogPosts.map((post) => (
+                      <option key={post.id} value={post.id}>
+                        {post.status === 'published' ? '🟢 Published: ' : '📝 Draft: '}
+                        {post.title}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectArticle('sample')}
+                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-slate-200 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Load Sample Draft</span>
+                  </button>
+                  <Link
+                    href="/admin/blogs/new"
+                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-slate-200"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-brand-600" />
+                    <span>New Article</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Primary AI Execution Button */}
+              <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+                <button
+                  type="button"
+                  onClick={handleRunAiFormat}
+                  disabled={formattingLoading}
+                  className="px-6 py-3 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition flex items-center gap-2 group disabled:opacity-50 ring-2 ring-brand-500/30 cursor-pointer"
+                >
+                  {formattingLoading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                  )}
+                  <span>{formattingLoading ? 'AI Analyzing & Formatting...' : '⚡ Run AI Intelligent Auto-Format'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveArticle}
+                  disabled={savingArticle || selectedPostId === 'sample'}
+                  title={selectedPostId === 'sample' ? 'Sample draft cannot overwrite database. Select an existing post to save.' : 'Save changes to database'}
+                  className="px-4 py-3 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-bold text-xs rounded-2xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  {savingArticle ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : articleSavedSuccess ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5 text-brand-400" />
+                  )}
+                  <span>{savingArticle ? 'Saving...' : articleSavedSuccess ? '✓ Saved!' : 'Save to Article'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyHtml}
+                  className="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl border border-slate-200 transition flex items-center gap-1.5 cursor-pointer"
+                  title="Copy formatted HTML to clipboard"
+                >
+                  {copiedArticleHtml ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedArticleHtml ? 'Copied HTML!' : 'Copy HTML'}</span>
+                </button>
+
+                {rawBackupContent && rawBackupContent !== articleContent && (
+                  <button
+                    type="button"
+                    onClick={handleResetToRaw}
+                    className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-2xl transition cursor-pointer"
+                    title="Reset to raw unformatted draft"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* AI Intelligence Decision Options */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <Wand2 className="w-3.5 h-3.5 text-brand-500" />
+                  AI Intelligence Decision Rules (Autonomous):
+                </span>
+                <span className="text-[11px] text-slate-500">AI decides placement automatically without manual tagging</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                {[
+                  { key: 'boldKeyPoints', label: 'Bold Key Points & Metrics' },
+                  { key: 'structureHeadings', label: 'Organize H2 & H3 Headings' },
+                  { key: 'convertLists', label: 'Convert Scannable Lists' },
+                  { key: 'addCallouts', label: 'Modern Pro-Tip Callouts' },
+                  { key: 'improveSpacing', label: 'Optimize Pacing & Spacing' },
+                  { key: 'balanceAlignment', label: 'Balance Editorial Layout' },
+                ].map((opt) => {
+                  const isActive = Boolean(formatOptions[opt.key as keyof FormatOptions]);
+                  return (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() =>
+                        setFormatOptions((prev) => ({
+                          ...prev,
+                          [opt.key]: !prev[opt.key as keyof FormatOptions],
+                        }))
+                      }
+                      className={`px-3 py-2 rounded-xl text-left text-xs font-semibold transition border flex items-center gap-2 cursor-pointer ${
+                        isActive
+                          ? 'bg-brand-50/70 border-brand-300 text-brand-900'
+                          : 'bg-slate-50 border-slate-200 text-slate-400'
+                      }`}
+                    >
+                      {isActive ? (
+                        <CheckSquare className="w-3.5 h-3.5 text-brand-600 flex-shrink-0" />
+                      ) : (
+                        <Square className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />
+                      )}
+                      <span className="text-[11px] leading-tight truncate">{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* View Tab Switcher */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setArticleViewTab('preview')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    articleViewTab === 'preview'
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Live Visual Preview</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setArticleViewTab('diff')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    articleViewTab === 'diff'
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Columns className="w-3.5 h-3.5" />
+                  <span>Before vs After Diff</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setArticleViewTab('editor')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    articleViewTab === 'editor'
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>HTML Source Editor</span>
+                </button>
+              </div>
+
+              {selectedPost && selectedPost.slug && (
+                <a
+                  href={`/blog/${selectedPost.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-brand-600 hover:underline flex items-center gap-1"
+                >
+                  <span>Preview Live Publication (/blog/{selectedPost.slug})</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* AI Improvement Audit Banner (Shown when format has run) */}
+          {formatStats && (
+            <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border border-emerald-200/90 rounded-3xl p-5 shadow-xs space-y-3 animate-in fade-in zoom-in-95">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 bg-emerald-600 text-white rounded-lg">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </span>
+                  <h4 className="font-black text-slate-900 text-sm">
+                    AI Auto-Format Applied Successfully
+                  </h4>
+                  <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">
+                    Publication Ready
+                  </span>
+                </div>
+                <span className="text-xs text-emerald-800 font-semibold">
+                  Original meaning and facts 100% preserved
+                </span>
+              </div>
+
+              {/* Stats Counters */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                <div className="bg-white/90 p-3 rounded-2xl border border-emerald-100 text-center">
+                  <span className="text-xs font-bold text-slate-400 block uppercase">Headings</span>
+                  <span className="text-xl font-black text-slate-900">{formatStats.headingsOrganized}</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">H2/H3 Structured</span>
+                </div>
+                <div className="bg-white/90 p-3 rounded-2xl border border-emerald-100 text-center">
+                  <span className="text-xs font-bold text-slate-400 block uppercase">Bold Key Points</span>
+                  <span className="text-xl font-black text-slate-900">{formatStats.keyPointsBolded}</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">Metrics &amp; Focus</span>
+                </div>
+                <div className="bg-white/90 p-3 rounded-2xl border border-emerald-100 text-center">
+                  <span className="text-xs font-bold text-slate-400 block uppercase">Lists</span>
+                  <span className="text-xl font-black text-slate-900">{formatStats.listsCreated}</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">Scannable Sequences</span>
+                </div>
+                <div className="bg-white/90 p-3 rounded-2xl border border-emerald-100 text-center">
+                  <span className="text-xs font-bold text-slate-400 block uppercase">Callout Boxes</span>
+                  <span className="text-xl font-black text-slate-900">{formatStats.calloutsAdded}</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">Tips &amp; Takeaways</span>
+                </div>
+                <div className="bg-white/90 p-3 rounded-2xl border border-emerald-100 text-center col-span-2 sm:col-span-1">
+                  <span className="text-xs font-bold text-slate-400 block uppercase">Paragraphs</span>
+                  <span className="text-xl font-black text-slate-900">{formatStats.paragraphsOptimized}</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">Spacing Optimized</span>
+                </div>
+              </div>
+
+              {/* Improvements Checklist */}
+              {formatImprovements.length > 0 && (
+                <div className="pt-2">
+                  <div className="text-[11px] font-bold text-emerald-950 uppercase tracking-wider mb-1.5">
+                    Specific Intelligent Decisions:
+                  </div>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-1.5 text-xs text-slate-700">
+                    {formatImprovements.map((imp, idx) => (
+                      <li key={idx} className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                        <span>{imp}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Save Status / Error Notice */}
+          {articleSavedSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Article updated successfully in database and synced with Supabase cloud!</span>
+            </div>
+          )}
+          {articleSaveError && (
+            <div className="p-4 bg-rose-50 border border-rose-300 text-rose-900 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-rose-600" />
+              <span>{articleSaveError}</span>
+            </div>
+          )}
+
+          {/* VIEW TAB 1: LIVE VISUAL PREVIEW CANVAS */}
+          {articleViewTab === 'preview' && (
+            <div className="flex justify-center bg-slate-900/5 p-2 sm:p-6 rounded-3xl border border-slate-200/80 overflow-hidden min-h-[750px]">
+              <div className={`transition-all duration-300 bg-white ${getDeviceClass()}`}>
+                <div className="p-6 sm:p-12 space-y-8">
+                  {/* Article Hero Banner */}
+                  <div className="space-y-4 border-b border-slate-100 pb-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-3 py-1 bg-brand-50 text-brand-700 border border-brand-200/80 rounded-full text-xs font-bold uppercase tracking-wider">
+                        {articleCategory}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium">&bull; 5 min read</span>
+                      <span className="text-xs text-slate-500 font-medium">&bull; Published on Srinoos Insights</span>
+                    </div>
+
+                    <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight font-display tracking-tight">
+                      {articleTitle}
+                    </h1>
+
+                    <div className="flex items-center gap-3 pt-1">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                        S
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-slate-900 block">Srinoos Editorial Team</span>
+                        <span className="text-[11px] text-slate-500">Verified Technical Research Collective</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Featured Hero Image */}
+                  {articleFeaturedImage && (
+                    <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs max-h-80 w-full">
+                      <img
+                        src={articleFeaturedImage}
+                        alt={articleTitle}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Formatted Article Body */}
+                  <div className="article-body-container text-slate-800 text-sm sm:text-base leading-relaxed space-y-4 font-normal">
+                    <div
+                      dangerouslySetInnerHTML={{ __html: articleContent }}
+                      className="prose-content [&>h2]:text-2xl [&>h2]:font-black [&>h2]:text-slate-900 [&>h2]:mt-8 [&>h2]:mb-3 [&>h2]:border-l-4 [&>h2]:border-brand-500 [&>h2]:pl-3.5 [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-slate-800 [&>h3]:mt-6 [&>h3]:mb-2 [&>p]:leading-relaxed [&>p]:text-slate-700 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:my-4 [&>ul>li]:mb-2 [&>ul>li]:text-slate-700 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:my-4 [&>ol>li]:mb-2 [&>ol>li]:text-slate-700 [&>blockquote]:my-6 [&>blockquote]:pl-5 [&>blockquote]:border-l-4 [&>blockquote]:border-brand-500 [&>blockquote]:italic [&>blockquote]:text-slate-700 [&>blockquote]:bg-slate-50/80 [&>blockquote]:py-3.5 [&>blockquote]:pr-4 [&>blockquote]:rounded-r-2xl [&_strong]:font-bold [&_strong]:text-slate-900"
+                    />
+                  </div>
+
+                  {/* Simulated High-CTR In-Article Ad Slot */}
+                  <div className="my-8 p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300/80 text-center space-y-2">
+                    <span className="px-2.5 py-0.5 bg-amber-200/60 text-amber-900 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block">
+                      ⚡ Sricospace Partner Placement
+                    </span>
+                    <h4 className="text-sm font-bold text-slate-900">High-Performance Infrastructure &amp; Cloud Tools</h4>
+                    <p className="text-xs text-slate-600 max-w-md mx-auto">
+                      Explore verified deals and recommended cloud architectures for modern digital growth.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW TAB 2: BEFORE VS AFTER SPLIT DIFF */}
+          {articleViewTab === 'diff' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-slate-100 p-4 sm:p-6 rounded-3xl border border-slate-200/90">
+              {/* Left Column: Raw Draft */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-3 flex flex-col">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    <span className="font-bold text-xs uppercase tracking-wider text-slate-600">
+                      Original Draft (Unformatted)
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {rawBackupContent.length} chars
+                  </span>
+                </div>
+                <div className="flex-1 max-h-[600px] overflow-y-auto font-mono text-xs text-slate-600 whitespace-pre-wrap leading-relaxed p-2 bg-slate-50 rounded-xl">
+                  {rawBackupContent}
+                </div>
+              </div>
+
+              {/* Right Column: AI Formatted Layout */}
+              <div className="bg-white rounded-2xl p-5 border border-brand-300 shadow-xs space-y-3 flex flex-col">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="font-bold text-xs uppercase tracking-wider text-emerald-700">
+                      AI Enhanced Layout (Clean HTML)
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-emerald-700 font-bold">
+                    ✓ Structured &amp; Styled
+                  </span>
+                </div>
+                <div className="flex-1 max-h-[600px] overflow-y-auto p-4 bg-slate-50/60 rounded-xl text-xs sm:text-sm text-slate-800 space-y-3">
+                  <div
+                    dangerouslySetInnerHTML={{ __html: articleContent }}
+                    className="[&>h2]:text-lg [&>h2]:font-black [&>h2]:text-slate-900 [&>h2]:mt-4 [&>h2]:mb-2 [&>h2]:border-l-4 [&>h2]:border-brand-500 [&>h2]:pl-2.5 [&>h3]:text-base [&>h3]:font-bold [&>h3]:text-slate-800 [&>h3]:mt-3 [&>h3]:mb-1 [&>p]:leading-relaxed [&>p]:text-slate-700 [&>p]:mb-3 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:my-2 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:my-2 [&_strong]:font-bold [&_strong]:text-slate-900"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW TAB 3: HTML SOURCE CODE EDITOR */}
+          {articleViewTab === 'editor' && (
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <Code className="w-4 h-4 text-brand-600" />
+                    <span>Raw Article HTML Markup</span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Directly edit or fine-tune the HTML markup generated by the AI Formatter.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyHtml}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>{copiedArticleHtml ? 'Copied!' : 'Copy Code'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRunAiFormat}
+                    disabled={formattingLoading}
+                    className="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-xs cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Re-Run AI Auto-Format</span>
+                  </button>
+                </div>
+              </div>
+
+              <textarea
+                rows={18}
+                value={articleContent}
+                onChange={(e) => setArticleContent(e.target.value)}
+                placeholder="Enter or paste article HTML..."
+                className="w-full bg-slate-900 text-slate-100 font-mono text-xs sm:text-sm p-4 rounded-2xl border border-slate-800 leading-relaxed focus:outline-none focus:border-brand-500"
+              />
+
+              <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+                <span>{articleContent.length} characters &bull; ~{Math.round(articleContent.split(/\s+/).length)} words</span>
+                <button
+                  type="button"
+                  onClick={() => setArticleViewTab('preview')}
+                  className="text-brand-600 font-bold hover:underline cursor-pointer"
+                >
+                  View Live Visual Layout &rarr;
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Collapsible: Article Page Template Layout Sections (/blog/[slug]) */}
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-indigo-600" />
+                  <span>Article Page Template Layout (/blog/[slug])</span>
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Manage the structural page layout surrounding articles (Hero Header, Content, In-Content Ads, and FAQs).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLayoutBlocks(!showLayoutBlocks)}
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-slate-200 cursor-pointer"
+              >
+                <span>{showLayoutBlocks ? 'Hide Template Sections' : 'Show & Reorder Sections'}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showLayoutBlocks ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+
+            {showLayoutBlocks && (
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
+                  {currentSections.map((section, index) => (
+                    <div
+                      key={section.id}
+                      className="p-4 bg-white flex items-center justify-between gap-3 hover:bg-slate-50 transition"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <GripVertical className="w-4 h-4 text-slate-400 cursor-grab" />
+                        <div>
+                          <span className="font-bold text-xs text-slate-900 block">{section.title}</span>
+                          <span className="text-[11px] text-slate-500 font-mono uppercase">{section.type}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleMove(index, 'up')}
+                          disabled={index === 0}
+                          className="p-1 hover:bg-slate-100 disabled:opacity-30 rounded-lg text-slate-600 cursor-pointer"
+                          title="Move Up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMove(index, 'down')}
+                          disabled={index === currentSections.length - 1}
+                          className="p-1 hover:bg-slate-100 disabled:opacity-30 rounded-lg text-slate-600 cursor-pointer"
+                          title="Move Down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVisibility(section.id)}
+                          className={`p-1 rounded-lg cursor-pointer ${section.enabled ? 'text-blue-500' : 'text-slate-400'}`}
+                          title={section.enabled ? 'Enabled' : 'Hidden'}
+                        >
+                          {section.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Regular Multi-Page Visual Canvas Wrapper */
+        <div className="flex justify-center bg-slate-900/5 p-2 sm:p-6 rounded-3xl border border-slate-200/80 overflow-hidden min-h-[750px]">
+          <div className={`transition-all duration-300 bg-white ${getDeviceClass()}`}>
+            <div className="divide-y divide-slate-100">
             {currentSections.map((section, index) => {
               const isSelected = selectedSectionId === section.id;
               const isBeingDragged = draggedIndex === index;
@@ -1012,6 +1755,33 @@ export default function AdminVisualBuilderPage() {
                         dangerouslySetInnerHTML={{ __html: section.html_content || '<p>Empty HTML block</p>' }}
                       />
                     )}
+
+                    {/* Article Specific Template Blocks */}
+                    {section.type === 'article_header' && (
+                      <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl space-y-3">
+                        <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-wider">
+                          <BookOpen className="w-4 h-4" />
+                          <span>Article Title &amp; Metadata Header Block</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900">{section.headline || 'Article Title & Author Block'}</h3>
+                        <p className="text-xs text-slate-500">{section.subheadline || 'Renders categories, reading time, author, and featured image.'}</p>
+                      </div>
+                    )}
+
+                    {section.type === 'article_body' && (
+                      <div className="p-6 bg-white border border-brand-200 rounded-3xl space-y-3 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-brand-700 font-bold text-xs uppercase tracking-wider">
+                            <Sparkles className="w-4 h-4 text-brand-500" />
+                            <span>AI Formatted Article Content Body</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-[10px] font-bold rounded-full">AI Enhanced</span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          Displays the formatted publication prose with styled H2/H3 headings, bold key points, bullet lists, and callout boxes.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -1035,6 +1805,7 @@ export default function AdminVisualBuilderPage() {
           )}
         </div>
       </div>
+      )}
 
       {/* MODAL 1: ADD NEW BLOCK LIBRARY MODAL */}
       {showAddModal && (

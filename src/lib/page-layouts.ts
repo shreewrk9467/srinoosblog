@@ -1,6 +1,6 @@
 import { PageSection, WebsiteSettings } from './types';
 
-export type PageKey = 'home' | 'blog' | 'trending' | 'about' | 'contact' | 'category' | 'offers';
+export type PageKey = 'home' | 'blog' | 'trending' | 'about' | 'contact' | 'category' | 'offers' | 'article';
 
 export const DEFAULT_PAGE_LAYOUTS: Record<PageKey, PageSection[]> = {
   home: [
@@ -352,6 +352,46 @@ export const DEFAULT_PAGE_LAYOUTS: Record<PageKey, PageSection[]> = {
       type: 'footer_ad',
       title: 'Above-Footer Ad Banner',
       placementId: 'global-above-footer',
+      enabled: true,
+    },
+  ],
+  article: [
+    {
+      id: 'article_top_ad',
+      type: 'top_ad',
+      title: 'Article Top Ad Banner',
+      placementId: 'article-before-content',
+      enabled: true,
+    },
+    {
+      id: 'article_header',
+      type: 'hero',
+      title: 'Article Header & Breadcrumbs',
+      enabled: true,
+      headline: 'Article Title & Metadata Header',
+      subheadline: 'Category, Published Date, Reading Time, and Author Credentials',
+    },
+    {
+      id: 'article_content',
+      type: 'featured_feed',
+      title: 'AI Formatted Article Content Body',
+      enabled: true,
+      headline: 'Intelligently Formatted Article Content',
+      subheadline: 'Hierarchical H2/H3 headings, bold key metrics, scannable lists & styled callouts',
+    },
+    {
+      id: 'article_faqs',
+      type: 'faqs',
+      title: 'FAQ Schema & Accordions',
+      enabled: true,
+      headline: 'Frequently Asked Questions (Rich Snippets)',
+      subheadline: 'Structured QA answers for high-ranking search visibility',
+    },
+    {
+      id: 'article_bottom_ad',
+      type: 'footer_ad',
+      title: 'Article Footer Ad Placement',
+      placementId: 'article-before-conclusion',
       enabled: true,
     },
   ],

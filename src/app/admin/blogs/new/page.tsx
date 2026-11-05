@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   Layers,
   Image as ImageIcon,
+  RefreshCw,
+  Wand2,
+  ExternalLink,
 } from 'lucide-react';
 import { Category } from '@/lib/types';
 
@@ -24,6 +27,8 @@ export default function NewBlogPage() {
   const [loading, setLoading] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiFormatting, setAiFormatting] = useState(false);
+  const [formatSuccessMessage, setFormatSuccessMessage] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -116,6 +121,36 @@ export default function NewBlogPage() {
       alert('AI draft generation failed');
     } finally {
       setAiGenerating(false);
+    }
+  };
+
+  const handleAiAutoFormat = async () => {
+    if (!formData.content || !formData.content.trim()) {
+      alert('Please enter or paste some article text to format.');
+      return;
+    }
+    setAiFormatting(true);
+    setFormatSuccessMessage(null);
+    try {
+      const res = await fetch('/api/ai-format', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: formData.content }),
+      });
+      const data = await res.json();
+      if (res.ok && data.formattedContent) {
+        setFormData((prev) => ({ ...prev, content: data.formattedContent }));
+        const s = data.stats || {};
+        setFormatSuccessMessage(
+          `✨ AI Formatted: ${s.headingsOrganized || 0} headings organized, ${s.keyPointsBolded || 0} key points bolded, ${s.listsCreated || 0} lists converted, ${s.calloutsAdded || 0} callouts styled!`
+        );
+      } else {
+        throw new Error(data.error || 'Formatting failed');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error formatting article');
+    } finally {
+      setAiFormatting(false);
     }
   };
 
@@ -275,6 +310,29 @@ export default function NewBlogPage() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <button
                     type="button"
+                    onClick={handleAiAutoFormat}
+                    disabled={aiFormatting || !formData.content}
+                    className="px-3 py-1 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                    title="Intelligently bolds key points, organizes headings, creates lists & formats callouts"
+                  >
+                    {aiFormatting ? (
+                      <RefreshCw className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-3 h-3 text-amber-300 animate-pulse" />
+                    )}
+                    <span>{aiFormatting ? 'Formatting...' : '⚡ AI Auto-Format'}</span>
+                  </button>
+                  <Link
+                    href="/admin/builder?page=article"
+                    target="_blank"
+                    className="px-2 py-0.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+                    title="Open Live Visual Builder"
+                  >
+                    <span>Visual Builder</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </Link>
+                  <button
+                    type="button"
                     onClick={() => setFormData(prev => ({ ...prev, content: prev.content + '\n<h2>Section Title</h2>\n<p>Add your detailed explanation here.</p>\n' }))}
                     className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-semibold cursor-pointer"
                   >
@@ -311,6 +369,21 @@ export default function NewBlogPage() {
                 placeholder="Write or paste your article content here. Use <h2>, <h3>, <p>, <ul>, <li> tags..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs sm:text-sm font-mono leading-relaxed focus:outline-none focus:border-brand-500 focus:bg-white"
               />
+              {formatSuccessMessage && (
+                <div className="mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span>{formatSuccessMessage}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormatSuccessMessage(null)}
+                    className="text-emerald-600 hover:text-emerald-800 font-bold"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
