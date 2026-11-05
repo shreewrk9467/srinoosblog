@@ -40,5 +40,6 @@ data/*.db-wal
 data/*.db-shm
 /backups/
 /tools/
+/supabase/.temp/
 agent/output/
 
