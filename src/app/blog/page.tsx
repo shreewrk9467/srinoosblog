@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts, getAllCategories, getWebsiteSettingsAsync } from '@/lib/db';
+import { getAllPosts, getAllPostsAsync, getAllCategories, getWebsiteSettingsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { BookOpen, Sparkles, ArrowRight, HelpCircle, ShieldCheck } from 'lucide-react';
@@ -21,7 +21,7 @@ export default async function AllBlogsPage({ searchParams }: AllBlogsPageProps) 
   const settings = await getWebsiteSettingsAsync();
   const categories = getAllCategories();
   const selectedCat = searchParams.category;
-  const posts = getAllPosts({
+  const posts = await getAllPostsAsync({
     status: 'published',
     categorySlug: selectedCat,
     search: searchParams.search,

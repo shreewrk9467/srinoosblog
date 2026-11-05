@@ -307,6 +307,9 @@ export default function AdminVisualBuilderPage() {
 
   // Save all page layouts to database
   const handleSaveLayout = async () => {
+    if (currentPage === 'article' && articleContent) {
+      await handleSaveArticle();
+    }
     await persistLayouts(pageLayouts);
   };
 
@@ -385,20 +388,53 @@ export default function AdminVisualBuilderPage() {
   };
 
   const handleSaveArticle = async () => {
-    if (!selectedPostId || selectedPostId === 'sample') {
-      alert('This is a sample article draft. To save directly to the database, select an existing article from the dropdown, or copy the formatted HTML.');
-      return;
-    }
-
     setSavingArticle(true);
     setArticleSaveError(null);
 
     try {
+      if (!selectedPostId || selectedPostId === 'sample') {
+        const postSlug = 'nextjs-supabase-architecture-blueprint';
+        const res = await fetch('/api/blogs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: articleTitle || 'Next.js 15 & Supabase: The Complete Architecture Blueprint for High-Traffic Applications',
+            slug: postSlug,
+            excerpt: 'A comprehensive engineering blueprint covering SSR caching, Row Level Security, Edge rendering, and database best practices.',
+            content: articleContent,
+            featured_image: articleFeaturedImage || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80',
+            category_id: 'cat-technology-and-ai',
+            category_slug: 'technology-and-ai',
+            status: 'published',
+            is_featured: true,
+            is_trending: true,
+            reading_time_minutes: 8,
+            meta_title: articleTitle || 'Next.js 15 & Supabase Architecture Guide | Srinoos',
+            meta_description: 'Discover how to architect scalable, high-performance web applications using Next.js 15 App Router, Supabase PostgreSQL, and Tailwind CSS.',
+            published_at: new Date().toISOString(),
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to publish new article to live website');
+
+        const savedPost = data.post;
+        setSelectedPostId(savedPost.id);
+        setSelectedPost(savedPost);
+        setBlogPosts((prev) => [savedPost, ...prev.filter((p) => p.id !== savedPost.id)]);
+        setArticleSavedSuccess(true);
+        setTimeout(() => setArticleSavedSuccess(false), 5000);
+        return;
+      }
+
       const res = await fetch(`/api/blogs/${selectedPostId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: articleContent,
+          title: articleTitle,
+          featured_image: articleFeaturedImage,
+          status: 'published',
         }),
       });
 
@@ -406,11 +442,14 @@ export default function AdminVisualBuilderPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to update article');
 
       setArticleSavedSuccess(true);
-      setTimeout(() => setArticleSavedSuccess(false), 3500);
+      setTimeout(() => setArticleSavedSuccess(false), 4000);
 
       setBlogPosts((prev) =>
-        prev.map((p) => (p.id === selectedPostId ? { ...p, content: articleContent } : p))
+        prev.map((p) => (p.id === selectedPostId ? { ...p, content: articleContent, title: articleTitle } : p))
       );
+      if (selectedPost) {
+        setSelectedPost({ ...selectedPost, content: articleContent, title: articleTitle });
+      }
     } catch (err: any) {
       setArticleSaveError(err.message || 'Error saving formatted article to database');
     } finally {
@@ -929,9 +968,9 @@ export default function AdminVisualBuilderPage() {
                 <button
                   type="button"
                   onClick={handleSaveArticle}
-                  disabled={savingArticle || selectedPostId === 'sample'}
-                  title={selectedPostId === 'sample' ? 'Sample draft cannot overwrite database. Select an existing post to save.' : 'Save changes to database'}
-                  className="px-4 py-3 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-bold text-xs rounded-2xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                  disabled={savingArticle}
+                  title="Save changes and publish live to database & website"
+                  className="px-5 py-3 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs rounded-2xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   {savingArticle ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -940,8 +979,27 @@ export default function AdminVisualBuilderPage() {
                   ) : (
                     <Save className="w-3.5 h-3.5 text-brand-400" />
                   )}
-                  <span>{savingArticle ? 'Saving...' : articleSavedSuccess ? '✓ Saved!' : 'Save to Article'}</span>
+                  <span>
+                    {savingArticle
+                      ? 'Publishing Live...'
+                      : articleSavedSuccess
+                      ? '✓ Published Live!'
+                      : selectedPostId === 'sample'
+                      ? 'Publish Article Live'
+                      : 'Save & Publish Live'}
+                  </span>
                 </button>
+
+                <a
+                  href={`/blog/${selectedPost?.slug || 'nextjs-supabase-architecture-blueprint'}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-3 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs rounded-2xl border border-brand-200 transition flex items-center gap-1.5 shadow-2xs"
+                  title="Open live article on website in a new tab"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>View on Website</span>
+                </a>
 
                 <button
                   type="button"
@@ -1138,9 +1196,20 @@ export default function AdminVisualBuilderPage() {
 
           {/* Save Status / Error Notice */}
           {articleSavedSuccess && (
-            <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Article updated successfully in database and synced with Supabase cloud!</span>
+            <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>✓ Article published live to website and synced with Supabase cloud database!</span>
+              </div>
+              <a
+                href={`/blog/${selectedPost?.slug || 'nextjs-supabase-architecture-blueprint'}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto shadow-xs"
+              >
+                <span>View Live Article</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           )}
           {articleSaveError && (

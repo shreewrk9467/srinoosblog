@@ -20,44 +20,63 @@ body {
 /* Typography styles for blog article content */
 .prose-srinoos {
   font-size: 1.05rem;
-  line-height: 1.8;
+  line-height: 1.85;
   color: #334155;
 }
 
 .prose-srinoos h2 {
-  font-size: 1.65rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #0f172a;
-  margin-top: 2.25rem;
+  margin-top: 2.5rem;
   margin-bottom: 1rem;
   line-height: 1.3;
+  border-left: 4px solid #2563eb;
+  padding-left: 0.85rem;
 }
 
 .prose-srinoos h3 {
   font-size: 1.35rem;
   font-weight: 700;
   color: #1e293b;
-  margin-top: 1.75rem;
+  margin-top: 2rem;
   margin-bottom: 0.75rem;
   line-height: 1.4;
 }
 
 .prose-srinoos p {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.35rem;
+  line-height: 1.8;
 }
 
-.prose-srinoos ul, .prose-srinoos ol {
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
-  padding-left: 1.5rem;
+.prose-srinoos ul {
+  list-style-type: disc !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  padding-left: 1.75rem !important;
+}
+
+.prose-srinoos ol {
+  list-style-type: decimal !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  padding-left: 1.75rem !important;
 }
 
 .prose-srinoos li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.65rem;
+  color: #334155;
+  line-height: 1.75;
 }
 
 .prose-srinoos strong {
   color: #0f172a;
+  font-weight: 700;
+}
+
+.prose-srinoos em {
+  font-style: italic;
+  color: #475569;
 }
 
 .prose-srinoos code {
@@ -71,9 +90,38 @@ body {
 
 .prose-srinoos blockquote {
   border-left: 4px solid #2563eb;
-  padding-left: 1.25rem;
+  padding: 0.85rem 1.25rem;
   font-style: italic;
   color: #475569;
-  margin: 1.5rem 0;
+  background-color: #f8fafc;
+  border-radius: 0 0.75rem 0.75rem 0;
+  margin: 1.75rem 0;
+}
+
+/* Callout Box styling for AI-formatted takeaways, pro-tips & warnings */
+.prose-srinoos .callout-box,
+.callout-box {
+  margin: 1.75rem 0 !important;
+  padding: 1.25rem 1.5rem !important;
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(240, 249, 255, 0.95)) !important;
+  border-left: 4px solid #2563eb !important;
+  border-radius: 0 1rem 1rem 0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.85rem !important;
+}
+
+.callout-box strong {
+  display: block !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.callout-box p {
+  margin: 0 !important;
+  color: #334155 !important;
+  line-height: 1.6 !important;
 }
 

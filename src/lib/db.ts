@@ -1099,6 +1099,75 @@ export function getPostBySlug(slug: string): BlogPost | null {
   });
 }
 
+export async function getPostBySlugAsync(slug: string): Promise<BlogPost | null> {
+  try {
+    const { getSupabasePostBySlug } = await import('./supabase');
+    const remote = await getSupabasePostBySlug(slug);
+    if (remote) {
+      try {
+        const db = getDb();
+        const existing = db.prepare('SELECT id FROM blog_posts WHERE slug = ?').get(slug);
+        if (!existing) {
+          db.prepare(`
+            INSERT OR REPLACE INTO blog_posts (
+              id, title, slug, excerpt, content, featured_image, image_caption,
+              category_id, tags, status, is_featured, is_trending, reading_time_minutes,
+              meta_title, meta_description, focus_keyword, faq_schema, scheduled_at,
+              published_at, author_name, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            remote.id,
+            remote.title,
+            remote.slug,
+            remote.excerpt || '',
+            remote.content || '',
+            remote.featured_image || '',
+            remote.image_caption || '',
+            remote.category_id || 'cat-blogging-seo',
+            remote.tags || '',
+            remote.status || 'published',
+            remote.is_featured ? 1 : 0,
+            remote.is_trending ? 1 : 0,
+            remote.reading_time_minutes || 5,
+            remote.meta_title || remote.title,
+            remote.meta_description || remote.excerpt,
+            remote.focus_keyword || '',
+            typeof remote.faq_schema === 'string' ? remote.faq_schema : JSON.stringify(remote.faq_schema || []),
+            remote.scheduled_at || null,
+            remote.published_at || null,
+            remote.author_name || 'Srinoos Editorial Team',
+            remote.created_at || new Date().toISOString(),
+            remote.updated_at || new Date().toISOString()
+          );
+        } else {
+          db.prepare(`
+            UPDATE blog_posts SET
+              title = ?, excerpt = ?, content = ?, featured_image = ?,
+              status = ?, is_featured = ?, is_trending = ?, reading_time_minutes = ?,
+              meta_title = ?, meta_description = ?, updated_at = ?
+            WHERE slug = ?
+          `).run(
+            remote.title,
+            remote.excerpt,
+            remote.content,
+            remote.featured_image,
+            remote.status,
+            remote.is_featured ? 1 : 0,
+            remote.is_trending ? 1 : 0,
+            remote.reading_time_minutes,
+            remote.meta_title,
+            remote.meta_description,
+            remote.updated_at || new Date().toISOString(),
+            slug
+          );
+        }
+      } catch (err) {}
+      return remote;
+    }
+  } catch (err) {}
+  return getPostBySlug(slug);
+}
+
 export function getPostById(id: string): BlogPost | null {
   const db = getDb();
   const row = db.prepare(`
@@ -1114,6 +1183,49 @@ export function getPostById(id: string): BlogPost | null {
     is_featured: Boolean(row.is_featured),
     is_trending: Boolean(row.is_trending),
   });
+}
+
+export async function getPostByIdAsync(id: string): Promise<BlogPost | null> {
+  try {
+    const { getSupabasePostById } = await import('./supabase');
+    const remote = await getSupabasePostById(id);
+    if (remote) return remote;
+  } catch (err) {}
+  return getPostById(id);
+}
+
+export async function getAllPostsAsync(options: {
+  categoryId?: string;
+  categorySlug?: string;
+  status?: string;
+  search?: string;
+  limit?: number;
+} = {}): Promise<BlogPost[]> {
+  try {
+    const { getAllSupabasePosts } = await import('./supabase');
+    const remotePosts = await getAllSupabasePosts({
+      status: options.status,
+      categorySlug: options.categorySlug,
+      limit: options.limit,
+    });
+    if (remotePosts && remotePosts.length > 0) {
+      let filtered = remotePosts;
+      if (options.categoryId) {
+        filtered = filtered.filter((p) => p.category_id === options.categoryId);
+      }
+      if (options.search) {
+        const q = options.search.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.title.toLowerCase().includes(q) ||
+            p.excerpt.toLowerCase().includes(q) ||
+            p.tags?.toLowerCase().includes(q)
+        );
+      }
+      return filtered;
+    }
+  } catch (err) {}
+  return getAllPosts(options);
 }
 
 export function createPost(post: Partial<BlogPost>): BlogPost {
@@ -1163,12 +1275,42 @@ export function createPost(post: Partial<BlogPost>): BlogPost {
     now
   );
 
-  return getPostById(id)!;
+  const created = getPostById(id)!;
+
+  try {
+    import('./supabase').then(({ saveSupabasePost, isSupabaseConfigured }) => {
+      if (isSupabaseConfigured()) {
+        saveSupabasePost(created).catch((e) => console.warn('Supabase post sync notice:', e));
+      }
+    }).catch(() => {});
+  } catch {}
+
+  return created;
 }
 
 export function updatePost(id: string, post: Partial<BlogPost>): BlogPost | null {
   const db = getDb();
-  const existing = getPostById(id);
+  let existing = getPostById(id);
+
+  if (!existing) {
+    try {
+      db.prepare(`
+        INSERT INTO blog_posts (id, title, slug, excerpt, content, featured_image, category_id, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      `).run(
+        id,
+        post.title || 'Untitled',
+        post.slug || `post-${Date.now()}`,
+        post.excerpt || '',
+        post.content || '',
+        post.featured_image || '',
+        post.category_id || 'cat-blogging-seo',
+        post.status || 'published'
+      );
+      existing = getPostById(id);
+    } catch {}
+  }
+
   if (!existing) return null;
 
   const now = new Date().toISOString();
@@ -1219,7 +1361,18 @@ export function updatePost(id: string, post: Partial<BlogPost>): BlogPost | null
     id
   );
 
-  return getPostById(id);
+  const updated = getPostById(id);
+  if (updated) {
+    try {
+      import('./supabase').then(({ saveSupabasePost, isSupabaseConfigured }) => {
+        if (isSupabaseConfigured()) {
+          saveSupabasePost(updated).catch((e) => console.warn('Supabase post update sync notice:', e));
+        }
+      }).catch(() => {});
+    } catch {}
+  }
+
+  return updated;
 }
 
 export function deletePost(id: string): boolean {

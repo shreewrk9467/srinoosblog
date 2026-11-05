@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getAllPosts, createPost, getDailyPublishingProgress } from '@/lib/db';
+import { getAllPosts, getAllPostsAsync, createPost, getDailyPublishingProgress } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
-import { isSupabaseConfigured, getSupabaseClient } from '@/lib/supabase';
+import { isSupabaseConfigured, saveSupabasePost } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search') || undefined;
   const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
 
-  const posts = getAllPosts({
+  const posts = await getAllPostsAsync({
     status,
     categoryId,
     search,
@@ -59,26 +59,7 @@ export async function POST(request: NextRequest) {
     // Sync to Supabase if configured
     if (isSupabaseConfigured()) {
       try {
-        const client = getSupabaseClient();
-        if (client) {
-          await client.from('blog_posts').upsert({
-            id: newPost.id,
-            title: newPost.title,
-            slug: newPost.slug,
-            excerpt: newPost.excerpt,
-            content: newPost.content,
-            featured_image: newPost.featured_image,
-            category_id: newPost.category_id,
-            status: newPost.status,
-            is_featured: Boolean(newPost.is_featured),
-            is_trending: Boolean(newPost.is_trending),
-            reading_time_minutes: newPost.reading_time_minutes,
-            meta_title: newPost.meta_title,
-            meta_description: newPost.meta_description,
-            published_at: newPost.published_at,
-            author_name: newPost.author_name,
-          });
-        }
+        await saveSupabasePost(newPost);
       } catch (err) {
         console.warn('Supabase post sync notice:', err);
       }
@@ -88,8 +69,10 @@ export async function POST(request: NextRequest) {
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/blog');
+      revalidatePath(`/blog/${newPost.slug}`);
       revalidatePath('/blog/[slug]', 'page');
       revalidatePath('/admin/blogs');
+      revalidatePath('/admin/builder');
       revalidatePath('/admin/content');
     } catch {}
 

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getCategoryBySlug, getAllPosts, getWebsiteSettingsAsync } from '@/lib/db';
+import { getCategoryBySlug, getAllPosts, getAllPostsAsync, getWebsiteSettingsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { ChevronRight, Folder, HelpCircle, Sparkles, ArrowRight } from 'lucide-react';
@@ -35,8 +35,9 @@ export default async function CategoryArchivePage({ params }: CategoryPageProps)
   }
 
   const settings = await getWebsiteSettingsAsync();
-  const posts = getAllPosts({
+  const posts = await getAllPostsAsync({
     categoryId: category.id,
+    categorySlug: category.slug,
     status: 'published',
     limit: 30,
   });

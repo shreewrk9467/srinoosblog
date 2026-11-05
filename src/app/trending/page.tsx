@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts, getWebsiteSettingsAsync } from '@/lib/db';
+import { getAllPosts, getAllPostsAsync, getWebsiteSettingsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { TrendingUp, Flame, ArrowRight, HelpCircle, Sparkles } from 'lucide-react';
@@ -11,11 +11,10 @@ export const revalidate = 0;
 
 export default async function TrendingPage() {
   const settings = await getWebsiteSettingsAsync();
-  const trendingPosts = getAllPosts({
+  const trendingPosts = (await getAllPostsAsync({
     status: 'published',
-    isTrending: true,
     limit: 20,
-  });
+  })).filter((p) => p.is_trending);
 
   // Load visual builder layout (always synchronized with Builder studio)
   const activeSections = getPageSections('trending', settings).filter((sec: PageSection) => sec.enabled);

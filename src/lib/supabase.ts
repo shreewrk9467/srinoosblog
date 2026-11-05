@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { WebsiteSettings } from './types';
+import { WebsiteSettings, BlogPost } from './types';
 
 let cachedClient: SupabaseClient | null = null;
 let lastKnownUrl = '';
@@ -187,6 +187,164 @@ export async function testSupabaseConnection(
       message: 'Failed to reach Supabase server.',
       error: err.message,
     };
+  }
+}
+
+function formatCategoryName(slug?: string): string {
+  if (!slug) return 'Technology & AI';
+  return slug
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function mapSupabasePostToBlogPost(row: any): BlogPost {
+  const catSlug = row.category_slug || 'technology-and-ai';
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    excerpt: row.excerpt || '',
+    content: row.content || '',
+    featured_image: row.featured_image || '',
+    image_caption: row.image_caption || '',
+    category_id: row.category_id || `cat-${catSlug}`,
+    category_name: row.category_name || formatCategoryName(catSlug),
+    category_slug: catSlug,
+    tags: row.tags || '',
+    status: (row.status as any) || 'published',
+    is_featured: Boolean(row.is_featured),
+    is_trending: Boolean(row.is_trending),
+    reading_time_minutes: row.reading_time || row.reading_time_minutes || 5,
+    meta_title: row.seo_title || row.meta_title || row.title,
+    meta_description: row.seo_description || row.meta_description || row.excerpt || '',
+    focus_keyword: row.focus_keyword || '',
+    faq_schema: typeof row.faq_schema === 'string' ? row.faq_schema : JSON.stringify(row.faq_schema || []),
+    scheduled_at: row.scheduled_at || null,
+    published_at: row.published_at || row.created_at || row.updated_at || new Date().toISOString(),
+    author_name: row.author_name || 'Srinoos Editorial Team',
+    created_at: row.created_at || new Date().toISOString(),
+    updated_at: row.updated_at || new Date().toISOString(),
+  };
+}
+
+export async function getSupabasePostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    const { data, error } = await client
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return mapSupabasePostToBlogPost(data);
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function getSupabasePostById(id: string): Promise<BlogPost | null> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    const { data, error } = await client
+      .from('blog_posts')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return mapSupabasePostToBlogPost(data);
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function getAllSupabasePosts(options?: {
+  status?: string;
+  categorySlug?: string;
+  limit?: number;
+}): Promise<BlogPost[] | null> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    let query = client
+      .from('blog_posts')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (options?.status) {
+      query = query.eq('status', options.status);
+    }
+    if (options?.categorySlug) {
+      query = query.eq('category_slug', options.categorySlug);
+    }
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+
+    const { data, error } = await query;
+    if (error || !data || data.length === 0) return null;
+    return data.map(mapSupabasePostToBlogPost);
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function saveSupabasePost(post: Partial<BlogPost> & { id: string }): Promise<SupabaseSyncResult> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) {
+      return { success: false, error: 'Supabase client could not be initialized.' };
+    }
+
+    // Determine category_slug safely
+    let catSlug = post.category_slug;
+    if (!catSlug && post.category_id) {
+      catSlug = post.category_id.replace(/^cat-/, '');
+    }
+    if (!catSlug) catSlug = 'technology-and-ai';
+
+    const payload: any = {
+      id: post.id,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (post.slug !== undefined) payload.slug = post.slug;
+    if (post.title !== undefined) payload.title = post.title;
+    if (post.excerpt !== undefined) payload.excerpt = post.excerpt;
+    if (post.content !== undefined) payload.content = post.content;
+    if (post.featured_image !== undefined) payload.featured_image = post.featured_image;
+    payload.category_slug = catSlug;
+    if (post.author_name !== undefined) payload.author_name = post.author_name;
+    if (post.reading_time_minutes !== undefined) payload.reading_time = post.reading_time_minutes;
+    if (post.is_featured !== undefined) payload.is_featured = Boolean(post.is_featured);
+    if (post.is_trending !== undefined) payload.is_trending = Boolean(post.is_trending);
+    if (post.status !== undefined) payload.status = post.status;
+    if (post.meta_title !== undefined) payload.seo_title = post.meta_title;
+    if (post.meta_description !== undefined) payload.seo_description = post.meta_description;
+
+    const { error } = await client.from('blog_posts').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Exception during Supabase post save' };
+  }
+}
+
+export async function deleteSupabasePost(id: string): Promise<SupabaseSyncResult> {
+  try {
+    const client = getSupabaseClient();
+    if (!client) return { success: false, error: 'Supabase client unavailable' };
+    const { error } = await client.from('blog_posts').delete().eq('id', id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
   }
 }
 

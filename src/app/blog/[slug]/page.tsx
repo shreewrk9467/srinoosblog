@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getPostBySlug, getAllPosts, getWebsiteSettingsAsync, getAllAffiliates } from '@/lib/db';
+import { getPostBySlug, getPostBySlugAsync, getAllPosts, getAllPostsAsync, getWebsiteSettingsAsync, getAllAffiliates } from '@/lib/db';
 import AdUnit from '@/components/AdUnit';
 import BlogCard from '@/components/BlogCard';
 import ShareButtons from '@/components/ShareButtons';
@@ -31,7 +31,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const post = getPostBySlug(params.slug);
+  const post = (await getPostBySlugAsync(params.slug)) || getPostBySlug(params.slug);
   const settings = await getWebsiteSettingsAsync();
 
   if (!post) {
@@ -76,18 +76,18 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = getPostBySlug(params.slug);
+  const post = (await getPostBySlugAsync(params.slug)) || getPostBySlug(params.slug);
   if (!post) {
     notFound();
   }
 
   const settings = await getWebsiteSettingsAsync();
   const topOffers = getAllAffiliates({ is_active: true, limit: 3 });
-  const relatedPosts = getAllPosts({
+  const relatedPosts = (await getAllPostsAsync({
     categoryId: post.category_id,
     status: 'published',
     limit: 4,
-  }).filter((p) => p.id !== post.id).slice(0, 3);
+  })).filter((p) => p.id !== post.id).slice(0, 3);
 
   const formattedDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString('en-US', {

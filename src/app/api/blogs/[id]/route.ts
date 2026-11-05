@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getPostById, updatePost, deletePost } from '@/lib/db';
+import { getPostById, getPostByIdAsync, updatePost, deletePost } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
-import { isSupabaseConfigured, getSupabaseClient } from '@/lib/supabase';
+import { isSupabaseConfigured, saveSupabasePost, deleteSupabasePost } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +10,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const post = getPostById(params.id);
+  const post = (await getPostByIdAsync(params.id)) || getPostById(params.id);
   if (!post) {
     return NextResponse.json({ error: 'Post not found' }, { status: 404 });
   }
@@ -36,27 +36,7 @@ export async function PUT(
     // Sync to Supabase if configured
     if (isSupabaseConfigured()) {
       try {
-        const client = getSupabaseClient();
-        if (client) {
-          await client.from('blog_posts').upsert({
-            id: updated.id,
-            title: updated.title,
-            slug: updated.slug,
-            excerpt: updated.excerpt,
-            content: updated.content,
-            featured_image: updated.featured_image,
-            category_id: updated.category_id,
-            status: updated.status,
-            is_featured: Boolean(updated.is_featured),
-            is_trending: Boolean(updated.is_trending),
-            reading_time_minutes: updated.reading_time_minutes,
-            meta_title: updated.meta_title,
-            meta_description: updated.meta_description,
-            published_at: updated.published_at,
-            author_name: updated.author_name,
-            updated_at: new Date().toISOString(),
-          });
-        }
+        await saveSupabasePost(updated);
       } catch (err) {
         console.warn('Supabase post update sync notice:', err);
       }
@@ -65,8 +45,10 @@ export async function PUT(
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/blog');
+      revalidatePath(`/blog/${updated.slug}`);
       revalidatePath('/blog/[slug]', 'page');
       revalidatePath('/admin/blogs');
+      revalidatePath('/admin/builder');
       revalidatePath('/admin/content');
     } catch {}
 
@@ -94,10 +76,7 @@ export async function DELETE(
   // Sync deletion to Supabase if configured
   if (isSupabaseConfigured()) {
     try {
-      const client = getSupabaseClient();
-      if (client) {
-        await client.from('blog_posts').delete().eq('id', params.id);
-      }
+      await deleteSupabasePost(params.id);
     } catch (err) {
       console.warn('Supabase post delete sync notice:', err);
     }
@@ -106,8 +85,8 @@ export async function DELETE(
   try {
     revalidatePath('/', 'layout');
     revalidatePath('/blog');
-    revalidatePath('/blog/[slug]', 'page');
     revalidatePath('/admin/blogs');
+    revalidatePath('/admin/builder');
     revalidatePath('/admin/content');
   } catch {}
 

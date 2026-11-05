@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts } from '@/lib/db';
+import { getAllPosts, getAllPostsAsync } from '@/lib/db';
 import BlogCard from '@/components/BlogCard';
 import AdUnit from '@/components/AdUnit';
 import { Search, ArrowRight } from 'lucide-react';
@@ -13,10 +13,10 @@ interface SearchPageProps {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams.q || '';
   const posts = query
-    ? getAllPosts({
+    ? await getAllPostsAsync({
         status: 'published',
         search: query,
         limit: 30,
