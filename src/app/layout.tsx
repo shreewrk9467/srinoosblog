@@ -8,7 +8,7 @@ import AdminCornerBadge from '@/components/AdminCornerBadge';
 import { getAllCategories, getWebsiteSettingsAsync } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 
 function extractGoogleVerification(tag?: string): string {
   const fallback = 'uodEPcFClTUy1YlkAZF-QtHcAHBhYrkqXwyJmBq_D1I';

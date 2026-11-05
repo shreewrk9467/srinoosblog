@@ -30,6 +30,7 @@ export default function BlogCard({ post, variant = 'grid', className = '' }: Blo
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             loading="eager"
+            decoding="async"
           />
           {post.is_trending && (
             <span className="absolute top-4 left-4 bg-amber-500 text-slate-950 font-bold text-xs uppercase px-3 py-1 rounded-full shadow-md">
@@ -91,6 +92,7 @@ export default function BlogCard({ post, variant = 'grid', className = '' }: Blo
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
             loading="lazy"
+            decoding="async"
           />
         </div>
         <div className="flex-1 flex flex-col justify-between w-full">
@@ -139,6 +141,7 @@ export default function BlogCard({ post, variant = 'grid', className = '' }: Blo
           alt={post.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           loading="lazy"
+          decoding="async"
         />
         {post.category_slug && (
           <Link

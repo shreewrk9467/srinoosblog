@@ -24,9 +24,9 @@ export function getSupabaseCredentials(): { url: string; anonKey: string; secret
     (isServer && secret && !secret.includes('••') && !secret.includes('your_'))
       ? secret
       : (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-         process.env.SUPABASE_ANON_KEY ||
-         process.env.SUPABASE_PUBLISHABLE_KEY ||
-         '');
+        process.env.SUPABASE_ANON_KEY ||
+        process.env.SUPABASE_PUBLISHABLE_KEY ||
+        '');
 
   if (envUrl && envKey) {
     return {
@@ -48,15 +48,26 @@ export interface SupabaseSyncResult {
   tableMissing?: boolean;
 }
 
+export async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs = 2000): Promise<T> {
+  let timer: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Supabase request timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
 export async function getSupabaseWebsiteSettings(): Promise<Partial<WebsiteSettings> | null> {
   try {
     const client = getSupabaseClient();
     if (!client) return null;
-    const { data, error } = await client
-      .from('website_settings')
-      .select('value')
-      .eq('key', 'site_config')
-      .maybeSingle();
+    const { data, error } = await withTimeout(
+      client
+        .from('website_settings')
+        .select('value')
+        .eq('key', 'site_config')
+        .maybeSingle(),
+      1500
+    );
 
     if (error || !data || !data.value) return null;
     const val = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
@@ -232,11 +243,14 @@ export async function getSupabasePostBySlug(slug: string): Promise<BlogPost | nu
   try {
     const client = getSupabaseClient();
     if (!client) return null;
-    const { data, error } = await client
-      .from('blog_posts')
-      .select('*')
-      .eq('slug', slug)
-      .maybeSingle();
+    const { data, error } = await withTimeout(
+      client
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle(),
+      1800
+    );
 
     if (error || !data) return null;
     return mapSupabasePostToBlogPost(data);
@@ -249,11 +263,14 @@ export async function getSupabasePostById(id: string): Promise<BlogPost | null> 
   try {
     const client = getSupabaseClient();
     if (!client) return null;
-    const { data, error } = await client
-      .from('blog_posts')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
+    const { data, error } = await withTimeout(
+      client
+        .from('blog_posts')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle(),
+      1800
+    );
 
     if (error || !data) return null;
     return mapSupabasePostToBlogPost(data);
@@ -285,7 +302,7 @@ export async function getAllSupabasePosts(options?: {
       query = query.limit(options.limit);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await withTimeout(query, 2000);
     if (error || !data || data.length === 0) return null;
     return data.map(mapSupabasePostToBlogPost);
   } catch (e) {

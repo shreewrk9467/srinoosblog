@@ -28,7 +28,7 @@ interface BlogPostPageProps {
 }
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const post = (await getPostBySlugAsync(params.slug)) || getPostBySlug(params.slug);
@@ -272,6 +272,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 alt={post.title}
                 className="w-full h-full object-cover"
                 loading="eager"
+                decoding="async"
               />
             </div>
 
