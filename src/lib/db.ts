@@ -1127,64 +1127,6 @@ export async function getPostBySlugAsync(slug: string): Promise<BlogPost | null>
     const remote = await getSupabasePostBySlug(slug);
     if (remote) {
       postSlugMemoryCache.set(slug, { data: remote, expiresAt: now + CACHE_TTL_MS });
-      try {
-        const db = getDb();
-        const existing = db.prepare('SELECT id FROM blog_posts WHERE slug = ?').get(slug);
-        if (!existing) {
-          db.prepare(`
-            INSERT OR REPLACE INTO blog_posts (
-              id, title, slug, excerpt, content, featured_image, image_caption,
-              category_id, tags, status, is_featured, is_trending, reading_time_minutes,
-              meta_title, meta_description, focus_keyword, faq_schema, scheduled_at,
-              published_at, author_name, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `).run(
-            remote.id,
-            remote.title,
-            remote.slug,
-            remote.excerpt || '',
-            remote.content || '',
-            remote.featured_image || '',
-            remote.image_caption || '',
-            remote.category_id || 'cat-blogging-seo',
-            remote.tags || '',
-            remote.status || 'published',
-            remote.is_featured ? 1 : 0,
-            remote.is_trending ? 1 : 0,
-            remote.reading_time_minutes || 5,
-            remote.meta_title || remote.title,
-            remote.meta_description || remote.excerpt,
-            remote.focus_keyword || '',
-            typeof remote.faq_schema === 'string' ? remote.faq_schema : JSON.stringify(remote.faq_schema || []),
-            remote.scheduled_at || null,
-            remote.published_at || null,
-            remote.author_name || 'Srinoos Editorial Team',
-            remote.created_at || new Date().toISOString(),
-            remote.updated_at || new Date().toISOString()
-          );
-        } else {
-          db.prepare(`
-            UPDATE blog_posts SET
-              title = ?, excerpt = ?, content = ?, featured_image = ?,
-              status = ?, is_featured = ?, is_trending = ?, reading_time_minutes = ?,
-              meta_title = ?, meta_description = ?, updated_at = ?
-            WHERE slug = ?
-          `).run(
-            remote.title,
-            remote.excerpt,
-            remote.content,
-            remote.featured_image,
-            remote.status,
-            remote.is_featured ? 1 : 0,
-            remote.is_trending ? 1 : 0,
-            remote.reading_time_minutes,
-            remote.meta_title,
-            remote.meta_description,
-            remote.updated_at || new Date().toISOString(),
-            slug
-          );
-        }
-      } catch (err) {}
       return remote;
     }
   } catch (err) {}
@@ -2139,11 +2081,6 @@ export async function getWebsiteSettingsAsync(): Promise<WebsiteSettings> {
     if (remote && Object.keys(remote).length > 0) {
       const merged = { ...localSettings, ...remote };
       settingsMemoryCache = { data: toPlain(merged), expiresAt: now + CACHE_TTL_MS };
-      // Keep local SQLite in sync
-      try {
-        const db = getDb();
-        db.prepare('INSERT OR REPLACE INTO website_settings (key, value) VALUES (?, ?)').run('site_config', JSON.stringify(merged));
-      } catch {}
       return settingsMemoryCache.data;
     }
   } catch (err) {
