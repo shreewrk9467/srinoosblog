@@ -185,7 +185,7 @@ const REPOS: RepoTool[] = [
     quickCommands: [
       {
         label: 'Search Reddit Sentiment',
-        cmd: 'agent-reach search "best web hosting 2026 reddit" --platform reddit --limit 10',
+        cmd: 'agent-reach reddit search "best web hosting 2026 reddit" --limit 10',
         description: 'Extracts real user reviews and complaints to inform affiliate blog recommendations.',
       },
       {
@@ -869,7 +869,7 @@ export default function AdminToolsPage() {
                           <option value="youtube">YouTube (Video Transcripts)</option>
                           <option value="twitter">X / Twitter (Live Pulse)</option>
                           <option value="github">GitHub (Issues &amp; Discussions)</option>
-                          <option value="jina">Web / Docs (Jina Reader)</option>
+                          <option value="web">Web / Docs (Jina Reader &amp; Exa)</option>
                         </select>
                       </div>
 
@@ -892,13 +892,13 @@ export default function AdminToolsPage() {
                       <span className="text-[11px] font-bold text-slate-700 block">Generated Command to Run:</span>
                       <div className="bg-slate-900 text-emerald-400 p-3 rounded-xl font-mono text-xs flex items-center justify-between gap-2 border border-slate-800">
                         <span className="truncate">
-                          agent-reach search &quot;{agentReachTopic}&quot; --platform {agentReachPlatform} --limit {agentReachLimit}
+                          agent-reach {agentReachPlatform} search &quot;{agentReachTopic}&quot; --limit {agentReachLimit}
                         </span>
                         <button
                           onClick={() =>
                             handleCopy(
                               'agent-reach-gen',
-                              `agent-reach search "${agentReachTopic}" --platform ${agentReachPlatform} --limit ${agentReachLimit}`
+                              `agent-reach ${agentReachPlatform} search "${agentReachTopic}" --limit ${agentReachLimit}`
                             )
                           }
                           className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
